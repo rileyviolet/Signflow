@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Post Access & Pricing</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+.sidebar{width:210px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.post-nav{display:flex;align-items:center;gap:8px;padding:6px 14px;font-size:12px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.post-nav:hover{background:#f5f5f5}
+.post-nav.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.post-nav-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999;line-height:1.7}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:500}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.btn-green{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.btn-sm{padding:3px 10px;font-size:11px}
+.btn-danger{background:#FCEBEB;color:#791F1F;border-color:#F09595}
+
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.form-input{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.form-input:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+
+/* POST HEADER WITH DEFAULT PRICE */
+.post-header{padding:14px 20px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:14px;flex-shrink:0}
+.post-icon{width:42px;height:42px;border-radius:10px;background:#f5f5f3;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:0.5px solid rgba(0,0,0,.1)}
+.post-name-big{font-size:15px;font-weight:500;margin-bottom:2px}
+.default-price-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.default-price-label{font-size:12px;color:#555}
+.default-price-input{width:80px;padding:4px 8px;border:1.5px solid #185FA5;border-radius:6px;font-size:13px;font-weight:500;text-align:right;color:#185FA5;background:#E6F1FB}
+.default-price-input:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.default-note{font-size:11px;color:#999}
+
+/* BULK BAR */
+.bulk-bar{padding:10px 20px;background:#FAEEDA;border-bottom:0.5px solid #FAC775;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+.bulk-bar-label{font-size:12px;font-weight:500;color:#633806}
+
+/* FILTER */
+.filter-bar{padding:10px 20px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.filter-chip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,.15);color:#555}
+.filter-chip.active{background:#185FA5;color:#fff;border-color:#185FA5}
+
+/* STATS */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px 20px;flex-shrink:0}
+.stat-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;padding:10px 13px}
+.stat-label{font-size:10px;color:#999;margin-bottom:2px}
+.stat-val{font-size:19px;font-weight:500}
+
+/* TABLE */
+.office-table{width:100%;border-collapse:collapse}
+.office-table th{font-size:10px;font-weight:500;color:#999;text-align:left;padding:8px 14px;border-bottom:0.5px solid rgba(0,0,0,.1);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#fff;position:sticky;top:0;z-index:2}
+.office-table td{padding:10px 14px;font-size:13px;border-bottom:0.5px solid rgba(0,0,0,.07);vertical-align:middle}
+.office-table tbody tr:last-child td{border-bottom:none}
+.office-table tbody tr:hover td{background:#fafaf9}
+.office-table tbody tr.row-disabled td{opacity:.4}
+
+.office-avatar{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-invoice{background:#FAEEDA;color:#633806}
+.badge-auto{background:#EAF3DE;color:#27500A}
+.badge-paynow{background:#E6F1FB;color:#0C447C}
+
+/* PRICE CELL */
+.price-wrap{display:flex;flex-direction:column;gap:3px}
+.price-edit-row{display:flex;align-items:center;gap:5px}
+.price-edit{width:74px;padding:4px 8px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:13px;font-weight:500;background:#fff;color:#111;text-align:right}
+.price-edit:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.price-edit.custom-higher{border-color:#C0392B;color:#C0392B}
+.price-edit.custom-lower{border-color:#1D9E75;color:#1D9E75}
+.price-save-btn{padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;border:none;background:#185FA5;color:#fff}
+.price-save-btn:hover{background:#0C447C}
+.price-tag{font-size:10px;font-weight:500;padding:1px 6px;border-radius:10px;display:inline-block}
+.price-tag-discount{background:#E1F5EE;color:#085041}
+.price-tag-premium{background:#FCEBEB;color:#791F1F}
+.price-tag-default{background:#f0f0f0;color:#888}
+.price-tag-new{background:#E6F1FB;color:#0C447C}
+
+.toggle{width:30px;height:17px;border-radius:9px;background:rgba(0,0,0,.15);cursor:pointer;position:relative;flex-shrink:0}
+.toggle.on{background:#185FA5}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle.on::after{left:15px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Admin</div></div>
+    <div class="nav-label">Catalog</div>
+    <div class="nav-item active">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="1" x2="10" y2="1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="4" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Post access &amp; pricing
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V3a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Accessories
+    </div>
+    <div class="nav-label">Post types</div>
+    <div id="post-nav-list"></div>
+    <div class="sidebar-footer">
+      <div id="sf-post" style="font-weight:500;color:#111;font-size:12px;margin-bottom:2px"></div>
+      <div id="sf-enabled"></div>
+      <div id="sf-custom"></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Post access &amp; pricing</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="exportExcel()">Export to Excel</button>
+        <button class="btn btn-primary" onclick="enableAll()">Enable all offices</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- POST HEADER — default price lives here -->
+      <div class="post-header" id="post-header"></div>
+
+      <!-- BULK PRICE UPDATE -->
+      <div class="bulk-bar">
+        <span class="bulk-bar-label">Raise or set price:</span>
+        <span style="font-size:12px;color:#633806">$</span>
+        <input type="number" class="form-input" id="bulk-price" placeholder="49.00" style="width:80px;text-align:right" step="0.01" min="0">
+        <button class="btn btn-green btn-sm" onclick="applyBulk('enabled')">Apply to enabled offices</button>
+        <button class="btn btn-sm" onclick="applyBulk('all')">Apply to all offices</button>
+        <button class="btn btn-sm" onclick="resetAllToDefault()">Reset all to default</button>
+        <span style="font-size:11px;color:#854F0B;margin-left:4px">Custom prices are kept unless you reset.</span>
+      </div>
+
+      <!-- FILTER -->
+      <div class="filter-bar">
+        <input class="form-input" placeholder="Search office..." id="search-inp" oninput="renderTable()" style="width:210px">
+        <div class="filter-chip active" id="fc-all" onclick="setFilter('all')">All</div>
+        <div class="filter-chip" id="fc-enabled" onclick="setFilter('enabled')">Enabled</div>
+        <div class="filter-chip" id="fc-disabled" onclick="setFilter('disabled')">Disabled</div>
+        <div class="filter-chip" id="fc-custom" onclick="setFilter('custom')">Custom price</div>
+        <span style="margin-left:auto;font-size:12px;color:#999" id="count-label"></span>
+      </div>
+
+      <!-- STATS -->
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">Total offices</div><div class="stat-val" id="st-total">0</div></div>
+        <div class="stat-card"><div class="stat-label">Enabled</div><div class="stat-val" style="color:#3B6D11" id="st-enabled">0</div></div>
+        <div class="stat-card"><div class="stat-label">Custom price</div><div class="stat-val" style="color:#BA7517" id="st-custom">0</div></div>
+        <div class="stat-card"><div class="stat-label">Agents with access</div><div class="stat-val" style="color:#185FA5" id="st-agents">0</div></div>
+      </div>
+
+      <!-- TABLE -->
+      <div style="flex:1;overflow-y:auto;padding:0 20px 20px">
+        <table class="office-table">
+          <thead><tr>
+            <th>Office</th>
+            <th>Billing</th>
+            <th>Agents</th>
+            <th>Price <span style="font-weight:400;text-transform:none;letter-spacing:0" id="th-default-note"></span></th>
+            <th>Access</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="office-tbody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const POSTS=[
+  {id:1, name:'White Post',         color:'#bbb',    defaultPrice:49},
+  {id:2, name:'Black Post',         color:'#333',    defaultPrice:49},
+  {id:3, name:'Brown Post',         color:'#8B5E3C', defaultPrice:49},
+  {id:4, name:'Red Post',           color:'#C0392B', defaultPrice:55},
+  {id:5, name:'Blue Post',          color:'#2471A3', defaultPrice:49},
+  {id:6, name:'Teal Sign Post',     color:'#148F77', defaultPrice:68},
+  {id:7, name:'H-Post',             color:'#666',    defaultPrice:55},
+  {id:8, name:'Black Post — Luxury',color:'#222',    defaultPrice:49},
+  {id:9, name:'No Post — Gate/Wall',color:'#aaa',    defaultPrice:38},
+  {id:10,name:'Custom Subdivision', color:'#7D3C98', defaultPrice:75},
+];
+
+const OFFICES=[
+  {id:1,  name:'KW Tucson NW',           color:'#185FA5', agents:24,  billing:'auto'},
+  {id:2,  name:'RE/MAX Excalibur',        color:'#D85A30', agents:38,  billing:'invoice'},
+  {id:3,  name:'Coldwell Banker Realty',  color:'#1D9E75', agents:31,  billing:'invoice'},
+  {id:4,  name:'Long Realty Foothills',   color:'#7F77DD', agents:52,  billing:'invoice', volumeDiscount:true},
+  {id:5,  name:'Long Realty Gold Canyon', color:'#7F77DD', agents:19,  billing:'invoice', volumeDiscount:true},
+  {id:6,  name:'Long Realty Midtown',     color:'#7F77DD', agents:34,  billing:'invoice', volumeDiscount:true},
+  {id:7,  name:'Realty Executives AZ',    color:'#BA7517', agents:210, billing:'invoice'},
+  {id:8,  name:'Tierra Antigua Realty',   color:'#639922', agents:87,  billing:'invoice'},
+  {id:9,  name:'Homesmart Lifestyles',    color:'#D85A30', agents:45,  billing:'auto'},
+  {id:10, name:'Russ Lyon Sotheby\'s',    color:'#185FA5', agents:63,  billing:'invoice'},
+  {id:11, name:'Century 21 Elevated',     color:'#BA7517', agents:29,  billing:'pay-now'},
+  {id:12, name:'eXp Realty',             color:'#639922', agents:142, billing:'auto'},
+  {id:13, name:'Independent agents',      color:'#888',    agents:91,  billing:'pay-now'},
+];
+
+const BILLING_LABELS={'auto':'Auto pay','invoice':'Invoice','pay-now':'Pay now'};
+const BILLING_BADGE={'auto':'badge-auto','invoice':'badge-invoice','pay-now':'badge-paynow'};
+
+// Build access data — Long Realty gets $42 on white post and black luxury, everyone else gets default
+let ACCESS={};
+POSTS.forEach(p=>{
+  ACCESS[p.id]={};
+  OFFICES.forEach(o=>{
+    let price=p.defaultPrice;
+    // Long Realty volume discount on White Post (1) and Black Luxury (8)
+    if(o.volumeDiscount && (p.id===1||p.id===8)) price=42;
+    ACCESS[p.id][o.id]={
+      enabled:true,
+      price,
+      isNew:false // marks offices that just opened — gets default price automatically
+    };
+  });
+  // disable a couple for realism
+  ACCESS[p.id][11].enabled=false;
+});
+
+let selectedPostId=1;
+let tableFilter='all';
+
+function fmtMoney(n){return'$'+parseFloat(n).toFixed(2)}
+
+function getPost(){return POSTS.find(p=>p.id===selectedPostId)}
+
+function selectPost(id){
+  selectedPostId=id;
+  document.querySelectorAll('.post-nav').forEach(n=>n.classList.toggle('active',parseInt(n.dataset.id)===id));
+  renderPostHeader();
+  renderTable();
+  updateStats();
+}
+
+function renderNav(){
+  document.getElementById('post-nav-list').innerHTML=POSTS.map(p=>`
+    <div class="post-nav${p.id===selectedPostId?' active':''}" data-id="${p.id}" onclick="selectPost(${p.id})">
+      <div class="post-nav-dot" style="background:${p.color}"></div>
+      <span style="flex:1">${p.name}</span>
+      <span style="font-size:10px;color:#aaa">${fmtMoney(p.defaultPrice)}</span>
+    </div>`).join('');
+}
+
+function renderPostHeader(){
+  const p=getPost();
+  document.getElementById('page-title').textContent=p.name+' — access & pricing';
+  document.getElementById('post-header').innerHTML=`
+    <div class="post-icon">
+      <svg width="26" height="38" viewBox="0 0 26 38" fill="none">
+        <line x1="13" y1="2" x2="13" y2="36" stroke="${p.color}" stroke-width="3" stroke-linecap="round"/>
+        <line x1="9" y1="2" x2="17" y2="2" stroke="${p.color}" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="2" y="8" width="22" height="13" rx="1.5" fill="${p.color}" opacity=".2" stroke="${p.color}" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <div style="flex:1">
+      <div class="post-name-big">${p.name}</div>
+      <div class="default-price-row" style="margin-top:5px">
+        <span class="default-price-label">Default price for new offices:</span>
+        <input type="number" class="default-price-input" id="default-price-input" value="${p.defaultPrice.toFixed(2)}" step="0.01" min="0" onchange="updateDefaultPrice(this.value)">
+        <span class="default-note">New offices added automatically get this price. Existing custom prices are not affected.</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;align-items:center">
+      <button class="btn btn-sm btn-green" onclick="enableAll()">Enable all</button>
+      <button class="btn btn-sm btn-danger" onclick="disableAll()">Disable all</button>
+    </div>`;
+  document.getElementById('th-default-note').textContent='(default: '+fmtMoney(p.defaultPrice)+')';
+}
+
+function updateDefaultPrice(val){
+  const p=getPost();
+  p.defaultPrice=parseFloat(val)||p.defaultPrice;
+  renderNav();
+  renderPostHeader();
+  renderTable();
+}
+
+function getFiltered(){
+  const s=document.getElementById('search-inp').value.toLowerCase();
+  const p=getPost();
+  return OFFICES.filter(o=>{
+    const acc=ACCESS[selectedPostId][o.id];
+    if(tableFilter==='enabled'&&!acc.enabled) return false;
+    if(tableFilter==='disabled'&&acc.enabled) return false;
+    if(tableFilter==='custom'&&acc.price===p.defaultPrice) return false;
+    if(s&&!o.name.toLowerCase().includes(s)) return false;
+    return true;
+  });
+}
+
+function renderTable(){
+  const p=getPost();
+  const filtered=getFiltered();
+  document.getElementById('count-label').textContent=filtered.length+' office'+(filtered.length!==1?'s':'');
+  document.getElementById('office-tbody').innerHTML=filtered.map(o=>{
+    const acc=ACCESS[selectedPostId][o.id];
+    const isCustom=acc.price!==p.defaultPrice;
+    const isDiscount=acc.price<p.defaultPrice;
+    const isPremium=acc.price>p.defaultPrice;
+    const priceClass=isDiscount?'custom-lower':isPremium?'custom-higher':'';
+    let priceTag='';
+    if(isDiscount) priceTag=`<span class="price-tag price-tag-discount">Volume discount</span>`;
+    else if(isPremium) priceTag=`<span class="price-tag price-tag-premium">Premium +${fmtMoney(acc.price-p.defaultPrice)}</span>`;
+    else priceTag=`<span class="price-tag price-tag-default">Default</span>`;
+    return`<tr class="${!acc.enabled?'row-disabled':''}">
+      <td>
+        <div style="display:flex;align-items:center;gap:9px">
+          <div class="office-avatar" style="background:${o.color}">${o.name.split(' ').slice(0,2).map(w=>w[0]).join('')}</div>
+          <div>
+            <div style="font-size:13px;font-weight:500">${o.name}${o.volumeDiscount?'<span style="margin-left:6px;font-size:10px;background:#E1F5EE;color:#085041;padding:1px 6px;border-radius:10px;font-weight:500">Volume</span>':''}</div>
+            <div style="font-size:11px;color:#999">${o.agents} agent${o.agents!==1?'s':''}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge ${BILLING_BADGE[o.billing]}">${BILLING_LABELS[o.billing]}</span></td>
+      <td style="color:#555">${o.agents}</td>
+      <td>
+        <div class="price-wrap">
+          <div class="price-edit-row">
+            <span style="font-size:12px;color:#555">$</span>
+            <input type="number" class="price-edit ${priceClass}" id="pr-${o.id}"
+              value="${parseFloat(acc.price).toFixed(2)}" step="0.01" min="0"
+              onkeydown="if(event.key==='Enter')savePrice(${o.id})">
+            <button class="price-save-btn" onclick="savePrice(${o.id})">Save</button>
+          </div>
+          ${priceTag}
+        </div>
+      </td>
+      <td><div class="toggle${acc.enabled?' on':''}" onclick="toggleAccess(${o.id})"></div></td>
+      <td>
+        ${isCustom?`<button class="btn btn-sm" onclick="resetOne(${o.id})" title="Reset to default ${fmtMoney(p.defaultPrice)}">Reset to default</button>`:''}
+      </td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="6" style="padding:24px;text-align:center;color:#999;font-size:13px">No offices match this filter.</td></tr>`;
+}
+
+function savePrice(officeId){
+  const val=parseFloat(document.getElementById('pr-'+officeId).value)||0;
+  ACCESS[selectedPostId][officeId].price=val;
+  renderTable();updateStats();
+}
+
+function resetOne(officeId){
+  ACCESS[selectedPostId][officeId].price=getPost().defaultPrice;
+  renderTable();updateStats();
+}
+
+function toggleAccess(officeId){
+  ACCESS[selectedPostId][officeId].enabled=!ACCESS[selectedPostId][officeId].enabled;
+  renderTable();updateStats();
+}
+
+function applyBulk(scope){
+  const val=parseFloat(document.getElementById('bulk-price').value);
+  if(!val||val<0){alert('Enter a valid price first.');return;}
+  OFFICES.forEach(o=>{
+    const acc=ACCESS[selectedPostId][o.id];
+    if(scope==='all'||(scope==='enabled'&&acc.enabled)){
+      // Only update if not a volume-discounted office, unless explicitly applying to all
+      if(scope==='all'||!o.volumeDiscount){
+        acc.price=val;
+      }
+    }
+  });
+  document.getElementById('bulk-price').value='';
+  renderTable();updateStats();
+  const affected=OFFICES.filter(o=>scope==='all'||(scope==='enabled'&&ACCESS[selectedPostId][o.id].enabled&&!o.volumeDiscount)).length;
+  alert(`Updated to ${fmtMoney(val)} for ${affected} office${affected!==1?'s':''}.\nVolume-discounted offices (Long Realty) were skipped — reset them individually if needed.`);
+}
+
+function resetAllToDefault(){
+  if(!confirm('Reset all offices to the default price? Custom prices including volume discounts will be cleared.'))return;
+  const def=getPost().defaultPrice;
+  OFFICES.forEach(o=>ACCESS[selectedPostId][o.id].price=def);
+  renderTable();updateStats();
+}
+
+function enableAll(){
+  OFFICES.forEach(o=>ACCESS[selectedPostId][o.id].enabled=true);
+  renderTable();updateStats();
+}
+
+function disableAll(){
+  if(!confirm('Disable this post type for all offices?'))return;
+  OFFICES.forEach(o=>ACCESS[selectedPostId][o.id].enabled=false);
+  renderTable();updateStats();
+}
+
+function setFilter(f){
+  tableFilter=f;
+  ['all','enabled','disabled','custom'].forEach(v=>document.getElementById('fc-'+v).classList.toggle('active',v===f));
+  renderTable();
+}
+
+function updateStats(){
+  const enabled=OFFICES.filter(o=>ACCESS[selectedPostId][o.id].enabled);
+  const custom=OFFICES.filter(o=>ACCESS[selectedPostId][o.id].price!==getPost().defaultPrice);
+  document.getElementById('st-total').textContent=OFFICES.length;
+  document.getElementById('st-enabled').textContent=enabled.length;
+  document.getElementById('st-custom').textContent=custom.length;
+  document.getElementById('st-agents').textContent=enabled.reduce((s,o)=>s+o.agents,0).toLocaleString();
+  document.getElementById('sf-post').textContent=getPost().name;
+  document.getElementById('sf-enabled').textContent=enabled.length+' of '+OFFICES.length+' offices enabled';
+  document.getElementById('sf-custom').textContent=custom.length+' custom price'+(custom.length!==1?'s':'');
+}
+
+function exportExcel(){alert('Exporting pricing to Excel...');}
+
+renderNav();
+renderPostHeader();
+renderTable();
+updateStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Posts & Accessories</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+.sidebar{width:210px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5;color:#111}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.btn-danger{background:#FCEBEB;color:#791F1F;border-color:#F09595}
+.btn-sm{padding:3px 10px;font-size:11px}
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.panel{display:none;flex:1;flex-direction:column;overflow:hidden}
+.panel.active{display:flex}
+.filter-bar{padding:10px 20px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.form-input{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.form-input:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.form-select{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.scroll{flex:1;overflow-y:auto;padding:16px 20px}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 20px;flex-shrink:0}
+.stat-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;padding:11px 14px}
+.stat-label{font-size:10px;color:#999;margin-bottom:3px}
+.stat-val{font-size:20px;font-weight:500}
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.item-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.item-card:hover{border-color:rgba(0,0,0,.25)}
+.item-card.selected{border:2px solid #185FA5}
+.item-card.disabled{opacity:.5}
+.item-img{width:100%;aspect-ratio:4/3;background:#f5f5f3;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.item-img img{width:100%;height:100%;object-fit:contain}
+.item-img-placeholder{display:flex;flex-direction:column;align-items:center;gap:5px;color:#ccc}
+.item-enabled-dot{position:absolute;top:8px;right:8px;width:10px;height:10px;border-radius:50%;border:1.5px solid #fff}
+.item-body{padding:10px 12px}
+.item-name{font-size:13px;font-weight:500;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-price{font-size:13px;font-weight:500;color:#185FA5}
+.item-meta{font-size:11px;color:#999;margin-top:2px}
+.item-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:0.5px solid rgba(0,0,0,.07);background:#fafaf9}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
+.badge-enabled{background:#EAF3DE;color:#27500A}
+.badge-disabled{background:#F1EFE8;color:#5F5E5A}
+.badge-tax{background:#E6F1FB;color:#0C447C}
+.drawer{width:300px;background:#fff;border-left:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.drawer.closed{width:0;overflow:hidden;border:none}
+.drawer-header{padding:12px 16px;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-body{flex:1;overflow-y:auto;padding:16px}
+.drawer-img{width:100%;aspect-ratio:4/3;background:#f5f5f3;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:0.5px solid rgba(0,0,0,.1);cursor:pointer}
+.drawer-img img{width:100%;height:100%;object-fit:contain}
+.dp-section{margin-bottom:14px;padding-bottom:14px;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.dp-section:last-child{border-bottom:none;margin-bottom:0}
+.dp-section-title{font-size:10px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.dp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.dp-key{font-size:12px;color:#555}
+.dp-val{font-size:12px;font-weight:500}
+.dp-actions{display:flex;flex-direction:column;gap:7px}
+.form-label{font-size:11px;font-weight:500;color:#555;display:block;margin-bottom:4px}
+.form-input-full{width:100%;padding:7px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;background:#fff;color:#111;margin-bottom:10px}
+.form-input-full:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.toggle{width:32px;height:18px;border-radius:9px;background:rgba(0,0,0,.15);cursor:pointer;position:relative;flex-shrink:0;transition:background .15s}
+.toggle.on{background:#185FA5}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle.on::after{left:16px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.upload-area{border:1.5px dashed rgba(0,0,0,.2);border-radius:8px;padding:14px;text-align:center;cursor:pointer;margin-bottom:10px}
+.upload-area:hover{background:#f5f5f5}
+.modal-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;border:0.5px solid rgba(0,0,0,.1);width:440px;max-height:90%;overflow-y:auto}
+.modal-header{padding:14px 18px;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:500}
+.modal-body{padding:18px}
+.modal-footer{padding:12px 18px;border-top:0.5px solid rgba(0,0,0,.1);display:flex;gap:8px;justify-content:flex-end}
+.filter-chip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,.15);color:#555}
+.filter-chip.active{background:#185FA5;color:#fff;border-color:#185FA5}
+</style>
+</head>
+<body>
+<div class="app" style="position:relative">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Admin</div></div>
+    <div class="nav-label">Catalog</div>
+    <div class="nav-item active" id="nav-posts" onclick="showPanel('posts')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="1" x2="10" y2="1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="4" width="8" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Post types
+    </div>
+    <div class="nav-item" id="nav-acc" onclick="showPanel('acc')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V3a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Accessories
+    </div>
+    <div class="nav-label">Other</div>
+    <div class="nav-item"><div class="dot" style="background:#185FA5"></div>Sign panels</div>
+    <div class="nav-item"><div class="dot" style="background:#1D9E75"></div>Sign library</div>
+    <div class="nav-item"><div class="dot" style="background:#BA7517"></div>Pricing</div>
+    <div class="sidebar-footer" id="sidebar-footer">Loading...</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Post types</div>
+      <div class="topbar-right" id="topbar-actions">
+        <button class="btn" onclick="exportExcel()">Export to Excel</button>
+        <button class="btn" onclick="importExcel()">Import from Excel</button>
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add post type</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- POSTS PANEL -->
+      <div class="panel active" id="panel-posts">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-label">Total post types</div><div class="stat-val" id="st-posts-total">0</div></div>
+          <div class="stat-card"><div class="stat-label">Enabled</div><div class="stat-val" style="color:#3B6D11" id="st-posts-enabled">0</div></div>
+          <div class="stat-card"><div class="stat-label">Disabled</div><div class="stat-val" style="color:#888" id="st-posts-disabled">0</div></div>
+        </div>
+        <div class="filter-bar">
+          <input class="form-input" placeholder="Search post types..." id="post-search" oninput="renderPosts()" style="width:200px">
+          <div class="filter-chip active" id="pf-all" onclick="setPostFilter('all')">All</div>
+          <div class="filter-chip" id="pf-enabled" onclick="setPostFilter('enabled')">Enabled</div>
+          <div class="filter-chip" id="pf-disabled" onclick="setPostFilter('disabled')">Disabled</div>
+          <span style="margin-left:auto;font-size:12px;color:#999" id="post-count"></span>
+        </div>
+        <div style="flex:1;overflow:hidden;display:flex">
+          <div class="scroll" style="flex:1">
+            <div class="item-grid" id="post-grid"></div>
+          </div>
+          <div class="drawer closed" id="post-drawer">
+            <div class="drawer-header">
+              <span style="font-size:13px;font-weight:500" id="post-drawer-title">Post detail</span>
+              <button class="btn btn-sm" onclick="closeDrawer('post')">Close</button>
+            </div>
+            <div class="drawer-body" id="post-drawer-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCESSORIES PANEL -->
+      <div class="panel" id="panel-acc">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-label">Total accessories</div><div class="stat-val" id="st-acc-total">0</div></div>
+          <div class="stat-card"><div class="stat-label">Enabled</div><div class="stat-val" style="color:#3B6D11" id="st-acc-enabled">0</div></div>
+          <div class="stat-card"><div class="stat-label">Disabled</div><div class="stat-val" style="color:#888" id="st-acc-disabled">0</div></div>
+        </div>
+        <div class="filter-bar">
+          <input class="form-input" placeholder="Search accessories..." id="acc-search" oninput="renderAcc()" style="width:200px">
+          <div class="filter-chip active" id="af-all" onclick="setAccFilter('all')">All</div>
+          <div class="filter-chip" id="af-enabled" onclick="setAccFilter('enabled')">Enabled</div>
+          <div class="filter-chip" id="af-disabled" onclick="setAccFilter('disabled')">Disabled</div>
+          <span style="margin-left:auto;font-size:12px;color:#999" id="acc-count"></span>
+        </div>
+        <div style="flex:1;overflow:hidden;display:flex">
+          <div class="scroll" style="flex:1">
+            <div class="item-grid" id="acc-grid"></div>
+          </div>
+          <div class="drawer closed" id="acc-drawer">
+            <div class="drawer-header">
+              <span style="font-size:13px;font-weight:500" id="acc-drawer-title">Accessory detail</span>
+              <button class="btn btn-sm" onclick="closeDrawer('acc')">Close</button>
+            </div>
+            <div class="drawer-body" id="acc-drawer-body"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADD MODAL -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <span id="modal-title">Add post type</span>
+        <button class="btn btn-sm" onclick="closeModal()">Cancel</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input class="form-input-full" id="m-name" placeholder="e.g. White Post">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Install price ($)</label>
+          <input class="form-input-full" type="number" id="m-price" placeholder="42.00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes <span style="font-weight:400;color:#999">(optional)</span></label>
+          <input class="form-input-full" id="m-note" placeholder="e.g. For luxury signs only, HOA required, etc.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Upload image (.bmp, .jpg, .png)</label>
+          <div class="upload-area" onclick="document.getElementById('m-file').click()">
+            <div style="font-size:20px;color:#ccc;margin-bottom:5px">+</div>
+            <div style="font-size:12px;font-weight:500;margin-bottom:2px">Click to upload image</div>
+            <div style="font-size:11px;color:#999">.bmp · .jpg · .png</div>
+          </div>
+          <input type="file" id="m-file" accept=".bmp,.jpg,.jpeg,.png" style="display:none" onchange="previewModalImg(event)">
+          <div id="m-preview"></div>
+        </div>
+        <div style="padding:12px;background:#f5f5f3;border-radius:8px">
+          <div class="toggle-row"><span style="font-size:12px">Taxable</span><div class="toggle" id="m-tax" onclick="this.classList.toggle('on')"></div></div>
+          <div class="toggle-row" style="margin-bottom:0"><span style="font-size:12px">Enabled</span><div class="toggle on" id="m-enabled" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="modal-save-btn" onclick="saveItem()">Save</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let POSTS=[
+  {id:1,name:'White Post',          price:42, tax:true,  enabled:true,  note:'Standard residential post',       img:null},
+  {id:2,name:'Black Post',          price:49, tax:true,  enabled:true,  note:'',                                img:null},
+  {id:3,name:'Brown Post',          price:49, tax:true,  enabled:true,  note:'',                                img:null},
+  {id:4,name:'Red Post',            price:49, tax:true,  enabled:true,  note:'',                                img:null},
+  {id:5,name:'Blue Post',           price:49, tax:true,  enabled:true,  note:'',                                img:null},
+  {id:6,name:'Teal Sign Post',      price:68, tax:true,  enabled:true,  note:'',                                img:null},
+  {id:7,name:'H-Post',              price:55, tax:false, enabled:true,  note:'For larger commercial signs',     img:null},
+  {id:8,name:'Black Post — Luxury', price:46, tax:false, enabled:true,  note:'For luxury signs only',          img:null},
+  {id:9,name:'No Post — Gate/Wall', price:38, tax:false, enabled:true,  note:'Attach sign only, no post needed',img:null},
+  {id:10,name:'Custom Subdivision', price:75, tax:false, enabled:true,  note:'HOA/subdivision specific',        img:null},
+  {id:11,name:'Commercial',         price:0,  tax:false, enabled:true,  note:'Commercial properties',           img:null},
+  {id:12,name:'Used Post',          price:47, tax:false, enabled:false, note:'Refurbished post',                img:null},
+];
+
+let ACCESSORIES=[
+  {id:1, name:'Coming Soon Rider',       price:19.68,tax:true, enabled:true, note:'Long Realty branded',    img:null},
+  {id:2, name:'Smart Move Rider',        price:30.43,tax:false,enabled:true, note:'Long Realty branded',    img:null},
+  {id:3, name:'Info Pak',                price:12.86,tax:false,enabled:true, note:'',                       img:null},
+  {id:4, name:'3 Bedroom Rider',         price:8.60, tax:true, enabled:true, note:'',                       img:null},
+  {id:5, name:'4 Bedroom Rider',         price:8.60, tax:true, enabled:true, note:'',                       img:null},
+  {id:6, name:'Pool Rider',              price:8.60, tax:true, enabled:true, note:'',                       img:null},
+  {id:7, name:'Pool/Spa Rider',          price:8.60, tax:true, enabled:true, note:'',                       img:null},
+  {id:8, name:'For Rent Rider',          price:8.60, tax:true, enabled:true, note:'',                       img:null},
+  {id:9, name:'By Appointment Only',     price:8.60, tax:true, enabled:true, note:'',                       img:null},
+  {id:10,name:'Do Not Disturb Tenant',   price:8.60, tax:true, enabled:true, note:'',                       img:null},
+  {id:11,name:"I'm Gorgeous Inside",     price:8.60, tax:true, enabled:true, note:'',                       img:null},
+  {id:12,name:'Open House Rider',        price:25.00,tax:true, enabled:true, note:'',                       img:null},
+  {id:13,name:'Directional Arrow',       price:12.00,tax:false,enabled:true, note:'',                       img:null},
+  {id:14,name:'Lockbox Hanger',          price:10.00,tax:false,enabled:true, note:'',                       img:null},
+  {id:15,name:'Coming Soon — Generic',   price:8.60, tax:true, enabled:false,note:'Being phased out',       img:null},
+];
+
+let postFilter='all';
+let accFilter='all';
+let selectedPost=null;
+let selectedAcc=null;
+let currentPanel='posts';
+let nextPostId=20;
+let nextAccId=20;
+let modalMode='post';
+let editingId=null;
+
+function fmtMoney(n){return n===0?'Free':'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function showPanel(id){
+  ['posts','acc'].forEach(p=>{
+    document.getElementById('panel-'+p).classList.toggle('active',p===id);
+    document.getElementById('nav-'+p).classList.toggle('active',p===id);
+  });
+  currentPanel=id;
+  const titles={posts:'Post types',acc:'Accessories'};
+  document.getElementById('page-title').textContent=titles[id];
+  document.getElementById('topbar-actions').innerHTML=`
+    <button class="btn" onclick="exportExcel()">Export to Excel</button>
+    <button class="btn" onclick="importExcel()">Import from Excel</button>
+    <button class="btn btn-primary" onclick="openAddModal()">+ Add ${id==='posts'?'post type':'accessory'}</button>`;
+  if(id==='posts') renderPosts();
+  else renderAcc();
+}
+
+function getFilteredPosts(){
+  const s=document.getElementById('post-search').value.toLowerCase();
+  return POSTS.filter(p=>{
+    if(postFilter==='enabled'&&!p.enabled)return false;
+    if(postFilter==='disabled'&&p.enabled)return false;
+    if(s&&!p.name.toLowerCase().includes(s))return false;
+    return true;
+  });
+}
+
+function getFilteredAcc(){
+  const s=document.getElementById('acc-search').value.toLowerCase();
+  return ACCESSORIES.filter(a=>{
+    if(accFilter==='enabled'&&!a.enabled)return false;
+    if(accFilter==='disabled'&&a.enabled)return false;
+    if(s&&!a.name.toLowerCase().includes(s))return false;
+    return true;
+  });
+}
+
+function renderPosts(){
+  const filtered=getFilteredPosts();
+  document.getElementById('post-count').textContent=filtered.length+' post type'+(filtered.length!==1?'s':'');
+  document.getElementById('st-posts-total').textContent=POSTS.length;
+  document.getElementById('st-posts-enabled').textContent=POSTS.filter(p=>p.enabled).length;
+  document.getElementById('st-posts-disabled').textContent=POSTS.filter(p=>!p.enabled).length;
+  document.getElementById('sidebar-footer').textContent=POSTS.length+' posts · '+ACCESSORIES.length+' accessories';
+  document.getElementById('post-grid').innerHTML=filtered.map(p=>itemCard(p,'post')).join('');
+}
+
+function renderAcc(){
+  const filtered=getFilteredAcc();
+  document.getElementById('acc-count').textContent=filtered.length+' accessor'+(filtered.length===1?'y':'ies');
+  document.getElementById('st-acc-total').textContent=ACCESSORIES.length;
+  document.getElementById('st-acc-enabled').textContent=ACCESSORIES.filter(a=>a.enabled).length;
+  document.getElementById('st-acc-disabled').textContent=ACCESSORIES.filter(a=>!a.enabled).length;
+  document.getElementById('sidebar-footer').textContent=POSTS.length+' posts · '+ACCESSORIES.length+' accessories';
+  document.getElementById('acc-grid').innerHTML=filtered.map(a=>itemCard(a,'acc')).join('');
+}
+
+function itemCard(item,type){
+  const sel=(type==='post'?selectedPost:selectedAcc)===item.id;
+  const dotColor=item.enabled?'#639922':'#888780';
+  const imgHtml=item.img
+    ?`<img src="${item.img}" alt="${item.name}">`
+    :`<div class="item-img-placeholder"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><line x1="14" y1="2" x2="14" y2="26" stroke="#ddd" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="2" x2="18" y2="2" stroke="#ddd" stroke-width="2" stroke-linecap="round"/><rect x="7" y="6" width="14" height="10" rx="1.5" stroke="#ddd" stroke-width="1.5"/></svg><span style="font-size:10px;margin-top:4px;color:#ccc">No image</span></div>`;
+  return`<div class="item-card${sel?' selected':''}${!item.enabled?' disabled':''}" onclick="openDetail(${item.id},'${type}')">
+    <div class="item-img">
+      ${imgHtml}
+      <div class="item-enabled-dot" style="background:${dotColor}"></div>
+    </div>
+    <div class="item-body">
+      <div class="item-name" title="${item.name}">${item.name}</div>
+      <div class="item-price">${fmtMoney(item.price)}</div>
+      <div class="item-meta">${item.note||'&nbsp;'}</div>
+    </div>
+    <div class="item-footer">
+      <span class="badge ${item.enabled?'badge-enabled':'badge-disabled'}">${item.enabled?'Enabled':'Disabled'}</span>
+      ${item.tax?'<span class="badge badge-tax">Tax</span>':''}
+    </div>
+  </div>`;
+}
+
+function openDetail(id,type){
+  const items=type==='post'?POSTS:ACCESSORIES;
+  const item=items.find(x=>x.id===id);
+  if(!item)return;
+  if(type==='post') selectedPost=id; else selectedAcc=id;
+  const drawerId=type+'-drawer';
+  const bodyId=type+'-drawer-body';
+  const titleId=type+'-drawer-title';
+  document.getElementById(drawerId).classList.remove('closed');
+  document.getElementById(titleId).textContent=item.name;
+  const imgBlock=item.img
+    ?`<div class="drawer-img" onclick="triggerUpload(${id},'${type}')" title="Click to replace image"><img src="${item.img}"></div>`
+    :`<div class="drawer-img" onclick="triggerUpload(${id},'${type}')" title="Click to upload image" style="flex-direction:column;gap:6px">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><line x1="16" y1="3" x2="16" y2="29" stroke="#ddd" stroke-width="2.5" stroke-linecap="round"/><line x1="11" y1="3" x2="21" y2="3" stroke="#ddd" stroke-width="2.5" stroke-linecap="round"/><rect x="6" y="8" width="20" height="13" rx="2" stroke="#ddd" stroke-width="1.8"/></svg>
+        <span style="font-size:11px;color:#bbb">Click to upload image</span>
+      </div>`;
+  document.getElementById(bodyId).innerHTML=`
+    ${imgBlock}
+    <input type="file" id="up-${type}-${id}" accept=".bmp,.jpg,.jpeg,.png" style="display:none" onchange="handleUpload(event,${id},'${type}')">
+    <div class="dp-section">
+      <div class="dp-section-title">Details</div>
+      <div class="dp-row"><span class="dp-key">Name</span><span class="dp-val" style="text-align:right;max-width:160px;font-size:12px">${item.name}</span></div>
+      <div class="dp-row"><span class="dp-key">Price</span><span class="dp-val">${fmtMoney(item.price)}</span></div>
+      <div class="dp-row"><span class="dp-key">Tax</span><span class="dp-val">${item.tax?'Yes':'No'}</span></div>
+      ${item.note?`<div class="dp-row"><span class="dp-key">Note</span><span class="dp-val" style="font-size:11px;text-align:right;max-width:160px;color:#777">${item.note}</span></div>`:''}
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Status</div>
+      <div class="toggle-row"><span style="font-size:12px">Enabled</span><div class="toggle${item.enabled?' on':''}" onclick="toggleEnabled(${id},'${type}',this)"></div></div>
+      <div class="toggle-row" style="margin-bottom:0"><span style="font-size:12px">Taxable</span><div class="toggle${item.tax?' on':''}" onclick="toggleTax(${id},'${type}',this)"></div></div>
+    </div>
+    <div class="dp-section">
+      <div class="dp-section-title">Actions</div>
+      <div class="dp-actions">
+        <button class="btn" style="font-size:12px;text-align:left" onclick="triggerUpload(${id},'${type}')">Upload / replace image</button>
+        <button class="btn" style="font-size:12px;text-align:left" onclick="editItem(${id},'${type}')">Edit name &amp; price</button>
+        <button class="btn btn-danger" style="font-size:12px;text-align:left" onclick="deleteItem(${id},'${type}')">Delete</button>
+      </div>
+    </div>`;
+  if(type==='post') renderPosts(); else renderAcc();
+}
+
+function triggerUpload(id,type){document.getElementById('up-'+type+'-'+id).click();}
+
+function handleUpload(e,id,type){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const items=type==='post'?POSTS:ACCESSORIES;
+    items.find(x=>x.id===id).img=ev.target.result;
+    openDetail(id,type);
+    if(type==='post') renderPosts(); else renderAcc();
+  };
+  reader.readAsDataURL(file);
+}
+
+function toggleEnabled(id,type,el){
+  el.classList.toggle('on');
+  const items=type==='post'?POSTS:ACCESSORIES;
+  items.find(x=>x.id===id).enabled=el.classList.contains('on');
+  if(type==='post') renderPosts(); else renderAcc();
+}
+
+function toggleTax(id,type,el){
+  el.classList.toggle('on');
+  const items=type==='post'?POSTS:ACCESSORIES;
+  items.find(x=>x.id===id).tax=el.classList.contains('on');
+}
+
+function editItem(id,type){
+  modalMode=type;
+  editingId=id;
+  const items=type==='post'?POSTS:ACCESSORIES;
+  const item=items.find(x=>x.id===id);
+  document.getElementById('modal-title').textContent='Edit '+(type==='post'?'post type':'accessory');
+  document.getElementById('m-name').value=item.name;
+  document.getElementById('m-price').value=item.price;
+  document.getElementById('m-note').value=item.note||'';
+  document.getElementById('m-preview').innerHTML=item.img?`<img src="${item.img}" style="width:100%;border-radius:8px;max-height:100px;object-fit:contain;border:0.5px solid rgba(0,0,0,.1)">` :'';
+  document.getElementById('m-tax').classList.toggle('on',item.tax);
+  document.getElementById('m-enabled').classList.toggle('on',item.enabled);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function deleteItem(id,type){
+  const items=type==='post'?POSTS:ACCESSORIES;
+  const item=items.find(x=>x.id===id);
+  if(!confirm('Delete "'+item.name+'"? This cannot be undone.'))return;
+  if(type==='post'){POSTS=POSTS.filter(p=>p.id!==id);selectedPost=null;document.getElementById('post-drawer').classList.add('closed');renderPosts();}
+  else{ACCESSORIES=ACCESSORIES.filter(a=>a.id!==id);selectedAcc=null;document.getElementById('acc-drawer').classList.add('closed');renderAcc();}
+}
+
+function closeDrawer(type){
+  if(type==='post'){selectedPost=null;document.getElementById('post-drawer').classList.add('closed');renderPosts();}
+  else{selectedAcc=null;document.getElementById('acc-drawer').classList.add('closed');renderAcc();}
+}
+
+function setPostFilter(f){
+  postFilter=f;
+  ['all','enabled','disabled'].forEach(v=>document.getElementById('pf-'+v).classList.toggle('active',v===f));
+  renderPosts();
+}
+
+function setAccFilter(f){
+  accFilter=f;
+  ['all','enabled','disabled'].forEach(v=>document.getElementById('af-'+v).classList.toggle('active',v===f));
+  renderAcc();
+}
+
+function openAddModal(){
+  modalMode=currentPanel==='posts'?'post':'acc';
+  editingId=null;
+  document.getElementById('modal-title').textContent='Add '+(modalMode==='post'?'post type':'accessory');
+  document.getElementById('m-name').value='';
+  document.getElementById('m-price').value='';
+  document.getElementById('m-note').value='';
+  document.getElementById('m-preview').innerHTML='';
+  document.getElementById('m-tax').classList.remove('on');
+  document.getElementById('m-enabled').classList.add('on');
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');editingId=null;}
+
+function previewModalImg(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{document.getElementById('m-preview').innerHTML=`<img src="${ev.target.result}" style="width:100%;border-radius:8px;margin-top:8px;max-height:100px;object-fit:contain;border:0.5px solid rgba(0,0,0,.1)">`};
+  reader.readAsDataURL(file);
+}
+
+function saveItem(){
+  const name=document.getElementById('m-name').value.trim();
+  const price=parseFloat(document.getElementById('m-price').value)||0;
+  if(!name){alert('Please enter a name.');return;}
+  const preview=document.getElementById('m-preview').querySelector('img');
+  const data={name,price,note:document.getElementById('m-note').value.trim(),tax:document.getElementById('m-tax').classList.contains('on'),enabled:document.getElementById('m-enabled').classList.contains('on'),img:preview?preview.src:null};
+  if(editingId){
+    const items=modalMode==='post'?POSTS:ACCESSORIES;
+    Object.assign(items.find(x=>x.id===editingId),data);
+  } else {
+    if(modalMode==='post'){data.id=nextPostId++;POSTS.push(data);}
+    else{data.id=nextAccId++;ACCESSORIES.push(data);}
+  }
+  closeModal();
+  if(modalMode==='post') renderPosts(); else renderAcc();
+}
+
+function exportExcel(){alert('Exporting to Excel...');}
+function importExcel(){alert('Import from Excel — column mapper opens in production.');}
+
+renderPosts();
+renderAcc();
+</script>
+</body>
+</html>

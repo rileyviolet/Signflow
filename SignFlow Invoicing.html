@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow Invoicing</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+.sidebar{width:210px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5;color:#111}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.btn-sm{padding:3px 10px;font-size:11px}
+.btn-green{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.panel{display:none;flex:1;flex-direction:column;overflow:hidden}
+.panel.active{display:flex}
+.form-input{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.form-select{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px;flex-shrink:0}
+.stat-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;padding:11px 14px}
+.stat-label{font-size:10px;color:#999;margin-bottom:3px}
+.stat-val{font-size:20px;font-weight:500}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-paid{background:#EAF3DE;color:#27500A}
+.badge-unpaid{background:#FAEEDA;color:#633806}
+.badge-overdue{background:#FCEBEB;color:#791F1F}
+.badge-agent{background:#E1F5EE;color:#085041}
+.badge-office{background:#EEEDFE;color:#3C3489}
+.badge-removal{background:#F1EFE8;color:#5F5E5A}
+.filter-bar{padding:10px 20px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.inv-table{width:100%;border-collapse:collapse;margin-top:10px}
+.inv-table th{font-size:11px;font-weight:500;color:#999;text-align:left;padding:8px 12px;border-bottom:0.5px solid rgba(0,0,0,.1);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#fff;position:sticky;top:0;z-index:2}
+.inv-table td{padding:10px 12px;font-size:13px;border-bottom:0.5px solid rgba(0,0,0,.08);vertical-align:middle}
+.inv-table tbody tr:hover td{background:#f5f5f5;cursor:pointer}
+.inv-table tbody tr.selected td{background:#E6F1FB}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0}
+.email-link{color:#185FA5;text-decoration:none;font-size:12px}
+.email-link:hover{text-decoration:underline}
+.drawer{width:350px;background:#fff;border-left:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.drawer.closed{width:0;overflow:hidden;border:none}
+.drawer-header{padding:12px 16px;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-body{flex:1;overflow-y:auto}
+.inv-preview{padding:16px}
+.inv-items{width:100%;border-collapse:collapse;margin-bottom:12px}
+.inv-items th{font-size:10px;font-weight:500;color:#999;text-align:left;padding:5px 8px;border-bottom:0.5px solid rgba(0,0,0,.1);text-transform:uppercase}
+.inv-items td{font-size:11px;padding:6px 8px;border-bottom:0.5px solid rgba(0,0,0,.07);color:#111}
+.inv-items tr.removal-row td{color:#888;font-style:italic}
+.inv-total-block{background:#f5f5f5;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.inv-actions{display:flex;flex-direction:column;gap:7px}
+.check-cell{width:16px;height:16px;border:1px solid rgba(0,0,0,.2);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.check-cell.on{background:#185FA5;border-color:#185FA5;color:#fff}
+.build-panel{padding:18px 20px;flex:1;overflow-y:auto}
+.range-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.note-pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;background:#F1EFE8;color:#5F5E5A;font-style:italic}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Invoicing</div></div>
+    <div class="nav-label">Invoices</div>
+    <div class="nav-item active" id="nav-all" onclick="showPanel('all')"><div class="dot" style="background:#185FA5"></div>All invoices</div>
+    <div class="nav-item" id="nav-unpaid" onclick="filterStatus('unpaid')"><div class="dot" style="background:#BA7517"></div>Unpaid</div>
+    <div class="nav-item" id="nav-overdue" onclick="filterStatus('overdue')"><div class="dot" style="background:#E24B4A"></div>Overdue</div>
+    <div class="nav-item" id="nav-paid" onclick="filterStatus('paid')"><div class="dot" style="background:#639922"></div>Paid</div>
+    <div class="nav-label">Tools</div>
+    <div class="nav-item" id="nav-build" onclick="showPanel('build')"><div class="dot" style="background:#7F77DD"></div>Build invoices</div>
+    <div class="nav-item" id="nav-batch" onclick="showPanel('batch')"><div class="dot" style="background:#1D9E75"></div>Batch email</div>
+    <div class="sidebar-footer" id="sidebar-footer">Loading...</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">All invoices</div>
+      <div class="topbar-right">
+        <button class="btn" onclick="exportExcel()">Export to Excel</button>
+        <button class="btn btn-primary" onclick="showPanel('build')">+ Build invoice</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ALL INVOICES -->
+      <div class="panel active" id="panel-all">
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-label">Total outstanding</div><div class="stat-val" style="color:#BA7517" id="st-outstanding">$0</div></div>
+          <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-val" style="color:#E24B4A" id="st-overdue">$0</div></div>
+          <div class="stat-card"><div class="stat-label">Paid this month</div><div class="stat-val" style="color:#3B6D11" id="st-paid">$0</div></div>
+          <div class="stat-card"><div class="stat-label">Open invoices</div><div class="stat-val" id="st-open">0</div></div>
+        </div>
+        <div class="filter-bar">
+          <input class="form-input" placeholder="Search name or office..." id="inv-search" oninput="renderInvTable()" style="width:200px">
+          <select class="form-select" id="inv-type-filter" onchange="renderInvTable()">
+            <option value="">Agent &amp; office</option>
+            <option value="agent">Agent only</option>
+            <option value="office">Office only</option>
+          </select>
+          <select class="form-select" id="inv-status-filter" onchange="renderInvTable()">
+            <option value="">All statuses</option>
+            <option value="unpaid">Unpaid</option>
+            <option value="overdue">Overdue</option>
+            <option value="paid">Paid</option>
+          </select>
+          <span style="margin-left:auto;font-size:12px;color:#999" id="inv-count"></span>
+        </div>
+        <div style="flex:1;overflow:hidden;display:flex">
+          <div style="flex:1;overflow-y:auto;padding:0 20px 20px">
+            <table class="inv-table">
+              <thead><tr>
+                <th>Invoice</th><th>Bill to</th><th>Type</th><th>Period</th>
+                <th>Billable</th><th>Removals</th><th>Amount</th><th>Status</th><th>Due date</th><th></th>
+              </tr></thead>
+              <tbody id="inv-tbody"></tbody>
+            </table>
+          </div>
+          <div class="drawer closed" id="inv-drawer">
+            <div class="drawer-header">
+              <span style="font-size:13px;font-weight:500" id="drawer-title">Invoice</span>
+              <button class="btn btn-sm" onclick="closeDrawer()">Close</button>
+            </div>
+            <div class="drawer-body"><div class="inv-preview" id="inv-preview"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUILD -->
+      <div class="panel" id="panel-build">
+        <div class="build-panel">
+          <div style="font-size:14px;font-weight:500;margin-bottom:6px">Build invoices by date range</div>
+          <div style="font-size:12px;color:#999;margin-bottom:4px">Pulls installs, service calls, and deliveries as billable items. Removals appear as $0 record-only lines.</div>
+          <div style="font-size:11px;padding:6px 10px;background:#EAF3DE;border-radius:8px;color:#27500A;margin-bottom:16px;display:inline-block">Billing rule: sign goes up = invoice generated. Removals are always $0.</div>
+          <div class="range-row">
+            <label style="font-size:12px;color:#555">From</label>
+            <input type="date" class="form-input" id="range-from" value="2026-04-01">
+            <label style="font-size:12px;color:#555">To</label>
+            <input type="date" class="form-input" id="range-to" value="2026-04-21">
+            <select class="form-select" id="build-group">
+              <option value="agent">Per agent</option>
+              <option value="office">Per office</option>
+              <option value="both">Both</option>
+            </select>
+            <button class="btn btn-primary" onclick="buildInvoices()">Pull orders</button>
+          </div>
+          <div id="build-results"></div>
+        </div>
+      </div>
+
+      <!-- BATCH -->
+      <div class="panel" id="panel-batch">
+        <div class="build-panel">
+          <div style="font-size:14px;font-weight:500;margin-bottom:6px">Batch email invoices</div>
+          <div style="font-size:12px;color:#999;margin-bottom:16px">PDF invoices go to invoice-billing customers. Pay-now links go to card customers.</div>
+          <div style="background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden">
+            <div style="padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:10px;background:#f5f5f5">
+              <div class="check-cell on" id="select-all-check" onclick="toggleSelectAll()">✓</div>
+              <span style="font-size:12px;font-weight:500">Select all</span>
+              <span style="margin-left:auto;font-size:12px;color:#999" id="batch-count-label">0 selected</span>
+            </div>
+            <div id="batch-list"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;align-items:center">
+            <button class="btn btn-primary" onclick="sendBatch()">Send selected invoices</button>
+            <button class="btn" onclick="exportExcel()">Export to Excel</button>
+            <span style="margin-left:auto;font-size:13px;font-weight:500" id="batch-total-label"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const AGENTS=[
+  {id:1,first:'Sarah', last:'Johnson',email:'sarah@kw.com',      color:'#185FA5',billing:'invoice',officeId:1},
+  {id:2,first:'Mike',  last:'Torres', email:'mike@kw.com',       color:'#1D9E75',billing:'auto',   officeId:1},
+  {id:3,first:'Linda', last:'Park',   email:'linda@remax.com',   color:'#BA7517',billing:'invoice',officeId:2},
+  {id:4,first:'Chris', last:'Davis',  email:'chris@remax.com',   color:'#7F77DD',billing:'invoice',officeId:2},
+  {id:5,first:'Dana',  last:'Hill',   email:'dana@cbr.com',      color:'#D85A30',billing:'invoice',officeId:3},
+  {id:6,first:'Julia', last:'Kim',    email:'julia@cbr.com',     color:'#639922',billing:'auto',   officeId:3},
+];
+const OFFICES=[
+  {id:1,name:'KW Tucson NW',     email:'mgr@kw.com',    billing:'auto'},
+  {id:2,name:'RE/MAX Excalibur', email:'mgr@remax.com', billing:'invoice'},
+  {id:3,name:'Coldwell Banker',  email:'mgr@cbr.com',   billing:'invoice'},
+];
+
+// Billable types and their prices. Removals are always $0.
+const BILLABLE=['install','service','delivery'];
+const SERVICE_LABELS={install:'Installation',remove:'Removal',service:'Service call',delivery:'Delivery/Pickup'};
+const PRICES={install:65,service:55,delivery:35,remove:0};
+
+const ORDERS=[
+  {id:101,agentId:1,date:'2026-04-02',addr:'4821 E Sunrise Dr',    type:'install', amount:65},
+  {id:102,agentId:1,date:'2026-04-05',addr:'220 W Magee Rd',       type:'remove',  amount:0},
+  {id:103,agentId:1,date:'2026-04-09',addr:'7703 N Oracle Rd',     type:'install', amount:65},
+  {id:104,agentId:2,date:'2026-04-03',addr:'3300 N Campbell',      type:'install', amount:65},
+  {id:105,agentId:2,date:'2026-04-11',addr:'5500 E Speedway',      type:'service', amount:55},
+  {id:106,agentId:3,date:'2026-04-01',addr:'1550 S Kolb Rd',       type:'install', amount:65},
+  {id:107,agentId:3,date:'2026-04-07',addr:'9901 E Broadway',      type:'install', amount:65},
+  {id:108,agentId:3,date:'2026-04-14',addr:'8800 E 22nd St',       type:'remove',  amount:0},
+  {id:109,agentId:4,date:'2026-04-06',addr:'600 S Wilmot Rd',      type:'delivery',amount:35},
+  {id:110,agentId:4,date:'2026-04-10',addr:'2200 E Fort Lowell',   type:'install', amount:65},
+  {id:111,agentId:5,date:'2026-04-04',addr:'4100 S 6th Ave',       type:'install', amount:65},
+  {id:112,agentId:5,date:'2026-04-12',addr:'3600 W Irvington',     type:'remove',  amount:0},
+  {id:113,agentId:6,date:'2026-04-08',addr:'5600 E Grant Rd',      type:'install', amount:65},
+  {id:114,agentId:6,date:'2026-04-15',addr:'1800 N Stone Ave',     type:'service', amount:55},
+];
+
+let INVOICES=[
+  {id:'INV-001',billTo:'Sarah Johnson',   email:'sarah@kw.com',   type:'agent', agentId:1, period:'Mar 2026',amount:130,status:'overdue',due:'2026-04-01',billing:'invoice',orders:[101,102,103]},
+  {id:'INV-002',billTo:'RE/MAX Excalibur',email:'mgr@remax.com',  type:'office',officeId:2,period:'Mar 2026',amount:165,status:'unpaid', due:'2026-04-30',billing:'invoice',orders:[106,107,108,109,110]},
+  {id:'INV-003',billTo:'Linda Park',      email:'linda@remax.com',type:'agent', agentId:3, period:'Feb 2026',amount:130,status:'paid',   due:'2026-03-31',billing:'invoice',orders:[106,107,108]},
+  {id:'INV-004',billTo:'Coldwell Banker', email:'mgr@cbr.com',    type:'office',officeId:3,period:'Mar 2026',amount:185,status:'unpaid', due:'2026-04-30',billing:'invoice',orders:[111,112,113,114]},
+  {id:'INV-005',billTo:'Chris Davis',     email:'chris@remax.com',type:'agent', agentId:4, period:'Feb 2026',amount:100,status:'overdue',due:'2026-03-15',billing:'invoice',orders:[109,110]},
+  {id:'INV-006',billTo:'Dana Hill',       email:'dana@cbr.com',   type:'agent', agentId:5, period:'Mar 2026',amount:65, status:'unpaid', due:'2026-04-30',billing:'invoice',orders:[111,112]},
+];
+
+let selectedInvId=null;
+let batchChecked=new Set(INVOICES.filter(i=>i.status!=='paid').map(i=>i.id));
+
+function ini(a){return(a.first[0]+(a.last[0]||'')).toUpperCase()}
+function fmtDate(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function fmtMoney(n){return n===0?'—':'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function isBillable(type){return BILLABLE.includes(type)}
+
+function showPanel(id){
+  ['all','build','batch'].forEach(p=>document.getElementById('panel-'+p).classList.toggle('active',p===id));
+  ['all','unpaid','overdue','paid','build','batch'].forEach(n=>document.getElementById('nav-'+n).classList.toggle('active',n===id));
+  const titles={all:'All invoices',build:'Build invoices',batch:'Batch email'};
+  document.getElementById('page-title').textContent=titles[id]||'Invoices';
+  if(id==='batch') renderBatchList();
+  renderInvTable();updateStats();
+}
+
+function filterStatus(status){
+  showPanel('all');
+  document.getElementById('inv-status-filter').value=status;
+  document.getElementById('nav-'+status).classList.add('active');
+  renderInvTable();
+}
+
+function getFiltered(){
+  const s=document.getElementById('inv-search').value.toLowerCase();
+  const tf=document.getElementById('inv-type-filter').value;
+  const sf=document.getElementById('inv-status-filter').value;
+  return INVOICES.filter(i=>{
+    if(s&&!i.billTo.toLowerCase().includes(s))return false;
+    if(tf&&i.type!==tf)return false;
+    if(sf&&i.status!==sf)return false;
+    return true;
+  });
+}
+
+function renderInvTable(){
+  const filtered=getFiltered();
+  document.getElementById('inv-count').textContent=filtered.length+' invoice'+(filtered.length!==1?'s':'');
+  document.getElementById('inv-tbody').innerHTML=filtered.map(inv=>{
+    const isPaid=inv.status==='paid',isOver=inv.status==='overdue';
+    const bc=isPaid?'badge-paid':isOver?'badge-overdue':'badge-unpaid';
+    const agent=inv.agentId?AGENTS.find(a=>a.id===inv.agentId):null;
+    const avatarColor=agent?agent.color:'#7F77DD';
+    const avatarLetters=agent?ini(agent):inv.billTo.split(' ').map(w=>w[0]).slice(0,2).join('');
+    const invOrders=inv.orders.map(id=>ORDERS.find(o=>o.id===id)).filter(Boolean);
+    const billableCount=invOrders.filter(o=>isBillable(o.type)).length;
+    const removalCount=invOrders.filter(o=>o.type==='remove').length;
+    return `<tr onclick="openInvoice('${inv.id}')" class="${selectedInvId===inv.id?'selected':''}">
+      <td style="font-size:12px;font-weight:500;color:#185FA5">${inv.id}</td>
+      <td><div style="display:flex;align-items:center;gap:7px">
+        <div class="avatar" style="background:${avatarColor}">${avatarLetters}</div>
+        <div><div style="font-size:13px;font-weight:500">${inv.billTo}</div>
+        <a class="email-link" href="mailto:${inv.email}" onclick="event.stopPropagation()">${inv.email}</a></div>
+      </div></td>
+      <td><span class="badge ${inv.type==='agent'?'badge-agent':'badge-office'}">${inv.type==='agent'?'Agent':'Office'}</span></td>
+      <td style="font-size:12px;color:#777">${inv.period}</td>
+      <td style="text-align:center;font-size:13px">${billableCount}</td>
+      <td style="text-align:center">${removalCount?`<span class="note-pill">${removalCount} × $0</span>`:'<span style="color:#ccc;font-size:12px">—</span>'}</td>
+      <td style="font-weight:500">${fmtMoney(inv.amount)}</td>
+      <td><span class="badge ${bc}">${inv.status.charAt(0).toUpperCase()+inv.status.slice(1)}</span></td>
+      <td style="font-size:12px;color:${isOver?'#791F1F':'#777'};font-weight:${isOver?'500':'400'}">${fmtDate(inv.due)}</td>
+      <td><div style="display:flex;gap:5px;white-space:nowrap">
+        <button class="btn btn-sm" onclick="event.stopPropagation();sendOne('${inv.id}')">${inv.billing==='invoice'?'Email PDF':'Send link'}</button>
+        ${!isPaid?`<button class="btn btn-sm btn-green" onclick="event.stopPropagation();markPaid('${inv.id}')">Mark paid</button>`:''}
+      </div></td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="10" style="padding:24px;text-align:center;color:#999;font-size:13px">No invoices match this filter.</td></tr>`;
+}
+
+function openInvoice(id){
+  selectedInvId=id;
+  const inv=INVOICES.find(i=>i.id===id);
+  const agent=inv.agentId?AGENTS.find(a=>a.id===inv.agentId):null;
+  document.getElementById('inv-drawer').classList.remove('closed');
+  document.getElementById('drawer-title').textContent=inv.id;
+  const isOffice=inv.type==='office';
+  const invOrders=inv.orders.map(oid=>ORDERS.find(o=>o.id===oid)).filter(Boolean);
+  const billableTotal=invOrders.filter(o=>isBillable(o.type)).reduce((s,o)=>s+o.amount,0);
+  const removalCount=invOrders.filter(o=>o.type==='remove').length;
+
+  const lines=invOrders.map(o=>{
+    const a=AGENTS.find(x=>x.id===o.agentId);
+    const isRemoval=o.type==='remove';
+    return`<tr class="${isRemoval?'removal-row':''}">
+      <td>${fmtDate(o.date)}</td>
+      <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.addr}</td>
+      <td>${SERVICE_LABELS[o.type]}${isRemoval?' <span style="font-size:9px;color:#aaa">(no charge)</span>':''}</td>
+      ${isOffice?`<td>${a?a.first+' '+a.last:'—'}</td>`:''}
+      <td style="text-align:right;font-weight:${isRemoval?'400':'500'};color:${isRemoval?'#aaa':'#111'}">${isRemoval?'$0.00':fmtMoney(o.amount)}</td>
+    </tr>`;
+  }).join('');
+
+  const isPaid=inv.status==='paid';
+  document.getElementById('inv-preview').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:500">${inv.id}</div>
+      <span class="badge ${isPaid?'badge-paid':inv.status==='overdue'?'badge-overdue':'badge-unpaid'}">${inv.status}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:0.5px solid rgba(0,0,0,.1)">
+      <div style="font-size:11px;color:#555;line-height:1.7"><div style="font-weight:500">Sign Up Sign Services</div><div>SignUpTucson.com</div><div>Tucson, AZ</div></div>
+      <div style="font-size:11px;color:#555;line-height:1.7;text-align:right">
+        <div style="font-weight:500">${inv.billTo}</div>
+        <div><a class="email-link" href="mailto:${inv.email}">${inv.email}</a></div>
+        <div style="margin-top:4px;font-size:10px;color:#999">Period: ${inv.period}</div>
+        <div style="font-size:10px;color:#999">Due: ${fmtDate(inv.due)}</div>
+      </div>
+    </div>
+    ${removalCount?`<div style="font-size:11px;color:#888;background:#f5f5f5;padding:6px 10px;border-radius:6px;margin-bottom:10px">Removals shown as $0 — billed at time of installation.</div>`:''}
+    <table class="inv-items">
+      <thead><tr><th>Date</th><th>Address</th><th>Service</th>${isOffice?'<th>Agent</th>':''}<th style="text-align:right">Amount</th></tr></thead>
+      <tbody>${lines}</tbody>
+    </table>
+    <div class="inv-total-block">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;color:#555"><span>Billable orders</span><span>${invOrders.filter(o=>isBillable(o.type)).length}</span></div>
+      ${removalCount?`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;color:#aaa"><span>Removals (no charge)</span><span>${removalCount}</span></div>`:''}
+      <div style="height:0.5px;background:rgba(0,0,0,.1);margin:8px 0"></div>
+      <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:500"><span>Total due</span><span>${fmtMoney(billableTotal)}</span></div>
+    </div>
+    <div class="inv-actions">
+      <button class="btn btn-primary" style="font-size:12px" onclick="sendOne('${inv.id}')">${inv.billing==='invoice'?'Email as PDF':'Send pay-now link'}</button>
+      ${!isPaid?`<button class="btn btn-green" style="font-size:12px" onclick="markPaid('${inv.id}')">Mark as paid</button>`:''}
+      <button class="btn" style="font-size:12px" onclick="exportExcel()">Export to Excel</button>
+      <button class="btn" style="font-size:12px" onclick="alert('Print view opens in production')">Print invoice</button>
+    </div>`;
+  renderInvTable();
+}
+
+function closeDrawer(){selectedInvId=null;document.getElementById('inv-drawer').classList.add('closed');renderInvTable();}
+
+function markPaid(id){
+  INVOICES.find(i=>i.id===id).status='paid';
+  batchChecked.delete(id);
+  if(selectedInvId===id)openInvoice(id);
+  renderInvTable();updateStats();renderBatchList();
+}
+
+function sendOne(id){
+  const inv=INVOICES.find(i=>i.id===id);
+  alert(inv.billing==='invoice'?`PDF invoice emailed to ${inv.email}`:`Pay-now link sent to ${inv.email}`);
+}
+
+function updateStats(){
+  const unpaid=INVOICES.filter(i=>i.status!=='paid');
+  const overdue=INVOICES.filter(i=>i.status==='overdue');
+  const paid=INVOICES.filter(i=>i.status==='paid');
+  document.getElementById('st-outstanding').textContent='$'+unpaid.reduce((s,i)=>s+i.amount,0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('st-overdue').textContent='$'+overdue.reduce((s,i)=>s+i.amount,0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('st-paid').textContent='$'+paid.reduce((s,i)=>s+i.amount,0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('st-open').textContent=unpaid.length;
+  document.getElementById('sidebar-footer').textContent=INVOICES.length+' invoices · $'+unpaid.reduce((s,i)=>s+i.amount,0).toLocaleString()+' outstanding';
+}
+
+function buildInvoices(){
+  const from=new Date(document.getElementById('range-from').value+'T00:00:00');
+  const to=new Date(document.getElementById('range-to').value+'T23:59:59');
+  const group=document.getElementById('build-group').value;
+  const inRange=ORDERS.filter(o=>{const d=new Date(o.date+'T00:00:00');return d>=from&&d<=to;});
+  if(!inRange.length){document.getElementById('build-results').innerHTML='<div style="padding:16px;color:#999;font-size:13px">No orders found in this date range.</div>';return;}
+  const grouped={};
+  inRange.forEach(o=>{
+    const keys=[];
+    if(group==='agent'||group==='both') keys.push('ag-'+o.agentId);
+    if(group==='office'||group==='both'){const a=AGENTS.find(x=>x.id===o.agentId);if(a)keys.push('off-'+a.officeId);}
+    keys.forEach(k=>{if(!grouped[k])grouped[k]=[];grouped[k].push(o);});
+  });
+  const fromStr=from.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const toStr=to.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  document.getElementById('build-results').innerHTML=`
+    <div style="font-size:12px;font-weight:500;color:#555;margin:14px 0 10px">${inRange.length} orders · ${fromStr} – ${toStr}</div>
+    ${Object.entries(grouped).map(([key,orders])=>{
+      const isOff=key.startsWith('off-');
+      const eid=parseInt(key.split('-')[1]);
+      const entity=isOff?OFFICES.find(o=>o.id===eid):AGENTS.find(a=>a.id===eid);
+      if(!entity)return'';
+      const billableOrders=orders.filter(o=>isBillable(o.type));
+      const removals=orders.filter(o=>o.type==='remove');
+      const total=billableOrders.reduce((s,o)=>s+o.amount,0);
+      const name=isOff?entity.name:entity.first+' '+entity.last;
+      return`<div style="background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div><div style="font-size:13px;font-weight:500">${name}</div>
+          <div style="font-size:11px;color:#999">${entity.email} · ${billableOrders.length} billable${removals.length?' · '+removals.length+' removal'+(removals.length>1?'s':'')+' ($0)':''}</div></div>
+          <div style="text-align:right"><div style="font-size:16px;font-weight:500">$${total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+          <span class="badge ${isOff?'badge-office':'badge-agent'}" style="font-size:10px">${isOff?'Office':'Agent'}</span></div>
+        </div>
+        <table class="inv-items" style="margin-bottom:10px">
+          <thead><tr><th>Date</th><th>Address</th><th>Service</th>${isOff?'<th>Agent</th>':''}<th style="text-align:right">Amount</th></tr></thead>
+          <tbody>${orders.map(o=>{
+            const a=AGENTS.find(x=>x.id===o.agentId);
+            const isR=o.type==='remove';
+            return`<tr class="${isR?'removal-row':''}"><td>${fmtDate(o.date)}</td><td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.addr}</td><td>${SERVICE_LABELS[o.type]}${isR?' <span style="font-size:9px;color:#bbb">(no charge)</span>':''}</td>${isOff?`<td>${a?a.first+' '+a.last:'—'}</td>`:''}<td style="text-align:right;color:${isR?'#bbb':'#111'};font-weight:${isR?'400':'500'}">${isR?'$0.00':fmtMoney(o.amount)}</td></tr>`;
+          }).join('')}</tbody>
+        </table>
+        <button class="btn btn-primary btn-sm" onclick="alert('Invoice created for ${name}')">Create invoice</button>
+        <button class="btn btn-sm" style="margin-left:6px" onclick="exportExcel()">Export</button>
+      </div>`;
+    }).join('')}`;
+}
+
+function renderBatchList(){
+  const pending=INVOICES.filter(i=>i.status!=='paid');
+  document.getElementById('batch-count-label').textContent=batchChecked.size+' selected';
+  const total=[...batchChecked].reduce((s,id)=>{const inv=INVOICES.find(i=>i.id===id);return s+(inv?inv.amount:0);},0);
+  document.getElementById('batch-total-label').textContent=batchChecked.size?'Total: $'+total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'';
+  document.getElementById('batch-list').innerHTML=pending.map(inv=>{
+    const on=batchChecked.has(inv.id);
+    const invOrders=inv.orders.map(id=>ORDERS.find(o=>o.id===id)).filter(Boolean);
+    const billable=invOrders.filter(o=>isBillable(o.type)).length;
+    const removals=invOrders.filter(o=>o.type==='remove').length;
+    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,.08)">
+      <div class="check-cell${on?' on':''}" onclick="toggleBatch('${inv.id}')">${on?'✓':''}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500">${inv.billTo}</div>
+        <div style="font-size:11px;color:#999">${inv.email} · ${inv.period} · ${billable} billable${removals?' · '+removals+' removal'+(removals>1?'s':'')+' $0':''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:13px;font-weight:500">$${inv.amount.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+        <span class="badge" style="font-size:10px;background:${inv.billing==='invoice'?'#FAEEDA':'#EAF3DE'};color:${inv.billing==='invoice'?'#633806':'#27500A'}">${inv.billing==='invoice'?'PDF invoice':'Pay link'}</span>
+      </div>
+      <span class="badge ${inv.status==='overdue'?'badge-overdue':'badge-unpaid'}">${inv.status}</span>
+    </div>`;
+  }).join('')||'<div style="padding:16px;color:#999;font-size:13px">No pending invoices.</div>';
+}
+
+function toggleBatch(id){if(batchChecked.has(id))batchChecked.delete(id);else batchChecked.add(id);renderBatchList();}
+function toggleSelectAll(){
+  const pending=INVOICES.filter(i=>i.status!=='paid');
+  if(batchChecked.size===pending.length)batchChecked.clear();else pending.forEach(i=>batchChecked.add(i.id));
+  renderBatchList();
+}
+function sendBatch(){
+  if(!batchChecked.size){alert('No invoices selected.');return;}
+  const pdfs=[...batchChecked].filter(id=>INVOICES.find(i=>i.id===id)?.billing==='invoice').length;
+  const links=batchChecked.size-pdfs;
+  alert(`Batch sent!\n\n${pdfs} PDF invoice${pdfs!==1?'s':''} emailed\n${links} pay-now link${links!==1?'s':''} sent`);
+}
+function exportExcel(){alert('Exporting to Excel...');}
+
+updateStats();renderInvTable();renderBatchList();
+</script>
+</body>
+</html>

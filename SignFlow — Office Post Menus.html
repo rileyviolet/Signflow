@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Office Post Menus</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+
+/* SIDEBAR */
+.sidebar{width:230px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.office-list{flex:1;overflow-y:auto}
+.office-nav{display:flex;align-items:center;gap:8px;padding:7px 14px;font-size:12px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.office-nav:hover{background:#f5f5f5}
+.office-nav.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.office-nav-avatar{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:#fff;flex-shrink:0}
+.office-nav-count{margin-left:auto;font-size:10px;color:#aaa;background:#f5f5f5;padding:1px 6px;border-radius:10px;white-space:nowrap}
+.sidebar-footer{padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999;line-height:1.7;flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;display:flex;overflow:hidden;min-width:0}
+
+/* OFFICE PANEL — left half of main */
+.office-panel{width:300px;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;background:#fff}
+.op-header{padding:14px 16px;border-bottom:0.5px solid rgba(0,0,0,.1);flex-shrink:0}
+.op-title{font-size:13px;font-weight:500;margin-bottom:8px}
+.search-input{width:100%;padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.search-input:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.op-list{flex:1;overflow-y:auto}
+.office-card{padding:11px 16px;cursor:pointer;border-bottom:0.5px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:10px}
+.office-card:hover{background:#f9f9f9}
+.office-card.selected{background:#E6F1FB;border-left:2px solid #185FA5}
+.office-card:not(.selected){border-left:2px solid transparent}
+.oc-avatar{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff;flex-shrink:0}
+.oc-name{font-size:13px;font-weight:500;line-height:1.3}
+.oc-meta{font-size:11px;color:#999;margin-top:1px}
+.oc-posts{margin-left:auto;text-align:right;flex-shrink:0}
+.oc-post-count{font-size:12px;font-weight:500;color:#185FA5}
+.oc-post-label{font-size:10px;color:#999}
+
+/* POST MENU PANEL — right side */
+.post-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#f5f5f3}
+.pp-topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pp-title{font-size:15px;font-weight:500}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.btn-green{background:#EAF3DE;color:#27500A;border-color:#97C459}
+.btn-sm{padding:3px 10px;font-size:11px}
+.pp-office-header{padding:14px 20px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:12px;flex-shrink:0}
+.pp-scroll{flex:1;overflow-y:auto;padding:14px 20px}
+
+/* BULK BAR */
+.bulk-bar{padding:10px 20px;background:#FAEEDA;border-bottom:0.5px solid #FAC775;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+.bulk-label{font-size:12px;font-weight:500;color:#633806}
+
+/* POST ROWS */
+.post-section{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.post-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:0.5px solid rgba(0,0,0,.06)}
+.post-row:last-child{border-bottom:none}
+.post-row.disabled{opacity:.4}
+.post-icon-sm{width:34px;height:34px;background:#f5f5f3;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:0.5px solid rgba(0,0,0,.08)}
+.post-name{font-size:13px;font-weight:500;flex:1}
+.post-note{font-size:11px;color:#999;margin-top:1px}
+.price-row{display:flex;align-items:center;gap:5px}
+.price-sym{font-size:12px;color:#555}
+.price-field{width:72px;padding:4px 8px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:13px;font-weight:500;text-align:right;background:#fff;color:#111}
+.price-field:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.price-field.is-discount{border-color:#1D9E75;color:#1D9E75}
+.price-field.is-premium{border-color:#C0392B;color:#C0392B}
+.save-btn{padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;border:none;background:#185FA5;color:#fff}
+.save-btn:hover{background:#0C447C}
+.toggle{width:32px;height:18px;border-radius:9px;background:rgba(0,0,0,.15);cursor:pointer;position:relative;flex-shrink:0}
+.toggle.on{background:#185FA5}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle.on::after{left:16px}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
+.badge-discount{background:#E1F5EE;color:#085041}
+.badge-premium{background:#FCEBEB;color:#791F1F}
+.badge-default{background:#f0f0f0;color:#888}
+.badge-volume{background:#E1F5EE;color:#085041}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:#999;font-size:13px;gap:8px;padding:40px}
+.form-input-inline{padding:5px 9px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111;width:80px;text-align:right}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Admin</div></div>
+    <div class="nav-label">Catalog</div>
+    <div class="nav-item active">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="1" x2="10" y2="1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="4" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Post menus by office
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4V3a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Accessories
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 6h6M4 9h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Post pricing (all offices)
+    </div>
+    <div class="nav-label">Offices</div>
+    <div class="office-list" id="sidebar-offices"></div>
+    <div class="sidebar-footer" id="sidebar-footer">Loading...</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- LEFT: OFFICE LIST -->
+    <div class="office-panel">
+      <div class="op-header">
+        <div class="op-title">Select an office to manage their post menu</div>
+        <input class="search-input" placeholder="Search offices..." id="office-search" oninput="renderOfficeList()">
+      </div>
+      <div class="op-list" id="office-list"></div>
+    </div>
+
+    <!-- RIGHT: POST MENU FOR SELECTED OFFICE -->
+    <div class="post-panel">
+      <div class="pp-topbar">
+        <div class="pp-title" id="pp-title">Post menu</div>
+        <div style="display:flex;gap:8px" id="pp-actions" style="display:none"></div>
+      </div>
+
+      <!-- OFFICE HEADER -->
+      <div id="pp-office-header" style="display:none" class="pp-office-header"></div>
+
+      <!-- BULK PRICE BAR -->
+      <div id="bulk-bar" class="bulk-bar" style="display:none">
+        <span class="bulk-label">Bulk price update for this office:</span>
+        <span style="font-size:12px;color:#633806">$</span>
+        <input type="number" class="form-input-inline" id="bulk-price" placeholder="49.00" step="0.01" min="0">
+        <button class="btn btn-green btn-sm" onclick="applyBulk('enabled')">Apply to enabled posts</button>
+        <button class="btn btn-sm" onclick="applyBulk('all')">Apply to all posts</button>
+      </div>
+
+      <div class="pp-scroll" id="pp-scroll">
+        <div class="empty-state">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><line x1="18" y1="3" x2="18" y2="33" stroke="#ddd" stroke-width="3" stroke-linecap="round"/><line x1="13" y1="3" x2="23" y2="3" stroke="#ddd" stroke-width="2.5" stroke-linecap="round"/><rect x="5" y="10" width="26" height="16" rx="2" stroke="#ddd" stroke-width="1.5"/></svg>
+          <div>Select an office on the left to manage their post menu.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const POSTS=[
+  {id:1, name:'White Post',         color:'#bbb',    stroke:'#aaa',  defaultPrice:49, note:'Standard residential'},
+  {id:2, name:'Black Post',         color:'#333',    stroke:'#222',  defaultPrice:49, note:''},
+  {id:3, name:'Brown Post',         color:'#8B5E3C', stroke:'#6B4423',defaultPrice:49,note:''},
+  {id:4, name:'Red Post',           color:'#C0392B', stroke:'#922B21',defaultPrice:55,note:'Premium color'},
+  {id:5, name:'Blue Post',          color:'#2471A3', stroke:'#1A5276',defaultPrice:49,note:''},
+  {id:6, name:'Teal Sign Post',     color:'#148F77', stroke:'#0E6655',defaultPrice:68,note:''},
+  {id:7, name:'H-Post',             color:'#666',    stroke:'#444',  defaultPrice:55, note:'Commercial/larger signs'},
+  {id:8, name:'Black Post — Luxury',color:'#222',    stroke:'#000',  defaultPrice:49, note:'Luxury listings only'},
+  {id:9, name:'No Post — Gate/Wall',color:'#aaa',    stroke:'#888',  defaultPrice:38, note:'Attach to gate or wall'},
+  {id:10,name:'Custom Subdivision', color:'#7D3C98', stroke:'#6C3483',defaultPrice:75,note:'HOA/subdivision specific'},
+];
+
+const OFFICES=[
+  {id:1, name:'KW Tucson NW',            color:'#185FA5', agents:24,  billing:'auto',    volume:false},
+  {id:2, name:'RE/MAX Excalibur',         color:'#D85A30', agents:38,  billing:'invoice', volume:false},
+  {id:3, name:'Coldwell Banker Realty',   color:'#1D9E75', agents:31,  billing:'invoice', volume:false},
+  {id:4, name:'Long Realty Foothills',    color:'#7F77DD', agents:52,  billing:'invoice', volume:true},
+  {id:5, name:'Long Realty Gold Canyon',  color:'#7F77DD', agents:19,  billing:'invoice', volume:true},
+  {id:6, name:'Long Realty Midtown',      color:'#7F77DD', agents:34,  billing:'invoice', volume:true},
+  {id:7, name:'Realty Executives AZ',     color:'#BA7517', agents:210, billing:'invoice', volume:false},
+  {id:8, name:'Tierra Antigua Realty',    color:'#639922', agents:87,  billing:'invoice', volume:false},
+  {id:9, name:'Homesmart Lifestyles',     color:'#D85A30', agents:45,  billing:'auto',    volume:false},
+  {id:10,name:'Russ Lyon Sotheby\'s',     color:'#185FA5', agents:63,  billing:'invoice', volume:false},
+  {id:11,name:'Century 21 Elevated',      color:'#BA7517', agents:29,  billing:'pay-now', volume:false},
+  {id:12,name:'eXp Realty',              color:'#639922', agents:142, billing:'auto',    volume:false},
+  {id:13,name:'Independent agents',       color:'#888',    agents:91,  billing:'pay-now', volume:false},
+];
+
+// ACCESS: officeId -> postId -> {enabled, price}
+let ACCESS={};
+OFFICES.forEach(o=>{
+  ACCESS[o.id]={};
+  POSTS.forEach(p=>{
+    let price=p.defaultPrice;
+    let enabled=true;
+    // Long Realty: only gets White, Black Luxury, No Post, Custom Subdivision
+    if(o.volume){
+      enabled=[1,8,9,10].includes(p.id);
+      if(p.id===1||p.id===8) price=42;
+    }
+    // Russ Lyon only gets premium posts
+    if(o.id===10) enabled=[1,2,4,6,8,9,10].includes(p.id);
+    // Century 21 - standard set
+    if(o.id===11) enabled=[1,2,5,9].includes(p.id);
+    ACCESS[o.id][p.id]={enabled, price};
+  });
+});
+
+let selectedOfficeId=null;
+
+function initials(name){return name.split(' ').slice(0,2).map(w=>w[0]).join('')}
+function fmtMoney(n){return'$'+parseFloat(n).toFixed(2)}
+function enabledCount(officeId){return POSTS.filter(p=>ACCESS[officeId][p.id].enabled).length}
+
+function renderOfficeList(){
+  const s=document.getElementById('office-search').value.toLowerCase();
+  const filtered=OFFICES.filter(o=>o.name.toLowerCase().includes(s));
+  document.getElementById('office-list').innerHTML=filtered.map(o=>`
+    <div class="office-card${selectedOfficeId===o.id?' selected':''}" onclick="selectOffice(${o.id})">
+      <div class="oc-avatar" style="background:${o.color}">${initials(o.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="oc-name">${o.name}${o.volume?'<span class="badge badge-volume" style="margin-left:6px">Volume</span>':''}</div>
+        <div class="oc-meta">${o.agents} agents · ${o.billing}</div>
+      </div>
+      <div class="oc-posts">
+        <div class="oc-post-count">${enabledCount(o.id)}</div>
+        <div class="oc-post-label">posts</div>
+      </div>
+    </div>`).join('');
+
+  // sidebar
+  document.getElementById('sidebar-offices').innerHTML=filtered.slice(0,8).map(o=>`
+    <div class="office-nav${selectedOfficeId===o.id?' active':''}" onclick="selectOffice(${o.id})">
+      <div class="office-nav-avatar" style="background:${o.color}">${initials(o.name)}</div>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.name.split(' ').slice(0,2).join(' ')}</span>
+      <span class="office-nav-count">${enabledCount(o.id)}</span>
+    </div>`).join('');
+}
+
+function selectOffice(id){
+  selectedOfficeId=id;
+  renderOfficeList();
+  renderPostMenu();
+}
+
+function renderPostMenu(){
+  if(!selectedOfficeId){return;}
+  const o=OFFICES.find(x=>x.id===selectedOfficeId);
+  const enabledPosts=POSTS.filter(p=>ACCESS[o.id][p.id].enabled);
+  const disabledPosts=POSTS.filter(p=>!ACCESS[o.id][p.id].enabled);
+
+  document.getElementById('pp-title').textContent=o.name+' — post menu';
+  document.getElementById('pp-office-header').style.display='flex';
+  document.getElementById('pp-office-header').innerHTML=`
+    <div style="width:40px;height:40px;border-radius:10px;background:${o.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;flex-shrink:0">${initials(o.name)}</div>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:500">${o.name}${o.volume?'<span class="badge badge-volume" style="margin-left:8px">Volume discount</span>':''}</div>
+      <div style="font-size:11px;color:#999;margin-top:2px">${o.agents} agents · ${enabledPosts.length} of ${POSTS.length} post types enabled</div>
+    </div>
+    <div style="display:flex;gap:7px;align-items:center">
+      <button class="btn btn-sm btn-green" onclick="toggleAll(true)">Enable all posts</button>
+      <button class="btn btn-sm" style="color:#791F1F;border-color:#F09595;background:#FCEBEB" onclick="toggleAll(false)">Disable all</button>
+    </div>`;
+
+  document.getElementById('bulk-bar').style.display='flex';
+  document.getElementById('pp-actions').style.display='flex';
+  document.getElementById('pp-actions').innerHTML=`
+    <button class="btn btn-sm" onclick="copyMenu()">Copy menu to another office</button>
+    <button class="btn btn-primary btn-sm" onclick="alert('Post menu saved for ${o.name}')">Save changes</button>`;
+
+  document.getElementById('pp-scroll').innerHTML=`
+    <div style="font-size:12px;font-weight:500;color:#555;margin-bottom:8px">
+      Enabled posts — agents at ${o.name} will see these options when ordering
+    </div>
+    <div class="post-section">
+      ${enabledPosts.length?enabledPosts.map(p=>postRow(o.id,p,true)).join('')
+        :'<div style="padding:14px 16px;font-size:12px;color:#999">No posts enabled. Toggle posts below to add them.</div>'}
+    </div>
+    <div style="font-size:12px;font-weight:500;color:#999;margin:14px 0 8px">
+      Not available to this office
+    </div>
+    <div class="post-section">
+      ${disabledPosts.length?disabledPosts.map(p=>postRow(o.id,p,false)).join('')
+        :'<div style="padding:14px 16px;font-size:12px;color:#999">All posts are enabled.</div>'}
+    </div>`;
+
+  updateSidebarFooter();
+}
+
+function postRow(officeId,p,enabled){
+  const acc=ACCESS[officeId][p.id];
+  const def=p.defaultPrice;
+  const isDiscount=acc.price<def;
+  const isPremium=acc.price>def;
+  const priceClass=isDiscount?'is-discount':isPremium?'is-premium':'';
+  let priceBadge='';
+  if(isDiscount) priceBadge=`<span class="badge badge-discount">Discount ${fmtMoney(acc.price-def)}</span>`;
+  else if(isPremium) priceBadge=`<span class="badge badge-premium">+${fmtMoney(acc.price-def)}</span>`;
+  else priceBadge=`<span class="badge badge-default">Default</span>`;
+
+  return`<div class="post-row${!enabled?' disabled':''}">
+    <div class="post-icon-sm">
+      <svg width="22" height="32" viewBox="0 0 22 32" fill="none">
+        <line x1="11" y1="2" x2="11" y2="30" stroke="${p.stroke}" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="7" y1="2" x2="15" y2="2" stroke="${p.stroke}" stroke-width="2" stroke-linecap="round"/>
+        <rect x="2" y="7" width="18" height="11" rx="1.5" fill="${p.color}" opacity=".25" stroke="${p.stroke}" stroke-width="1.1"/>
+      </svg>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div class="post-name">${p.name}</div>
+      <div class="post-note">${p.note||'Default: '+fmtMoney(def)}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <div class="price-row">
+          <span class="price-sym">$</span>
+          <input type="number" class="price-field ${priceClass}" id="pf-${officeId}-${p.id}"
+            value="${parseFloat(acc.price).toFixed(2)}" step="0.01" min="0"
+            onkeydown="if(event.key==='Enter')savePrice(${officeId},${p.id})"
+            oninput="previewPriceChange(${officeId},${p.id},this.value,${def})">
+          <button class="save-btn" onclick="savePrice(${officeId},${p.id})">Save</button>
+        </div>
+        ${priceBadge}
+        ${acc.price!==def?`<span style="font-size:10px;color:#999;cursor:pointer" onclick="resetPrice(${officeId},${p.id})">Reset to default (${fmtMoney(def)})</span>`:''}
+      </div>
+      <div class="toggle${enabled?' on':''}" onclick="togglePost(${officeId},${p.id})"></div>
+    </div>
+  </div>`;
+}
+
+function previewPriceChange(officeId,postId,val,def){
+  const input=document.getElementById('pf-'+officeId+'-'+postId);
+  const n=parseFloat(val)||0;
+  input.className='price-field'+(n<def?' is-discount':n>def?' is-premium':'');
+}
+
+function savePrice(officeId,postId){
+  const val=parseFloat(document.getElementById('pf-'+officeId+'-'+postId).value)||0;
+  ACCESS[officeId][postId].price=val;
+  renderPostMenu();
+}
+
+function resetPrice(officeId,postId){
+  ACCESS[officeId][postId].price=POSTS.find(p=>p.id===postId).defaultPrice;
+  renderPostMenu();
+}
+
+function togglePost(officeId,postId){
+  ACCESS[officeId][postId].enabled=!ACCESS[officeId][postId].enabled;
+  renderPostMenu();
+  renderOfficeList();
+}
+
+function toggleAll(enable){
+  POSTS.forEach(p=>ACCESS[selectedOfficeId][p.id].enabled=enable);
+  renderPostMenu();
+  renderOfficeList();
+}
+
+function applyBulk(scope){
+  const val=parseFloat(document.getElementById('bulk-price').value);
+  if(!val||val<0){alert('Enter a valid price.');return;}
+  POSTS.forEach(p=>{
+    const acc=ACCESS[selectedOfficeId][p.id];
+    if(scope==='all'||(scope==='enabled'&&acc.enabled)){
+      acc.price=val;
+    }
+  });
+  document.getElementById('bulk-price').value='';
+  renderPostMenu();
+}
+
+function copyMenu(){
+  const names=OFFICES.filter(o=>o.id!==selectedOfficeId).map((o,i)=>`${i+1}. ${o.name}`).join('\n');
+  const choice=prompt('Copy this post menu to which office?\n\n'+names+'\n\nEnter number:');
+  const idx=parseInt(choice)-1;
+  const targets=OFFICES.filter(o=>o.id!==selectedOfficeId);
+  if(idx>=0&&idx<targets.length){
+    const target=targets[idx];
+    POSTS.forEach(p=>{
+      ACCESS[target.id][p.id]={...ACCESS[selectedOfficeId][p.id]};
+    });
+    alert('Post menu copied to '+target.name);
+    renderOfficeList();
+  }
+}
+
+function updateSidebarFooter(){
+  const total=OFFICES.reduce((s,o)=>s+enabledCount(o.id),0);
+  document.getElementById('sidebar-footer').innerHTML=
+    OFFICES.length+' offices<br>'+total+' total post assignments';
+}
+
+renderOfficeList();
+updateSidebarFooter();
+</script>
+</body>
+</html>

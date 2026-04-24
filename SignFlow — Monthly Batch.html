@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Monthly Batch</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+.sidebar{width:210px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999;line-height:1.7}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:500}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500}
+.btn-primary:hover{background:#0C447C}
+.btn-green{background:#EAF3DE;color:#27500A;border-color:#97C459;font-weight:500}
+.btn-green:hover{background:#C0DD97}
+.btn-sm{padding:3px 10px;font-size:11px}
+.btn-big{padding:13px 32px;font-size:14px;border-radius:10px;font-weight:500}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-agent{background:#E1F5EE;color:#085041}
+.badge-office{background:#EEEDFE;color:#3C3489}
+.badge-pdf{background:#FAEEDA;color:#633806}
+.badge-auto{background:#E6F1FB;color:#0C447C}
+.badge-unpaid{background:#FAEEDA;color:#633806}
+.badge-sent{background:#EAF3DE;color:#27500A}
+.scroll{flex:1;overflow-y:auto;padding:20px}
+.hero{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:22px;margin-bottom:16px}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat-card{background:#f5f5f3;border-radius:8px;padding:11px 14px}
+.stat-label{font-size:10px;color:#999;margin-bottom:3px}
+.stat-val{font-size:20px;font-weight:500}
+.send-bar{display:flex;align-items:center;gap:14px;padding:14px 18px;background:#E6F1FB;border-radius:10px;border:1px solid #B5D4F4}
+.progress-wrap{display:none;margin-top:14px}
+.progress-track{width:100%;height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;margin-bottom:7px}
+.progress-fill{height:100%;background:#185FA5;border-radius:4px;transition:width .25s}
+.progress-label{font-size:12px;color:#555}
+.section-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.section-header{padding:11px 16px;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;background:#fafaf9}
+.section-title{font-size:13px;font-weight:500}
+.inv-table{width:100%;border-collapse:collapse}
+.inv-table th{font-size:10px;font-weight:500;color:#999;text-align:left;padding:8px 12px;border-bottom:0.5px solid rgba(0,0,0,.1);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#fff;position:sticky;top:0;z-index:2}
+.inv-table td{padding:10px 12px;font-size:13px;border-bottom:0.5px solid rgba(0,0,0,.07);vertical-align:middle}
+.inv-table tbody tr:last-child td{border-bottom:none}
+.inv-table tbody tr:hover td{background:#fafaf9}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0}
+.email-link{color:#185FA5;text-decoration:none;font-size:12px}
+.email-link:hover{text-decoration:underline}
+.check-cell{width:16px;height:16px;border:1px solid rgba(0,0,0,.2);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.check-cell.on{background:#185FA5;border-color:#185FA5;color:#fff}
+.sent-row td{opacity:.5}
+.month-sel{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.divider-label{font-size:11px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.06em;padding:10px 16px;background:#fafaf9;border-bottom:0.5px solid rgba(0,0,0,.07)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Invoicing</div></div>
+    <div class="nav-label">Invoices</div>
+    <div class="nav-item"><div class="dot" style="background:#185FA5"></div>All invoices</div>
+    <div class="nav-item"><div class="dot" style="background:#BA7517"></div>Unpaid</div>
+    <div class="nav-item"><div class="dot" style="background:#E24B4A"></div>Overdue</div>
+    <div class="nav-item"><div class="dot" style="background:#639922"></div>Paid</div>
+    <div class="nav-label">Tools</div>
+    <div class="nav-item"><div class="dot" style="background:#7F77DD"></div>Build invoices</div>
+    <div class="nav-item active"><div class="dot" style="background:#1D9E75"></div>Monthly batch</div>
+    <div class="sidebar-footer" id="sidebar-footer">
+      <div style="font-weight:500;color:#111;font-size:12px;margin-bottom:2px" id="sf-month">April 2026</div>
+      <div id="sf-inv">0 invoice customers</div>
+      <div id="sf-auto">0 auto pay customers</div>
+      <div style="margin-top:4px;font-weight:500;color:#185FA5" id="sf-total">$0 total</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title">Monthly batch — <span id="topbar-month">April 2026</span></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="month-sel" id="month-sel" onchange="changeMonth()">
+          <option value="April 2026" selected>April 2026</option>
+          <option value="March 2026">March 2026</option>
+          <option value="February 2026">February 2026</option>
+        </select>
+        <button class="btn" onclick="alert('Exporting to Excel...')">Export to Excel</button>
+      </div>
+    </div>
+
+    <div class="scroll">
+
+      <!-- HERO -->
+      <div class="hero">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:15px;font-weight:500;margin-bottom:3px">Send monthly invoices</div>
+            <div style="font-size:12px;color:#999">Invoice customers get a PDF by email. Auto pay customers get a receipt confirming their card was charged on the 3rd. Pay-now customers are not included — they paid at time of order.</div>
+          </div>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-label">Invoice — PDF email</div>
+            <div class="stat-val" style="color:#633806" id="st-inv">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Auto pay — receipt email</div>
+            <div class="stat-val" style="color:#0C447C" id="st-auto">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total to contact</div>
+            <div class="stat-val" id="st-total-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total billed</div>
+            <div class="stat-val" style="color:#185FA5" id="st-total-amt">$0</div>
+          </div>
+        </div>
+
+        <div class="send-bar" id="send-bar">
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500;color:#0C447C;margin-bottom:2px" id="send-bar-title">Ready to send April 2026</div>
+            <div style="font-size:12px;color:#185FA5" id="send-bar-sub">PDF invoices + auto pay receipts · One click</div>
+          </div>
+          <button class="btn btn-green btn-big" id="send-btn" onclick="sendAll()">Send all now</button>
+        </div>
+
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+          <div class="progress-label" id="progress-label">Sending...</div>
+        </div>
+      </div>
+
+      <!-- INVOICE CUSTOMERS -->
+      <div class="section-card">
+        <div class="section-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="check-cell on" id="ca-inv" onclick="toggleGroup('invoice')">✓</div>
+            <span class="section-title">Invoice customers — PDF email</span>
+          </div>
+          <span style="font-size:12px;color:#999" id="inv-group-label"></span>
+        </div>
+        <div class="divider-label">These customers receive a PDF invoice by email and pay by check</div>
+        <table class="inv-table">
+          <thead><tr>
+            <th style="width:32px"></th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Billable orders</th>
+            <th>Removals</th>
+            <th>Amount due</th>
+            <th>Status</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="inv-tbody"></tbody>
+        </table>
+        <div style="padding:10px 16px;border-top:0.5px solid rgba(0,0,0,.08);display:flex;justify-content:flex-end;align-items:center;gap:8px;background:#fafaf9">
+          <span style="font-size:12px;color:#555">Invoice subtotal</span>
+          <span style="font-size:14px;font-weight:500" id="inv-subtotal">$0</span>
+        </div>
+      </div>
+
+      <!-- AUTO PAY CUSTOMERS -->
+      <div class="section-card">
+        <div class="section-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="check-cell on" id="ca-auto" onclick="toggleGroup('auto')">✓</div>
+            <span class="section-title">Auto pay customers — charge card &amp; send receipt</span>
+          </div>
+          <span style="font-size:12px;color:#999" id="auto-group-label"></span>
+        </div>
+        <div class="divider-label">Cards are charged on the 3rd · Customers receive an email receipt confirming the charge</div>
+        <table class="inv-table">
+          <thead><tr>
+            <th style="width:32px"></th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Card on file</th>
+            <th>Billable orders</th>
+            <th>Removals</th>
+            <th>Amount charged</th>
+            <th>Status</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="auto-tbody"></tbody>
+        </table>
+        <div style="padding:10px 16px;border-top:0.5px solid rgba(0,0,0,.08);display:flex;justify-content:flex-end;align-items:center;gap:8px;background:#fafaf9">
+          <span style="font-size:12px;color:#555">Auto pay subtotal</span>
+          <span style="font-size:14px;font-weight:500" id="auto-subtotal">$0</span>
+        </div>
+      </div>
+
+      <!-- EXCLUDED NOTE -->
+      <div style="padding:12px 16px;background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:10px;display:flex;align-items:center;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0"></div>
+        <div style="font-size:12px;color:#888">Pay-now customers are not included in this batch — they paid at the time of each order and can view their payment history in their agent portal.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const INV_CUSTOMERS=[
+  {id:1, name:'Sarah Johnson',    email:'sarah@kw.com',       type:'agent',  color:'#185FA5', billable:3, removals:1, amount:195},
+  {id:2, name:'RE/MAX Excalibur', email:'mgr@remax.com',      type:'office', color:'#D85A30', billable:5, removals:2, amount:275},
+  {id:3, name:'Linda Park',       email:'linda@remax.com',    type:'agent',  color:'#BA7517', billable:2, removals:0, amount:130},
+  {id:4, name:'Chris Davis',      email:'chris@remax.com',    type:'agent',  color:'#7F77DD', billable:2, removals:1, amount:100},
+  {id:5, name:'Coldwell Banker',  email:'mgr@cbr.com',        type:'office', color:'#1D9E75', billable:4, removals:2, amount:230},
+  {id:6, name:'Dana Hill',        email:'dana@cbr.com',       type:'agent',  color:'#D85A30', billable:1, removals:1, amount:65},
+  {id:9, name:'Long Realty NW',   email:'mgr@longrealty.com', type:'office', color:'#7F77DD', billable:3, removals:1, amount:175},
+  {id:10,name:'Tom Wheeler',      email:'tom@azrealty.com',   type:'agent',  color:'#185FA5', billable:1, removals:0, amount:65},
+  {id:12,name:'Pam Lewis',        email:'pam@azpro.com',      type:'agent',  color:'#D85A30', billable:2, removals:0, amount:130},
+];
+
+const AUTO_CUSTOMERS=[
+  {id:7, name:'Mike Torres', email:'mike@kw.com',    type:'agent',  color:'#1D9E75', card:'Visa ···· 4242',  billable:2, removals:0, amount:120},
+  {id:8, name:'Julia Kim',   email:'julia@cbr.com',  type:'agent',  color:'#639922', card:'MC ···· 6600',    billable:2, removals:1, amount:120},
+  {id:11,name:'Bev Stone',   email:'bev@lr.com',     type:'agent',  color:'#BA7517', card:'Visa ···· 8844',  billable:2, removals:1, amount:130},
+  {id:13,name:'Amy Chen',    email:'amy@kw.com',     type:'agent',  color:'#185FA5', card:'Visa ···· 9988',  billable:3, removals:0, amount:195},
+];
+
+let sentInv=new Set();
+let sentAuto=new Set();
+let checkedInv=new Set(INV_CUSTOMERS.map(c=>c.id));
+let checkedAuto=new Set(AUTO_CUSTOMERS.map(c=>c.id));
+let sending=false;
+
+function ini(c){return c.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase()}
+function fmtMoney(n){return'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function render(){
+  // Invoice group
+  const invSubtotal=INV_CUSTOMERS.filter(c=>checkedInv.has(c.id)).reduce((s,c)=>s+c.amount,0);
+  document.getElementById('inv-subtotal').textContent=fmtMoney(INV_CUSTOMERS.reduce((s,c)=>s+c.amount,0));
+  document.getElementById('inv-group-label').textContent=INV_CUSTOMERS.length+' customers · '+fmtMoney(INV_CUSTOMERS.reduce((s,c)=>s+c.amount,0));
+  document.getElementById('inv-tbody').innerHTML=INV_CUSTOMERS.map(c=>{
+    const isSent=sentInv.has(c.id);
+    const on=checkedInv.has(c.id);
+    return`<tr class="${isSent?'sent-row':''}">
+      <td><div class="check-cell${on&&!isSent?' on':''}" onclick="${isSent?'':'toggleOne('+c.id+',\'invoice\')'}">${on&&!isSent?'✓':isSent?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 5-4.5" stroke="#27500A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div></td>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar" style="background:${c.color}">${ini(c)}</div>
+        <div><div style="font-size:13px;font-weight:500">${c.name}</div>
+        <span class="badge ${c.type==='agent'?'badge-agent':'badge-office'}" style="font-size:10px">${c.type==='agent'?'Agent':'Office'}</span></div>
+      </div></td>
+      <td><a class="email-link" href="mailto:${c.email}">${c.email}</a></td>
+      <td style="text-align:center">${c.billable}</td>
+      <td style="text-align:center">${c.removals?`<span style="font-size:11px;color:#aaa;font-style:italic">${c.removals} × $0</span>`:'<span style="color:#ddd">—</span>'}</td>
+      <td style="font-weight:500">${fmtMoney(c.amount)}</td>
+      <td>${isSent?'<span class="badge badge-sent">PDF sent</span>':'<span class="badge badge-unpaid">Pending</span>'}</td>
+      <td>${isSent?'':`<button class="btn btn-sm" onclick="sendOneInv(${c.id})">Send PDF</button>`}</td>
+    </tr>`;
+  }).join('');
+
+  // Auto pay group
+  document.getElementById('auto-subtotal').textContent=fmtMoney(AUTO_CUSTOMERS.reduce((s,c)=>s+c.amount,0));
+  document.getElementById('auto-group-label').textContent=AUTO_CUSTOMERS.length+' customers · '+fmtMoney(AUTO_CUSTOMERS.reduce((s,c)=>s+c.amount,0));
+  document.getElementById('auto-tbody').innerHTML=AUTO_CUSTOMERS.map(c=>{
+    const isSent=sentAuto.has(c.id);
+    const on=checkedAuto.has(c.id);
+    return`<tr class="${isSent?'sent-row':''}">
+      <td><div class="check-cell${on&&!isSent?' on':''}" onclick="${isSent?'':'toggleOne('+c.id+',\'auto\')'}">${on&&!isSent?'✓':isSent?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 5-4.5" stroke="#27500A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div></td>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar" style="background:${c.color}">${ini(c)}</div>
+        <div><div style="font-size:13px;font-weight:500">${c.name}</div>
+        <span class="badge ${c.type==='agent'?'badge-agent':'badge-office'}" style="font-size:10px">${c.type==='agent'?'Agent':'Office'}</span></div>
+      </div></td>
+      <td><a class="email-link" href="mailto:${c.email}">${c.email}</a></td>
+      <td style="font-size:12px;color:#555">${c.card}</td>
+      <td style="text-align:center">${c.billable}</td>
+      <td style="text-align:center">${c.removals?`<span style="font-size:11px;color:#aaa;font-style:italic">${c.removals} × $0</span>`:'<span style="color:#ddd">—</span>'}</td>
+      <td style="font-weight:500">${fmtMoney(c.amount)}</td>
+      <td>${isSent?'<span class="badge badge-sent">Charged &amp; receipt sent</span>':'<span class="badge badge-auto">Auto pay</span>'}</td>
+      <td>${isSent?'':`<button class="btn btn-sm" onclick="sendOneAuto(${c.id})">Charge &amp; receipt</button>`}</td>
+    </tr>`;
+  }).join('');
+
+  updateStats();
+}
+
+function updateStats(){
+  const totalInv=INV_CUSTOMERS.length;
+  const totalAuto=AUTO_CUSTOMERS.length;
+  const totalAmt=INV_CUSTOMERS.reduce((s,c)=>s+c.amount,0)+AUTO_CUSTOMERS.reduce((s,c)=>s+c.amount,0);
+  const allSent=sentInv.size+sentAuto.size;
+  const allTotal=totalInv+totalAuto;
+  document.getElementById('st-inv').textContent=totalInv;
+  document.getElementById('st-auto').textContent=totalAuto;
+  document.getElementById('st-total-count').textContent=allTotal;
+  document.getElementById('st-total-amt').textContent=fmtMoney(totalAmt);
+  document.getElementById('sf-inv').textContent=totalInv+' invoice (PDF)';
+  document.getElementById('sf-auto').textContent=totalAuto+' auto pay (receipt)';
+  document.getElementById('sf-total').textContent=fmtMoney(totalAmt)+' total';
+  if(allSent===allTotal&&allTotal>0){
+    const bar=document.getElementById('send-bar');
+    bar.style.background='#EAF3DE';bar.style.borderColor='#97C459';
+    document.getElementById('send-bar-title').textContent='All sent for '+document.getElementById('month-sel').value;
+    document.getElementById('send-bar-title').style.color='#27500A';
+    document.getElementById('send-bar-sub').textContent=allTotal+' customers notified · '+fmtMoney(totalAmt)+' billed';
+    document.getElementById('send-bar-sub').style.color='#3B6D11';
+    document.getElementById('send-btn').textContent='All sent';
+    document.getElementById('send-btn').disabled=true;
+    document.getElementById('send-btn').style.opacity='.5';
+  }
+}
+
+async function sendAll(){
+  if(sending)return;
+  const toSendInv=INV_CUSTOMERS.filter(c=>checkedInv.has(c.id)&&!sentInv.has(c.id));
+  const toSendAuto=AUTO_CUSTOMERS.filter(c=>checkedAuto.has(c.id)&&!sentAuto.has(c.id));
+  const all=[...toSendInv.map(c=>({...c,mode:'invoice'})),...toSendAuto.map(c=>({...c,mode:'auto'}))];
+  if(!all.length){alert('Nothing left to send.');return;}
+  sending=true;
+  document.getElementById('send-btn').textContent='Sending...';
+  document.getElementById('send-btn').disabled=true;
+  document.getElementById('progress-wrap').style.display='block';
+  for(let i=0;i<all.length;i++){
+    await new Promise(r=>setTimeout(r,200));
+    if(all[i].mode==='invoice') sentInv.add(all[i].id);
+    else sentAuto.add(all[i].id);
+    const pct=Math.round(((i+1)/all.length)*100);
+    document.getElementById('progress-fill').style.width=pct+'%';
+    document.getElementById('progress-label').textContent=`${all[i].mode==='invoice'?'PDF sent to':'Charged &amp; receipt sent to'} ${all[i].name} (${i+1} of ${all.length})`;
+    render();
+  }
+  sending=false;
+  document.getElementById('progress-fill').style.background='#639922';
+  document.getElementById('progress-label').textContent=`Done — ${all.length} customers notified`;
+}
+
+function sendOneInv(id){sentInv.add(id);render();}
+function sendOneAuto(id){sentAuto.add(id);render();}
+
+function toggleOne(id,group){
+  if(group==='invoice'){if(checkedInv.has(id))checkedInv.delete(id);else checkedInv.add(id);}
+  else{if(checkedAuto.has(id))checkedAuto.delete(id);else checkedAuto.add(id);}
+  render();
+}
+
+function toggleGroup(group){
+  if(group==='invoice'){
+    if(checkedInv.size===INV_CUSTOMERS.length)checkedInv.clear();
+    else INV_CUSTOMERS.forEach(c=>checkedInv.add(c.id));
+  } else {
+    if(checkedAuto.size===AUTO_CUSTOMERS.length)checkedAuto.clear();
+    else AUTO_CUSTOMERS.forEach(c=>checkedAuto.add(c.id));
+  }
+  render();
+}
+
+function changeMonth(){
+  const m=document.getElementById('month-sel').value;
+  document.getElementById('topbar-month').textContent=m;
+  document.getElementById('sf-month').textContent=m;
+  document.getElementById('send-bar-title').textContent='Ready to send '+m;
+  document.getElementById('send-bar').style.background='#E6F1FB';
+  document.getElementById('send-bar').style.borderColor='#B5D4F4';
+  document.getElementById('send-bar-title').style.color='#0C447C';
+  document.getElementById('send-bar-sub').style.color='#185FA5';
+  document.getElementById('send-bar-sub').textContent='PDF invoices + auto pay receipts · One click';
+  document.getElementById('send-btn').textContent='Send all now';
+  document.getElementById('send-btn').disabled=false;
+  document.getElementById('send-btn').style.opacity='1';
+  document.getElementById('progress-wrap').style.display='none';
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('progress-fill').style.background='#185FA5';
+  sentInv.clear();sentAuto.clear();
+  checkedInv=new Set(INV_CUSTOMERS.map(c=>c.id));
+  checkedAuto=new Set(AUTO_CUSTOMERS.map(c=>c.id));
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

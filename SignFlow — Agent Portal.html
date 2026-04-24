@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Agent Portal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+.sidebar{width:220px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.agent-card{padding:14px 16px;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:10px}
+.agent-avatar{width:38px;height:38px;border-radius:10px;background:#7F77DD;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
+.agent-name{font-size:13px;font-weight:500}
+.agent-office{font-size:11px;color:#999;margin-top:1px}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:500}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500}
+.btn-primary:hover{background:#0C447C}
+.btn-sm{padding:3px 10px;font-size:11px}
+.content{flex:1;overflow-y:auto;padding:16px 20px}
+
+/* AGENT TYPE TOGGLE */
+.agent-toggle{display:flex;gap:10px;margin-bottom:16px}
+.toggle-btn{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(0,0,0,.15);color:#555;background:#fff}
+.toggle-btn.active{background:#185FA5;color:#fff;border-color:#185FA5}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+
+/* STAT CARDS */
+.stat-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:10px;padding:14px 16px}
+.stat-label{font-size:11px;color:#999;margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:500}
+.stat-sub{font-size:11px;color:#999;margin-top:3px}
+
+/* SECTION CARD */
+.section-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.section-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.section-title{font-size:13px;font-weight:500}
+.section-body{padding:0}
+
+/* ORDER ROWS */
+.order-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:0.5px solid rgba(0,0,0,.07);cursor:pointer}
+.order-row:last-child{border-bottom:none}
+.order-row:hover{background:#fafaf9}
+.order-date{font-size:11px;color:#999;white-space:nowrap;width:70px;flex-shrink:0}
+.order-addr{font-size:13px;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-meta{font-size:11px;color:#999;margin-top:1px}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;white-space:nowrap}
+.badge-install{background:#E6F1FB;color:#0C447C}
+.badge-remove{background:#F1EFE8;color:#5F5E5A}
+.badge-service{background:#EAF3DE;color:#27500A}
+.badge-delivery{background:#E1F5EE;color:#085041}
+.badge-pending{background:#FAEEDA;color:#633806}
+.badge-complete{background:#EAF3DE;color:#27500A}
+.badge-scheduled{background:#E6F1FB;color:#0C447C}
+
+/* SIGN CARDS */
+.sign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:14px 16px}
+.sign-card{border:1px solid rgba(0,0,0,.1);border-radius:10px;overflow:hidden;cursor:pointer}
+.sign-card:hover{border-color:rgba(0,0,0,.25)}
+.sign-img{width:100%;aspect-ratio:4/3;background:#E6F1FB;display:flex;align-items:center;justify-content:center}
+.sign-body{padding:8px 10px}
+.sign-name{font-size:12px;font-weight:500;line-height:1.3}
+.sign-size{font-size:10px;color:#999;margin-top:2px}
+
+/* INVOICE ROWS */
+.invoice-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:0.5px solid rgba(0,0,0,.07)}
+.invoice-row:last-child{border-bottom:none}
+.invoice-date{font-size:12px;color:#999;width:80px;flex-shrink:0}
+.invoice-desc{font-size:13px;flex:1}
+.invoice-amt{font-size:13px;font-weight:500;white-space:nowrap}
+.invoice-status{margin-left:8px}
+
+/* EMPTY STATE */
+.empty{padding:24px;text-align:center;color:#999;font-size:13px}
+
+/* PLACE ORDER CTA */
+.cta-bar{background:linear-gradient(135deg,#185FA5,#0C447C);border-radius:12px;padding:18px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.cta-title{font-size:15px;font-weight:500;margin-bottom:3px}
+.cta-sub{font-size:12px;opacity:.8}
+.cta-btn{background:#fff;color:#185FA5;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.cta-btn:hover{background:#f0f0f0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Agent Portal</div></div>
+
+    <!-- AGENT CARD -->
+    <div class="agent-card" id="agent-card">
+      <div class="agent-avatar" id="agent-avatar">AT</div>
+      <div>
+        <div class="agent-name" id="agent-name">Angela Tennison</div>
+        <div class="agent-office" id="agent-office">Long Realty Foothills</div>
+      </div>
+    </div>
+
+    <div class="nav-label">Menu</div>
+    <div class="nav-item active">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 5h8M3 8h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      My orders
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><line x1="7" y1="1" x2="7" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="1" x2="10" y2="1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="4" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+      My signs
+    </div>
+    <div class="nav-item" id="billing-nav">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h12" stroke="currentColor" stroke-width="1.2"/></svg>
+      Billing &amp; invoices
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M1 13c0-3 2.686-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      My account
+    </div>
+
+    <div class="sidebar-footer" id="sidebar-footer">Long Realty Foothills<br>Invoice billing</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="topbar-title">Good morning, Angela</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <!-- DEMO TOGGLE -->
+        <span style="font-size:11px;color:#999">Demo:</span>
+        <div class="agent-toggle" style="margin-bottom:0">
+          <div class="toggle-btn active" id="tb-office" onclick="setAgentType('office')">Office agent</div>
+          <div class="toggle-btn" id="tb-independent" onclick="setAgentType('independent')">Independent agent</div>
+        </div>
+        <button class="btn btn-primary" onclick="alert('Place order form opens')">+ Place order</button>
+      </div>
+    </div>
+
+    <div class="content" id="main-content">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+const AGENT_TYPES={
+  office:{
+    name:'Angela Tennison',initials:'AT',color:'#7F77DD',
+    office:'Long Realty Foothills',billing:'invoice-office',
+    greeting:'Good morning, Angela',
+  },
+  independent:{
+    name:'Steve Schultz',initials:'SS',color:'#D85A30',
+    office:'Independent agent',billing:'invoice-self',
+    greeting:'Good morning, Steve',
+  }
+};
+
+let agentType='office';
+
+const ACTIVE_ORDERS=[
+  {id:1,date:'04/22/2026',addr:'4821 E Sunrise Dr',city:'Tucson AZ 85718',type:'install',status:'pending',post:'White Post',sign:'Angela Tennison 18x24',accs:'Coming Soon, 3 Bed'},
+  {id:2,date:'04/23/2026',addr:'7703 N Oracle Rd',city:'Tucson AZ 85704',type:'install',status:'scheduled',post:'Black Post — Luxury',sign:'Angela Tennison Luxury',accs:''},
+  {id:3,date:'04/24/2026',addr:'1550 S Kolb Rd',city:'Tucson AZ 85710',type:'remove',status:'scheduled',post:null,sign:'Angela Tennison 18x24',accs:''},
+  {id:4,date:'04/20/2026',addr:'3300 N Campbell Ave',city:'Tucson AZ 85719',type:'service',status:'pending',post:null,sign:null,accs:'Sign leaning badly'},
+];
+
+const HISTORY_ORDERS=[
+  {id:5,date:'04/15/2026',addr:'9200 E Tanque Verde Rd',type:'install',status:'complete',amount:73.60,notes:'Gate code is 1234. Sign on left side of driveway.'},
+  {id:6,date:'04/10/2026',addr:'5500 E Speedway Blvd',type:'remove',status:'complete',amount:0,notes:''},
+  {id:7,date:'04/08/2026',addr:'2200 E Fort Lowell Rd',type:'install',status:'complete',amount:85.20,notes:'Park in driveway. Dog in yard — use front gate only.'},
+  {id:8,date:'03/28/2026',addr:'8800 E 22nd St',type:'install',status:'complete',amount:77.20,notes:'HOA area. Sign faces south toward the street.'},
+];
+
+const SIGNS=[
+  {id:1,name:'Angela Tennison 18x24',size:'18×24'},
+  {id:2,name:'Angela Tennison Luxury',size:'24×36'},
+  {id:3,name:'Tennison Parks 2×2',size:'24×24'},
+];
+
+const INVOICES=[
+  {id:'INV-2026-04',date:'Apr 2026',desc:'4 orders',amount:236.00,status:'pending'},
+  {id:'INV-2026-03',date:'Mar 2026',desc:'7 orders',amount:412.40,status:'paid'},
+  {id:'INV-2026-02',date:'Feb 2026',desc:'5 orders',amount:318.80,status:'paid'},
+];
+
+function fmtMoney(n){return n===0?'$0.00':'$'+n.toFixed(2)}
+
+function setAgentType(type){
+  agentType=type;
+  ['office','independent'].forEach(t=>{
+    document.getElementById('tb-'+t).classList.toggle('active',t===type);
+  });
+  const a=AGENT_TYPES[type];
+  document.getElementById('agent-avatar').textContent=a.initials;
+  document.getElementById('agent-avatar').style.background=a.color;
+  document.getElementById('agent-name').textContent=a.name;
+  document.getElementById('agent-office').textContent=a.office;
+  document.getElementById('topbar-title').textContent=a.greeting;
+  document.getElementById('sidebar-footer').textContent=a.office+'\n'+(type==='office'?'Office billing':'Self billing');
+  document.getElementById('billing-nav').style.display=type==='independent'?'flex':'none';
+  renderContent();
+}
+
+function renderContent(){
+  const isIndependent=agentType==='independent';
+  const a=AGENT_TYPES[agentType];
+  let html='';
+
+  // CTA
+  html+=`<div class="cta-bar">
+    <div>
+      <div class="cta-title">Need a sign installed or removed?</div>
+      <div class="cta-sub">Place an order and we'll schedule your installer.</div>
+    </div>
+    <button class="cta-btn" onclick="alert('Order form opens')">+ Place order</button>
+  </div>`;
+
+  // STAT CARDS
+  html+=`<div class="grid-3">
+    <div class="stat-card">
+      <div class="stat-label">Active orders</div>
+      <div class="stat-val">${ACTIVE_ORDERS.filter(o=>o.status==='pending'||o.status==='scheduled').length}</div>
+      <div class="stat-sub">pending or scheduled</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">My sign panels</div>
+      <div class="stat-val">${SIGNS.length}</div>
+      <div class="stat-sub">registered panels</div>
+    </div>
+    ${isIndependent?`
+    <div class="stat-card">
+      <div class="stat-label">Balance due</div>
+      <div class="stat-val" style="color:#BA7517">$236.00</div>
+      <div class="stat-sub">April invoice · due May 3</div>
+    </div>`:`
+    <div class="stat-card">
+      <div class="stat-label">Orders this month</div>
+      <div class="stat-val">4</div>
+      <div class="stat-sub">billed to your office</div>
+    </div>`}
+  </div>`;
+
+  // ACTIVE ORDERS
+  html+=`<div class="section-card">
+    <div class="section-header">
+      <div class="section-title">Active orders</div>
+      <button class="btn btn-sm" onclick="alert('Full order history')">View all</button>
+    </div>
+    <div class="section-body">
+      ${ACTIVE_ORDERS.map(o=>`
+      <div class="order-row">
+        <div class="order-date">${o.date}</div>
+        <div style="flex:1;min-width:0">
+          <div class="order-addr">${o.addr}</div>
+          <div class="order-meta">${o.city}</div>
+        </div>
+        <span class="badge badge-${o.type}" style="margin-right:6px">${o.type.charAt(0).toUpperCase()+o.type.slice(1)}</span>
+        <span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+
+  // RECENT HISTORY
+  html+=`<div class="section-card">
+    <div class="section-header">
+      <div class="section-title">Recent order history</div>
+      <button class="btn btn-sm" onclick="alert('Full history')">View all</button>
+    </div>
+    <div class="section-body">
+      ${HISTORY_ORDERS.map(o=>`
+      <div class="order-row" style="flex-wrap:wrap;gap:8px">
+        <div class="order-date">${o.date}</div>
+        <div style="flex:1;min-width:0">
+          <div class="order-addr">${o.addr}</div>
+        </div>
+        <span class="badge badge-${o.type}" style="margin-right:6px">${o.type.charAt(0).toUpperCase()+o.type.slice(1)}</span>
+        <span class="badge badge-complete">Complete</span>
+        ${isIndependent?`<span style="font-size:12px;font-weight:500;color:#555;margin-left:6px;white-space:nowrap">${fmtMoney(o.amount)}</span>`:''}
+        ${o.type==='install'?`<button onclick="event.stopPropagation();scheduleRemoval(${o.id})" style="margin-left:auto;padding:3px 10px;border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid #BA7517;background:#FAEEDA;color:#633806;white-space:nowrap">Schedule removal</button>`:''}
+      </div>`).join('')}
+    </div>
+  </div>`;
+
+  // SIGN PANELS
+  html+=`<div class="section-card">
+    <div class="section-header">
+      <div class="section-title">My sign panels</div>
+      <button class="btn btn-sm" onclick="alert('Manage signs')">Manage</button>
+    </div>
+    <div class="sign-grid">
+      ${SIGNS.map(s=>`
+      <div class="sign-card">
+        <div class="sign-img">
+          <svg width="44" height="32" viewBox="0 0 44 32" fill="none"><rect x="1" y="1" width="42" height="24" rx="2" stroke="#B5D4F4" stroke-width="1.3" fill="#E6F1FB"/><path d="M4 20l9-7 7 5 8-6 12 8" stroke="#B5D4F4" stroke-width="1.2" stroke-linecap="round"/><circle cx="13" cy="10" r="3.5" stroke="#B5D4F4" stroke-width="1.2"/></svg>
+        </div>
+        <div class="sign-body">
+          <div class="sign-name">${s.name}</div>
+          <div class="sign-size">${s.size}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+
+  // INVOICES — independent agents only
+  if(isIndependent){
+    html+=`<div class="section-card">
+      <div class="section-header">
+        <div class="section-title">Billing &amp; invoices</div>
+        <button class="btn btn-sm" onclick="alert('Full billing history')">View all</button>
+      </div>
+      <div class="section-body">
+        ${INVOICES.map(inv=>`
+        <div class="invoice-row">
+          <div class="invoice-date">${inv.date}</div>
+          <div class="invoice-desc" style="flex:1">${inv.desc}</div>
+          <div class="invoice-amt">${fmtMoney(inv.amount)}</div>
+          <div class="invoice-status">
+            <span class="badge ${inv.status==='paid'?'badge-complete':'badge-pending'}">${inv.status==='paid'?'Paid':'Due'}</span>
+          </div>
+          ${inv.status==='pending'?`<button class="btn btn-primary btn-sm" style="margin-left:8px" onclick="alert('Pay now')">Pay now</button>`:`<button class="btn btn-sm" style="margin-left:8px" onclick="alert('Download PDF')">PDF</button>`}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('main-content').innerHTML=html;
+}
+
+function scheduleRemoval(orderId){
+  const o=HISTORY_ORDERS.find(x=>x.id===orderId);
+  if(!o) return;
+  const modal=document.getElementById('removal-modal');
+  document.getElementById('removal-addr').textContent=o.addr;
+  document.getElementById('removal-notes-row').style.display=o.notes?'block':'none';
+  document.getElementById('removal-notes').textContent=o.notes||'';
+  modal.style.display='flex';
+}
+
+function closeRemovalModal(){
+  document.getElementById('removal-modal').style.display='none';
+}
+
+function confirmRemoval(){
+  document.getElementById('removal-modal').style.display='none';
+  document.getElementById('removal-new-notes').value='';
+  document.getElementById('removal-success').style.display='flex';
+  setTimeout(()=>document.getElementById('removal-success').style.display='none',3000);
+}
+
+// Init
+setAgentType('office');
+</script>
+
+<!-- REMOVAL MODAL -->
+<div id="removal-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:14px;padding:24px;width:420px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,.2)">
+    <div style="font-size:15px;font-weight:500;margin-bottom:6px">Schedule removal</div>
+    <div style="font-size:13px;color:#555;margin-bottom:14px">A removal order will be pre-filled with the details below. You just confirm the timing and submit.</div>
+    <div style="background:#f5f5f3;border-radius:10px;padding:13px 16px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Property</div>
+      <div style="font-size:14px;font-weight:500" id="removal-addr"></div>
+    </div>
+    <div id="removal-notes-row" style="display:none;background:#FAEEDA;border-radius:10px;padding:13px 16px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:500;color:#854F0B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Notes from original install — carried over to removal</div>
+      <div style="font-size:13px;color:#633806;line-height:1.5" id="removal-notes"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Additional notes for removal <span style="font-weight:400;color:#999;text-transform:none;letter-spacing:0">(optional)</span></div>
+      <textarea id="removal-new-notes" placeholder="e.g. Sign is now on the right side of driveway, gate code changed to 5678..." style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;color:#111;resize:vertical;min-height:70px;font-family:system-ui;background:#fff"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="closeRemovalModal()" style="padding:8px 18px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#fff;font-size:13px;cursor:pointer">Cancel</button>
+      <button onclick="confirmRemoval()" style="padding:8px 18px;border-radius:8px;border:none;background:#185FA5;color:#fff;font-size:13px;font-weight:500;cursor:pointer">Confirm &amp; pre-fill removal order</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS TOAST -->
+<div id="removal-success" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#27500A;color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;font-weight:500;z-index:200;white-space:nowrap">
+  ✓ Removal order pre-filled — review and submit to confirm
+</div>
+</body>
+</html>

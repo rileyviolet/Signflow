@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Order History</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+.sidebar{width:210px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999;line-height:1.7}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:500}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.btn-sm{padding:3px 10px;font-size:11px}
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* STAT ROW */
+.stat-row{display:grid;;gap:10px;padding:12px 20px;flex-shrink:0}
+.stat-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;padding:10px 13px}
+.stat-label{font-size:10px;color:#999;margin-bottom:2px}
+.stat-val{font-size:19px;font-weight:500}
+
+/* FILTER BAR */
+.filter-bar{padding:10px 20px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.form-input{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.form-input:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.form-select{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.filter-chip{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,.15);color:#555;white-space:nowrap}
+.filter-chip.active{background:#185FA5;color:#fff;border-color:#185FA5}
+.count-label{margin-left:auto;font-size:12px;color:#999;white-space:nowrap}
+
+/* TABLE */
+.table-wrap{flex:1;overflow:auto;padding:0 20px 20px}
+.order-table{width:100%;border-collapse:collapse;min-width:900px}
+.order-table th{font-size:10px;font-weight:500;color:#999;text-align:left;padding:8px 12px;border-bottom:0.5px solid rgba(0,0,0,.1);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#fff;position:sticky;top:0;z-index:2;cursor:pointer;user-select:none}
+.order-table th:hover{color:#185FA5}
+.order-table th.sorted{color:#185FA5}
+.order-table td{padding:10px 12px;font-size:12px;border-bottom:0.5px solid rgba(0,0,0,.07);vertical-align:middle}
+.order-table tbody tr:last-child td{border-bottom:none}
+.order-table tbody tr:hover td{background:#fafaf9;cursor:pointer}
+.order-table tbody tr.selected td{background:#E6F1FB}
+
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;white-space:nowrap}
+.badge-install{background:#E6F1FB;color:#0C447C}
+.badge-remove{background:#F1EFE8;color:#5F5E5A}
+.badge-service{background:#EAF3DE;color:#27500A}
+.badge-delivery{background:#E1F5EE;color:#085041}
+.badge-complete{background:#EAF3DE;color:#27500A}
+.badge-pending{background:#FAEEDA;color:#633806}
+.badge-scheduled{background:#E6F1FB;color:#0C447C}
+.badge-cancelled{background:#FCEBEB;color:#791F1F}
+
+.avatar-sm{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:#fff;flex-shrink:0}
+
+/* DETAIL DRAWER */
+.drawer{width:320px;background:#fff;border-left:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.drawer.closed{width:0;overflow:hidden;border:none}
+.drawer-header{padding:12px 16px;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-body{flex:1;overflow-y:auto;padding:16px}
+.dd-section{margin-bottom:14px;padding-bottom:14px;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.dd-section:last-child{border-bottom:none;margin-bottom:0}
+.dd-section-title{font-size:10px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.dd-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
+.dd-key{font-size:12px;color:#555;flex-shrink:0}
+.dd-val{font-size:12px;font-weight:500;text-align:right;max-width:180px}
+.email-link{color:#185FA5;text-decoration:none;font-size:12px}
+.email-link:hover{text-decoration:underline}
+.dd-actions{display:flex;flex-direction:column;gap:7px}
+
+/* PAGINATION */
+.pagination{padding:10px 20px;background:#fff;border-top:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.page-btn{padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.page-btn:hover{background:#f5f5f5}
+.page-btn.active{background:#185FA5;color:#fff;border-color:#185FA5}
+.page-btn:disabled{opacity:.4;cursor:default}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Admin</div></div>
+    <div class="nav-label">Orders</div>
+    <div class="nav-item active">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 5h8M3 8h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Order history
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Pending orders
+    </div>
+    <div class="nav-item">
+      <div class="dot" style="background:#185FA5"></div>Peg board
+    </div>
+    <div class="nav-item">
+      <div class="dot" style="background:#1D9E75"></div>Schedule
+    </div>
+    <div class="nav-label">Quick filters</div>
+    <div class="nav-item" onclick="quickFilter('today')"><div class="dot" style="background:#185FA5"></div>Today's orders</div>
+    <div class="nav-item" onclick="quickFilter('pending')"><div class="dot" style="background:#BA7517"></div>Pending</div>
+    <div class="nav-item" onclick="quickFilter('install')"><div class="dot" style="background:#185FA5"></div>Installs only</div>
+    <div class="nav-item" onclick="quickFilter('remove')"><div class="dot" style="background:#888780"></div>Removals only</div>
+    <div class="sidebar-footer" id="sidebar-footer">Loading...</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title">Order history</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="exportExcel()">Export to Excel</button>
+        <button class="btn" onclick="exportExcel()">Print</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">Showing</div><div class="stat-val" id="st-showing">0</div></div>
+        <div class="stat-card"><div class="stat-label">Installs</div><div class="stat-val" style="color:#185FA5" id="st-installs">0</div></div>
+        <div class="stat-card"><div class="stat-label">Removals</div><div class="stat-val" style="color:#888" id="st-removals">0</div></div>
+        <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val" style="color:#BA7517" id="st-pending">0</div></div>
+
+      </div>
+
+      <div class="filter-bar">
+        <input class="form-input" placeholder="Search address, agent, or office..." id="search-inp" oninput="applyFilters()" style="flex:1;min-width:200px">
+        <select class="form-select" id="type-filter" onchange="applyFilters()">
+          <option value="">All types</option>
+          <option value="install">Installation</option>
+          <option value="remove">Removal</option>
+          <option value="service">Service call</option>
+          <option value="delivery">Delivery/Pickup</option>
+        </select>
+        <select class="form-select" id="status-filter" onchange="applyFilters()">
+          <option value="">All statuses</option>
+          <option value="complete">Complete</option>
+          <option value="pending">Pending</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select class="form-select" id="office-filter" onchange="applyFilters()">
+          <option value="">All offices</option>
+        </select>
+        <button class="btn btn-sm" onclick="resetFilters()">Reset</button>
+        <span class="count-label" id="count-label"></span>
+      </div>
+
+      <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+        <div class="table-wrap" id="table-wrap">
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th onclick="sortBy('date')">Date <span id="sort-date"></span></th>
+                <th onclick="sortBy('addr')">Property address <span id="sort-addr"></span></th>
+                <th onclick="sortBy('agent')">Agent</th>
+                <th onclick="sortBy('type')">Type <span id="sort-type"></span></th>
+                <th>Office</th>
+                <th>Post</th>
+                <th>Sign panel</th>
+                <th>Accessories</th>
+                <th onclick="sortBy('amount')">Amount <span id="sort-amount"></span></th>
+                <th onclick="sortBy('status')">Status <span id="sort-status"></span></th>
+              </tr>
+            </thead>
+            <tbody id="order-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer closed" id="drawer">
+    <div class="drawer-header">
+      <span style="font-size:13px;font-weight:500" id="drawer-title">Order detail</span>
+      <button class="btn btn-sm" onclick="closeDrawer()">Close</button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+  </div>
+</div>
+
+<script>
+const OFFICES=[
+  {id:1,name:'KW Tucson NW',          color:'#185FA5'},
+  {id:2,name:'RE/MAX Excalibur',       color:'#D85A30'},
+  {id:3,name:'Coldwell Banker',        color:'#1D9E75'},
+  {id:4,name:'Long Realty Foothills',  color:'#7F77DD'},
+  {id:5,name:'Tierra Antigua Realty',  color:'#639922'},
+  {id:6,name:'Realty Executives AZ',   color:'#BA7517'},
+];
+const AGENTS=[
+  {id:1,first:'Sarah', last:'Johnson', email:'sarah@kw.com',      officeId:1},
+  {id:2,first:'Mike',  last:'Torres',  email:'mike@kw.com',       officeId:1},
+  {id:3,first:'Linda', last:'Park',    email:'linda@remax.com',   officeId:2},
+  {id:4,first:'Chris', last:'Davis',   email:'chris@remax.com',   officeId:2},
+  {id:5,first:'Dana',  last:'Hill',    email:'dana@cbr.com',      officeId:3},
+  {id:6,first:'Angela',last:'Tennison',email:'angela@lr.com',     officeId:4},
+  {id:7,first:'Rex',   last:'Morgan',  email:'rex@cbr.com',       officeId:3},
+  {id:8,first:'Julia', last:'Kim',     email:'julia@cbr.com',     officeId:3},
+  {id:9,first:'Mark',  last:'Burns',   email:'mark@lr.com',       officeId:4},
+  {id:10,first:'Bev',  last:'Stone',   email:'bev@lr.com',        officeId:4},
+];
+const TYPES={install:'Installation',remove:'Removal',service:'Service call',delivery:'Delivery/Pickup'};
+const POSTS=['White Post','Black Post','Brown Post','Red Post','Blue Post','Teal Post','H-Post','No Post'];
+const SIGNS=['Standard 18x24','Luxury 24x36','Parks 2x2','Standard 18x18'];
+const ACCS=['Coming Soon','3 Bed','4 Bed','Pool','For Rent','Open House','Directional'];
+const STATUSES=['complete','complete','complete','pending','scheduled','complete','cancelled'];
+const AMOUNTS={install:65,remove:0,service:55,delivery:35};
+
+function rndDate(daysBack){
+  const d=new Date();
+  d.setDate(d.getDate()-Math.floor(Math.random()*daysBack));
+  return d.toISOString().split('T')[0];
+}
+function rndItem(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function rndAccs(){
+  const n=Math.floor(Math.random()*3);
+  const picked=[];
+  for(let i=0;i<n;i++){const a=rndItem(ACCS);if(!picked.includes(a))picked.push(a);}
+  return picked;
+}
+
+// Generate 350 realistic orders
+const ADDRESSES=[
+  '4821 E Sunrise Dr','220 W Magee Rd','7703 N Oracle Rd','1550 S Kolb Rd',
+  '9901 E Broadway Blvd','3300 N Campbell Ave','5500 E Speedway Blvd','1100 W Ina Rd',
+  '8800 E 22nd St','600 S Wilmot Rd','2200 E Fort Lowell Rd','4100 S 6th Ave',
+  '3600 W Irvington Rd','5600 E Grant Rd','1800 N Stone Ave','9200 E Tanque Verde Rd',
+  '740 W Ajo Way','4500 N Flowing Wells','7000 N La Cholla Blvd','11000 N Oracle Rd',
+  '6400 E Tanque Verde Rd','3800 W Valencia Rd','2100 N Craycroft Rd','8500 E Golf Links',
+  '1200 W Ruthrauff Rd','5900 E 22nd St','4200 N Swan Rd','9100 E Wrightstown Rd',
+];
+
+let ALL_ORDERS=[];
+let orderId=1000;
+for(let i=0;i<350;i++){
+  const agent=rndItem(AGENTS);
+  const office=OFFICES.find(o=>o.id===agent.officeId);
+  const type=rndItem(['install','install','install','remove','service','delivery']);
+  const accs=type==='install'?rndAccs():[];
+  const post=type==='install'?rndItem(POSTS):null;
+  const sign=type==='install'?rndItem(SIGNS):null;
+  const baseAmt=AMOUNTS[type];
+  const accAmt=accs.length*8.60;
+  const amount=baseAmt+accAmt;
+  const status=type==='remove'?'complete':rndItem(STATUSES);
+  const serviceIssues=['Sign is leaning badly','Post snapped at base','Sign panel blown off post','Rider fell off','Post knocked over — car hit it','Sign faded and needs replacement panel','HOA complaint — needs repositioning'];
+  const notes=['Gate code is 1234','Park in driveway please','Call agent before arriving','Back gate — use alley entrance','Dog in yard — use front gate only',''];
+  ALL_ORDERS.push({
+    id:orderId++,
+    date:rndDate(730),
+    addr:rndItem(ADDRESSES)+', Tucson AZ',
+    agent,office,type,post,sign,accs,amount,status,
+    installer:rndItem(['Juan R.','Tom K.','Maria S.','Devon W.']),
+    photo:type==='install'&&Math.random()>0.3,
+    billing:rndItem(['invoice','auto','pay-now']),
+    notes:Math.random()>0.5?rndItem(notes):'',
+    serviceIssue:type==='service'?rndItem(serviceIssues):'',
+  });
+}
+ALL_ORDERS.sort((a,b)=>b.date.localeCompare(a.date));
+
+let filtered=[];
+let currentPage=1;
+const PAGE_SIZE=200;
+let sortCol='date';
+let sortDir=-1;
+let selectedOrderId=null;
+
+function fmtDate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmtMoney(n){return n===0?'$0.00':'$'+n.toFixed(2);}
+function ini(a){return(a.first[0]+a.last[0]).toUpperCase();}
+function avatarColor(id){const c=['#185FA5','#1D9E75','#BA7517','#7F77DD','#D85A30','#639922'];return c[id%c.length];}
+
+function applyFilters(){
+  const s=document.getElementById('search-inp').value.toLowerCase();
+
+  const tf=document.getElementById('type-filter').value;
+  const sf=document.getElementById('status-filter').value;
+  const of=document.getElementById('office-filter').value;
+  filtered=ALL_ORDERS.filter(o=>{
+    if(s&&!o.addr.toLowerCase().includes(s)&&!(o.agent.first+' '+o.agent.last).toLowerCase().includes(s)&&!o.office.name.toLowerCase().includes(s))return false;
+
+    if(tf&&o.type!==tf)return false;
+    if(sf&&o.status!==sf)return false;
+    if(of&&String(o.office.id)!==of)return false;
+    return true;
+  });
+  sortFiltered();
+  currentPage=1;
+  renderTable();
+  updateStats();
+}
+
+function sortFiltered(){
+  filtered.sort((a,b)=>{
+    let av,bv;
+    if(sortCol==='date'){av=a.date;bv=b.date;}
+    else if(sortCol==='addr'){av=a.addr;bv=b.addr;}
+    else if(sortCol==='agent'){av=a.agent.last;bv=b.agent.last;}
+    else if(sortCol==='type'){av=a.type;bv=b.type;}
+    else if(sortCol==='amount'){av=a.amount;bv=b.amount;}
+    else if(sortCol==='status'){av=a.status;bv=b.status;}
+    else{av=a.date;bv=b.date;}
+    return av<bv?sortDir:av>bv?-sortDir:0;
+  });
+}
+
+function sortBy(col){
+  if(sortCol===col) sortDir*=-1;
+  else{sortCol=col;sortDir=-1;}
+  document.querySelectorAll('[id^="sort-"]').forEach(el=>el.textContent='');
+  const el=document.getElementById('sort-'+col);
+  if(el) el.textContent=sortDir===-1?' ↓':' ↑';
+  sortFiltered();
+  renderTable();
+}
+
+function renderTable(){
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=filtered.slice(start,start+PAGE_SIZE);
+  document.getElementById('count-label').textContent=filtered.length.toLocaleString()+' orders'+(filtered.length>PAGE_SIZE?' — showing '+PAGE_SIZE+' at a time':'');
+  document.getElementById('order-tbody').innerHTML=page.map(o=>`
+    <tr onclick="openDrawer(${o.id})" class="${selectedOrderId===o.id?'selected':''}">
+      <td style="white-space:nowrap;color:#777">${fmtDate(o.date)}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${o.addr}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="avatar-sm" style="background:${avatarColor(o.agent.id)}">${ini(o.agent)}</div>
+          <div>
+            <div style="font-size:12px;font-weight:500">${o.agent.first} ${o.agent.last}</div>
+            <a class="email-link" href="mailto:${o.agent.email}" onclick="event.stopPropagation()" style="font-size:10px">${o.agent.email}</a>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge badge-${o.type}">${TYPES[o.type]}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <div style="width:8px;height:8px;border-radius:2px;background:${o.office.color};flex-shrink:0"></div>
+          <span style="font-size:11px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px">${o.office.name.split(' ').slice(0,2).join(' ')}</span>
+        </div>
+      </td>
+      <td style="font-size:11px;color:#555">${o.post||'—'}</td>
+      <td style="font-size:11px;color:#555;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.sign||'—'}</td>
+      <td style="font-size:11px;color:#555">${o.accs.length?o.accs.join(', '):'—'}</td>
+      <td style="font-weight:500;white-space:nowrap">${o.amount===0?'<span style="color:#aaa">$0.00</span>':fmtMoney(o.amount)}</td>
+      <td><span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span></td>
+    </tr>`).join('')||`<tr><td colspan="10" style="padding:24px;text-align:center;color:#999;font-size:13px">No orders match this filter.</td></tr>`;
+  renderPagination();
+}
+
+function renderPagination(){
+  const total=Math.ceil(filtered.length/PAGE_SIZE);
+  if(total<=1){document.getElementById('pagination').innerHTML='';return;}
+  let html=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>`;
+  for(let i=1;i<=total;i++){
+    html+=`<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>Next →</button>`;
+  html+=`<span style="margin-left:8px;font-size:12px;color:#999">Page ${currentPage} of ${total} · ${filtered.length.toLocaleString()} total orders</span>`;
+  document.getElementById('pagination').innerHTML=html;
+}
+
+function goPage(p){currentPage=p;renderTable();document.getElementById('table-wrap').scrollTop=0;}
+
+function updateStats(){
+  const shown=filtered.slice((currentPage-1)*PAGE_SIZE,currentPage*PAGE_SIZE);
+  document.getElementById('st-showing').textContent=Math.min(filtered.length,PAGE_SIZE).toLocaleString();
+  document.getElementById('st-installs').textContent=filtered.filter(o=>o.type==='install').length;
+  document.getElementById('st-removals').textContent=filtered.filter(o=>o.type==='remove').length;
+  document.getElementById('st-pending').textContent=filtered.filter(o=>o.status==='pending').length;
+
+  document.getElementById('sidebar-footer').textContent=ALL_ORDERS.length.toLocaleString()+' total orders\n'+ALL_ORDERS.filter(o=>o.status==='pending').length+' pending';
+}
+
+function openDrawer(id){
+  selectedOrderId=id;
+  const o=ALL_ORDERS.find(x=>x.id===id);
+  document.getElementById('drawer').classList.remove('closed');
+  document.getElementById('drawer-title').textContent='Order #'+o.id;
+  document.getElementById('drawer-body').innerHTML=`
+    <div class="dd-section">
+      <div class="dd-section-title">Order</div>
+      <div class="dd-row"><span class="dd-key">Type</span><span class="dd-val"><span class="badge badge-${o.type}">${TYPES[o.type]}</span></span></div>
+      <div class="dd-row"><span class="dd-key">Date</span><span class="dd-val">${fmtDate(o.date)}</span></div>
+      <div class="dd-row"><span class="dd-key">Status</span><span class="dd-val"><span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span></span></div>
+      <div class="dd-row"><span class="dd-key">Amount</span><span class="dd-val">${fmtMoney(o.amount)}</span></div>
+      <div class="dd-row"><span class="dd-key">Billing</span><span class="dd-val">${o.billing}</span></div>
+    </div>
+    <div class="dd-section">
+      <div class="dd-section-title">Property</div>
+      <div class="dd-row"><span class="dd-key">Address</span><span class="dd-val" style="font-size:11px">${o.addr}</span></div>
+    </div>
+    <div class="dd-section">
+      <div class="dd-section-title">Agent</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div class="avatar-sm" style="background:${avatarColor(o.agent.id)};width:30px;height:30px;font-size:11px">${ini(o.agent)}</div>
+        <div>
+          <div style="font-size:13px;font-weight:500">${o.agent.first} ${o.agent.last}</div>
+          <a class="email-link" href="mailto:${o.agent.email}">${o.agent.email}</a>
+        </div>
+      </div>
+      <div class="dd-row"><span class="dd-key">Office</span><span class="dd-val" style="font-size:11px">${o.office.name}</span></div>
+    </div>
+    ${o.type==='service'?`
+    <div class="dd-section">
+      <div class="dd-section-title">Issue reported by agent</div>
+      <div style="padding:10px 12px;background:#FAEEDA;border-radius:8px;font-size:13px;color:#633806;font-weight:500;line-height:1.5">
+        ${o.serviceIssue||'No issue description provided.'}
+      </div>
+    </div>`:''}
+    ${o.type==='install'?`
+    <div class="dd-section">
+      <div class="dd-section-title">Install details</div>
+      <div class="dd-row"><span class="dd-key">Post type</span><span class="dd-val">${o.post||'—'}</span></div>
+      <div class="dd-row"><span class="dd-key">Sign panel</span><span class="dd-val" style="font-size:11px">${o.sign||'—'}</span></div>
+      <div class="dd-row"><span class="dd-key">Sign type</span><span class="dd-val" style="font-size:11px">${o.sign?o.sign.split(' ').pop()||'—':'—'}</span></div>
+      <div class="dd-row"><span class="dd-key">Accessories</span><span class="dd-val" style="font-size:11px">${o.accs.length?o.accs.join(', '):'None'}</span></div>
+      <div class="dd-row"><span class="dd-key">Installer</span><span class="dd-val">${o.installer}</span></div>
+      <div class="dd-row"><span class="dd-key">Photo sent</span><span class="dd-val">${o.photo?'<span style="color:#27500A;font-weight:500">Yes</span>':'<span style="color:#999">No</span>'}</span></div>
+    </div>`:''}
+    ${o.type==='remove'||o.type==='delivery'?`
+    <div class="dd-section">
+      <div class="dd-section-title">Sign details</div>
+      <div class="dd-row"><span class="dd-key">Sign type</span><span class="dd-val">${o.sign||'—'}</span></div>
+    </div>`:''}
+    ${o.notes?`
+    <div class="dd-section">
+      <div class="dd-section-title">Notes from agent</div>
+      <div style="padding:10px 12px;background:#f5f5f3;border-radius:8px;font-size:12px;color:#555;line-height:1.5">${o.notes}</div>
+    </div>`:''}
+    <div class="dd-section">
+      <div class="dd-section-title">Actions</div>
+      <div class="dd-actions">
+        <button class="btn" style="font-size:12px;text-align:left" onclick="window.location='mailto:${o.agent.email}'">Email ${o.agent.first}</button>
+        ${o.status==='pending'?`<button class="btn" style="font-size:12px;text-align:left" onclick="alert('Mark complete')">Mark complete</button>`:''}
+        ${o.type==='install'&&o.status==='complete'?`<button class="btn" style="font-size:12px;text-align:left;color:#633806;border-color:#FAC775;background:#FAEEDA" onclick="alert('Removal order pre-filled for:\\n${o.addr}${o.notes?'\\n\\nInstall notes carried over to removal:\\n\\"'+o.notes+'\\"\\n\\nInstaller will see these notes.':'\\n\\nNo notes from original install.'}')">Schedule removal for this property</button>`:''}
+        <button class="btn" style="font-size:12px;text-align:left" onclick="alert('View on peg board map')">View on peg board</button>
+        <button class="btn" style="font-size:12px;text-align:left;color:#791F1F;border-color:#F09595;background:#FCEBEB" onclick="alert('Cancel order #${o.id}?')">Cancel order</button>
+      </div>
+    </div>`;
+  renderTable();
+}
+
+function closeDrawer(){
+  selectedOrderId=null;
+  document.getElementById('drawer').classList.add('closed');
+  renderTable();
+}
+
+function quickFilter(type){
+  resetFilters();
+  if(type==='today'){
+    const today=new Date().toISOString().split('T')[0];
+    document.getElementById('date-from').value=today;
+    document.getElementById('date-to').value=today;
+  } else if(type==='pending'){
+    document.getElementById('status-filter').value='pending';
+  } else if(type==='install'||type==='remove'){
+    document.getElementById('type-filter').value=type;
+  }
+  applyFilters();
+}
+
+function resetFilters(){
+  document.getElementById('search-inp').value='';
+
+  document.getElementById('type-filter').value='';
+  document.getElementById('status-filter').value='';
+  document.getElementById('office-filter').value='';
+  applyFilters();
+}
+
+function populateOfficeFilter(){
+  document.getElementById('office-filter').innerHTML='<option value="">All offices</option>'+
+    OFFICES.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+}
+
+function exportExcel(){alert('Exporting '+filtered.length+' orders to Excel...');}
+
+populateOfficeFilter();
+applyFilters();
+document.getElementById('sort-date').textContent=' ↓';
+</script>
+</body>
+</html>

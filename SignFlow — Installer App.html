@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Installer App</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#e8e8e8;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:30px 20px;gap:24px;flex-wrap:wrap}
+.phone{width:375px;height:812px;background:#000;border-radius:50px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.4);flex-shrink:0;position:relative;overflow:hidden}
+.screen{width:100%;height:100%;background:#f2f2f7;border-radius:40px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.status-bar{background:#000;color:#fff;padding:14px 24px 8px;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;flex-shrink:0}
+.status-right{display:flex;align-items:center;gap:6px;font-size:13px}
+
+/* NAV */
+.nav-bar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.15);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.nav-title{font-size:17px;font-weight:600;color:#000}
+.nav-sub{font-size:12px;color:#8E8E93;margin-top:1px}
+.nav-btn{width:32px;height:32px;border-radius:50%;background:#f2f2f7;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+.nav-btn:active{background:#e5e5ea}
+
+/* TAB BAR */
+.tab-bar{background:#fff;border-top:0.5px solid rgba(0,0,0,.15);padding:8px 0 20px;display:flex;flex-shrink:0}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0}
+.tab-icon{font-size:22px;line-height:1}
+.tab-label{font-size:10px;color:#8E8E93}
+.tab.active .tab-label{color:#185FA5}
+
+/* SCROLL */
+.scroll-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* STOP CARDS */
+.stop-card{background:#fff;margin:8px 12px 0;border-radius:14px;overflow:hidden;cursor:pointer;border:0.5px solid rgba(0,0,0,.1)}
+.stop-card.done{opacity:.55}
+.stop-card.active-stop{border:2px solid #185FA5}
+.stop-header{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.stop-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.stop-addr{font-size:14px;font-weight:600;line-height:1.3;flex:1}
+.stop-meta{font-size:12px;color:#8E8E93;margin-top:2px}
+.stop-distance{font-size:12px;color:#185FA5;font-weight:500;white-space:nowrap}
+.stop-divider{height:0.5px;background:rgba(0,0,0,.1);margin:0 14px}
+.stop-body{padding:10px 14px;display:flex;align-items:center;gap:10px}
+.sign-thumb{width:56px;height:42px;background:#E6F1FB;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:0.5px solid rgba(0,0,0,.1)}
+.sign-info{flex:1}
+.sign-name{font-size:13px;font-weight:500}
+.sign-type-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;margin-top:3px}
+.tag-install{background:#E6F1FB;color:#0C447C}
+.tag-remove{background:#F1EFE8;color:#5F5E5A}
+.tag-service{background:#EAF3DE;color:#27500A}
+.tag-delivery{background:#E1F5EE;color:#085041}
+.stop-actions{display:flex;gap:8px;padding:10px 14px;border-top:0.5px solid rgba(0,0,0,.08)}
+.action-btn{flex:1;padding:9px;border-radius:10px;border:none;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.btn-nav{background:#185FA5;color:#fff}
+.btn-done{background:#34C759;color:#fff}
+.btn-done.completed{background:#E5E5EA;color:#8E8E93}
+.btn-photo{background:#FF9500;color:#fff}
+
+/* DETAIL SCREEN */
+.detail-screen{display:none;flex-direction:column;height:100%}
+.detail-img{width:100%;height:160px;background:#E6F1FB;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.detail-img-placeholder{text-align:center;color:#185FA5}
+.detail-body{flex:1;overflow-y:auto;padding:16px}
+.detail-section{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px}
+.detail-section-title{font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.detail-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px}
+.detail-row:last-child{margin-bottom:0}
+.detail-key{font-size:14px;color:#8E8E93}
+.detail-val{font-size:14px;font-weight:500;text-align:right;max-width:200px}
+.issue-box{background:#FAEEDA;border-radius:10px;padding:10px 12px;font-size:13px;color:#633806;line-height:1.5;font-weight:500}
+.complete-btn-big{width:100%;padding:16px;border-radius:14px;border:none;font-size:17px;font-weight:700;cursor:pointer;margin-top:4px}
+.complete-btn-big.install{background:#34C759;color:#fff}
+.complete-btn-big.remove{background:#FF3B30;color:#fff}
+.complete-btn-big.service{background:#FF9500;color:#fff}
+.complete-btn-big.done{background:#E5E5EA;color:#8E8E93}
+.photo-upload-area{border:2px dashed rgba(0,0,0,.2);border-radius:12px;padding:20px;text-align:center;margin-bottom:12px;cursor:pointer;background:#fff}
+.photo-upload-area:active{background:#f2f2f7}
+
+/* PULL LIST */
+.pull-section{background:#fff;margin:8px 12px 0;border-radius:14px;overflow:hidden}
+.pull-section-header{padding:12px 14px;background:#185FA5;color:#fff;font-size:13px;font-weight:600}
+.pull-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.pull-row:last-child{border-bottom:none}
+.pull-check{width:22px;height:22px;border-radius:6px;border:1.5px solid rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:13px}
+.pull-check.on{background:#34C759;border-color:#34C759;color:#fff}
+.pull-name{flex:1;font-size:14px}
+.pull-count{font-size:13px;font-weight:600;color:#185FA5}
+
+/* COMPLETED */
+.completed-card{background:#fff;margin:8px 12px 0;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.completed-check{width:28px;height:28px;border-radius:50%;background:#34C759;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0}
+.completed-addr{font-size:14px;font-weight:500}
+.completed-meta{font-size:12px;color:#8E8E93;margin-top:2px}
+.completed-time{font-size:12px;color:#34C759;font-weight:500;white-space:nowrap}
+
+/* SCREEN LABELS */
+.screen-label{text-align:center;font-size:13px;color:#555;font-weight:500;margin-bottom:8px}
+
+.phones-row{display:flex;gap:24px;flex-wrap:wrap;justify-content:center}
+.phone-col{display:flex;flex-direction:column;align-items:center;gap:10px}
+</style>
+</head>
+<body>
+
+<div class="phones-row">
+
+  <!-- PHONE 1: TODAY'S STOPS -->
+  <div class="phone-col">
+    <div class="screen-label">Today's stops</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          12:07
+          <div class="status-right">
+            <svg width="16" height="12" fill="white" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+            5G
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/><path d="M23 4v4a2 2 0 000-4z" fill="white" opacity=".4"/></svg>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div>
+            <div class="nav-title">Juan R. — Today</div>
+            <div class="nav-sub">8 stops · East zone</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div class="nav-btn" onclick="showScreen('menu')">
+              <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><line x1="0" y1="1" x2="18" y2="1" stroke="#111" stroke-width="2" stroke-linecap="round"/><line x1="0" y1="7" x2="18" y2="7" stroke="#111" stroke-width="2" stroke-linecap="round"/><line x1="0" y1="13" x2="18" y2="13" stroke="#111" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div style="padding:8px 12px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:12px;color:#8E8E93">Progress</span>
+            <span style="font-size:12px;font-weight:600;color:#34C759">2 of 8 complete</span>
+          </div>
+          <div style="height:6px;background:#E5E5EA;border-radius:3px;overflow:hidden">
+            <div style="width:25%;height:100%;background:#34C759;border-radius:3px"></div>
+          </div>
+        </div>
+
+        <div class="scroll-content" id="stops-list">
+
+          <!-- STOP 1 — DONE -->
+          <div class="stop-card done" style="margin-top:10px">
+            <div class="stop-header">
+              <div class="stop-num" style="background:#34C759">1</div>
+              <div style="flex:1">
+                <div class="stop-addr">4821 E Sunrise Dr</div>
+                <div class="stop-meta">Tucson AZ 85718</div>
+              </div>
+              <div style="color:#34C759;font-size:20px">✓</div>
+            </div>
+          </div>
+
+          <!-- STOP 2 — DONE -->
+          <div class="stop-card done">
+            <div class="stop-header">
+              <div class="stop-num" style="background:#34C759">2</div>
+              <div style="flex:1">
+                <div class="stop-addr">220 W Magee Rd</div>
+                <div class="stop-meta">Tucson AZ 85742</div>
+              </div>
+              <div style="color:#34C759;font-size:20px">✓</div>
+            </div>
+          </div>
+
+          <!-- STOP 3 — ACTIVE (UP NEXT) -->
+          <div class="stop-card active-stop" onclick="showScreen('detail')">
+            <div style="background:#185FA5;padding:4px 14px">
+              <span style="font-size:11px;font-weight:700;color:#fff;letter-spacing:.05em">UP NEXT</span>
+            </div>
+            <div class="stop-header">
+              <div class="stop-num" style="background:#185FA5">3</div>
+              <div style="flex:1">
+                <div class="stop-addr">7703 N Oracle Rd</div>
+                <div class="stop-meta">Sarah Johnson · Long Realty</div>
+              </div>
+              <div class="stop-distance">0.8 mi</div>
+            </div>
+            <div class="stop-divider"></div>
+            <div class="stop-body">
+              <div class="sign-thumb">
+                <svg width="32" height="24" viewBox="0 0 32 24" fill="none"><rect x="1" y="1" width="30" height="16" rx="2" stroke="#185FA5" stroke-width="1.3" fill="#E6F1FB"/><path d="M3 13l6-4 5 3 5-4 9 5" stroke="#185FA5" stroke-width="1.1" stroke-linecap="round"/></svg>
+              </div>
+              <div class="sign-info">
+                <div class="sign-name">Angela Tennison 18x24</div>
+                <span class="sign-type-tag tag-install">Installation</span>
+              </div>
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#C7C7CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="stop-actions">
+              <button class="action-btn btn-nav" onclick="event.stopPropagation();alert('Opens Google Maps to 7703 N Oracle Rd')">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 4H13L9.5 7.5l1.5 4L7 9l-4 2.5 1.5-4L1 5h4.5z" stroke="white" stroke-width="1.2" fill="none"/></svg>
+                Navigate
+              </button>
+              <button class="action-btn btn-done" onclick="event.stopPropagation();markDone(this)">
+                ✓ Mark done
+              </button>
+            </div>
+          </div>
+
+          <!-- STOP 4 -->
+          <div class="stop-card">
+            <div class="stop-header">
+              <div class="stop-num" style="background:#8E8E93">4</div>
+              <div style="flex:1">
+                <div class="stop-addr">1550 S Kolb Rd</div>
+                <div class="stop-meta">Mike Torres · KW Tucson</div>
+              </div>
+              <div class="stop-distance">2.3 mi</div>
+            </div>
+            <div class="stop-divider"></div>
+            <div class="stop-body">
+              <div class="sign-thumb" style="background:#F1EFE8">
+                <svg width="32" height="24" viewBox="0 0 32 24" fill="none"><rect x="1" y="1" width="30" height="16" rx="2" stroke="#888" stroke-width="1.3" fill="#F1EFE8"/></svg>
+              </div>
+              <div class="sign-info">
+                <div class="sign-name">Mike Torres 18x24</div>
+                <span class="sign-type-tag tag-remove">Removal</span>
+              </div>
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#C7C7CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <!-- STOP 5 -->
+          <div class="stop-card">
+            <div class="stop-header">
+              <div class="stop-num" style="background:#8E8E93">5</div>
+              <div style="flex:1">
+                <div class="stop-addr">9901 E Broadway Blvd</div>
+                <div class="stop-meta">Linda Park · RE/MAX</div>
+              </div>
+              <div class="stop-distance">3.1 mi</div>
+            </div>
+            <div class="stop-divider"></div>
+            <div class="stop-body">
+              <div class="sign-thumb" style="background:#EAF3DE">
+                <svg width="32" height="24" viewBox="0 0 32 24" fill="none"><rect x="1" y="1" width="30" height="16" rx="2" stroke="#639922" stroke-width="1.3" fill="#EAF3DE"/></svg>
+              </div>
+              <div class="sign-info">
+                <div class="sign-name">Linda Park Luxury 24x36</div>
+                <span class="sign-type-tag tag-service">Service call</span>
+              </div>
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#C7C7CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+
+          <div style="height:16px"></div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab active">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="18" rx="3" stroke="#185FA5" stroke-width="1.8"/><path d="M6 11h10M6 7h6M6 15h8" stroke="#185FA5" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="tab-label" style="color:#185FA5">Stops</div>
+          </div>
+          <div class="tab" onclick="showScreen('pull')">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="2" width="16" height="18" rx="2" stroke="#8E8E93" stroke-width="1.8"/><path d="M7 7h8M7 11h8M7 15h5" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="tab-label">Pull list</div>
+          </div>
+          <div class="tab" onclick="showScreen('completed')">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#8E8E93" stroke-width="1.8"/><path d="M7 11l3 3 5-5" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="tab-label">Completed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: STOP DETAIL -->
+  <div class="phone-col">
+    <div class="screen-label">Stop detail</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          12:09
+          <div class="status-right">
+            <svg width="16" height="12" fill="white" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+            5G
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/><path d="M23 4v4a2 2 0 000-4z" fill="white" opacity=".4"/></svg>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="nav-btn">
+              <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M9 1L1 8l8 7" stroke="#185FA5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div class="nav-title">Stop 3 of 8</div>
+              <div class="nav-sub">7703 N Oracle Rd</div>
+            </div>
+          </div>
+          <button style="background:#185FA5;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer" onclick="alert('Opens Google Maps navigation')">Navigate</button>
+        </div>
+
+        <div class="scroll-content">
+          <!-- SIGN IMAGE -->
+          <div class="detail-img">
+            <div class="detail-img-placeholder">
+              <svg width="60" height="45" viewBox="0 0 60 45" fill="none"><rect x="1" y="1" width="58" height="32" rx="3" stroke="#185FA5" stroke-width="2" fill="#E6F1FB"/><path d="M5 27l12-9 10 7 11-8 18 10" stroke="#185FA5" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="14" r="5" stroke="#185FA5" stroke-width="1.8"/><line x1="30" y1="33" x2="30" y2="44" stroke="#185FA5" stroke-width="2" stroke-linecap="round"/><line x1="24" y1="33" x2="36" y2="33" stroke="#185FA5" stroke-width="2" stroke-linecap="round"/></svg>
+              <div style="font-size:13px;font-weight:600;margin-top:8px">Angela Tennison 18x24</div>
+              <div style="font-size:11px;color:#185FA5;margin-top:2px">Sign image · tap to enlarge</div>
+            </div>
+          </div>
+
+          <div style="padding:12px">
+
+            <!-- ORDER DETAILS -->
+            <div class="detail-section">
+              <div class="detail-section-title">Order details</div>
+              <div class="detail-row"><span class="detail-key">Type</span><span class="detail-val" style="color:#0C447C;font-weight:600">Installation</span></div>
+              <div class="detail-row"><span class="detail-key">Post type</span><span class="detail-val">White Post</span></div>
+              <div class="detail-row"><span class="detail-key">Accessories</span><span class="detail-val">Coming Soon, 3 Bed Rider</span></div>
+              <div class="detail-row"><span class="detail-key">Agent</span><span class="detail-val">Sarah Johnson</span></div>
+              <div class="detail-row"><span class="detail-key">Office</span><span class="detail-val">Long Realty Foothills</span></div>
+            </div>
+
+            <!-- ACCESS NOTES -->
+            <div class="detail-section">
+              <div class="detail-section-title">Notes from agent</div>
+              <div style="font-size:14px;color:#333;line-height:1.5">Gate code is 1234. Park in the driveway please. Sign goes on the left side of the driveway facing Oracle.</div>
+            </div>
+
+            <!-- PHOTO UPLOAD -->
+            <div class="detail-section">
+              <div class="detail-section-title">Photo confirmation</div>
+              <div class="photo-upload-area" onclick="alert('Camera opens to take confirmation photo')">
+                <svg width="32" height="28" viewBox="0 0 32 28" fill="none"><rect x="1" y="5" width="30" height="22" rx="3" stroke="#8E8E93" stroke-width="1.8"/><circle cx="16" cy="16" r="5" stroke="#8E8E93" stroke-width="1.8"/><path d="M10 5l2-4h8l2 4" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <div style="font-size:14px;font-weight:600;color:#8E8E93;margin-top:8px">Tap to take photo</div>
+                <div style="font-size:12px;color:#C7C7CC;margin-top:3px">Required before marking complete</div>
+              </div>
+            </div>
+
+            <!-- COMPLETE BUTTON -->
+            <button class="complete-btn-big install" onclick="alert('Stop marked complete! Photo sent to agent.')">
+              ✓ Mark installation complete
+            </button>
+
+            <div style="height:16px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: PULL LIST -->
+  <div class="phone-col">
+    <div class="screen-label">Pull list & completed</div>
+    <div class="phone">
+      <div class="screen">
+        <div class="status-bar">
+          12:11
+          <div class="status-right">
+            <svg width="16" height="12" fill="white" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1"/><rect x="4.5" y="2" width="3" height="10" rx="1"/><rect x="9" y="0" width="3" height="12" rx="1"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" opacity=".3"/></svg>
+            5G
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" stroke-opacity=".35"/><rect x="2" y="2" width="16" height="8" rx="2" fill="white"/><path d="M23 4v4a2 2 0 000-4z" fill="white" opacity=".4"/></svg>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div>
+            <div class="nav-title">Pull list — today</div>
+            <div class="nav-sub">What to load before you leave</div>
+          </div>
+        </div>
+
+        <div class="scroll-content">
+          <div style="padding:10px 12px 4px;font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:.05em">Signs to bring</div>
+
+          <div class="pull-section">
+            <div class="pull-section-header">Installs — 5 signs needed</div>
+            <div class="pull-row">
+              <div class="pull-check on" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''">✓</div>
+              <div class="pull-name">Angela Tennison 18x24</div>
+              <div class="pull-count">×1</div>
+            </div>
+            <div class="pull-row">
+              <div class="pull-check on" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''">✓</div>
+              <div class="pull-name">Mike Torres 18x24</div>
+              <div class="pull-count">×1</div>
+            </div>
+            <div class="pull-row">
+              <div class="pull-check" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''"></div>
+              <div class="pull-name">Sarah Johnson Luxury 24x36</div>
+              <div class="pull-count">×1</div>
+            </div>
+            <div class="pull-row">
+              <div class="pull-check" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''"></div>
+              <div class="pull-name">Linda Park 18x24</div>
+              <div class="pull-count">×2</div>
+            </div>
+          </div>
+
+          <div style="padding:10px 12px 4px;font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:.05em">Posts to bring</div>
+
+          <div class="pull-section">
+            <div class="pull-section-header">Post types — 5 posts needed</div>
+            <div class="pull-row">
+              <div class="pull-check on" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''">✓</div>
+              <div class="pull-name">White Post</div>
+              <div class="pull-count">×3</div>
+            </div>
+            <div class="pull-row">
+              <div class="pull-check" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''"></div>
+              <div class="pull-name">Black Post — Luxury</div>
+              <div class="pull-count">×1</div>
+            </div>
+            <div class="pull-row">
+              <div class="pull-check" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''"></div>
+              <div class="pull-name">Red Post</div>
+              <div class="pull-count">×1</div>
+            </div>
+          </div>
+
+          <div style="padding:10px 12px 4px;font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:.05em">Accessories</div>
+
+          <div class="pull-section">
+            <div class="pull-section-header">Riders & add-ons</div>
+            <div class="pull-row">
+              <div class="pull-check on" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''">✓</div>
+              <div class="pull-name">Coming Soon Rider</div>
+              <div class="pull-count">×2</div>
+            </div>
+            <div class="pull-row">
+              <div class="pull-check" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''"></div>
+              <div class="pull-name">3 Bedroom Rider</div>
+              <div class="pull-count">×1</div>
+            </div>
+            <div class="pull-row">
+              <div class="pull-check" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'✓':''"></div>
+              <div class="pull-name">Open House Rider</div>
+              <div class="pull-count">×1</div>
+            </div>
+          </div>
+
+          <div style="padding:10px 12px 4px;font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:.05em">Completed today</div>
+
+          <div class="completed-card">
+            <div class="completed-check">✓</div>
+            <div style="flex:1">
+              <div class="completed-addr">4821 E Sunrise Dr</div>
+              <div class="completed-meta">Sarah Johnson · Installation</div>
+            </div>
+            <div class="completed-time">8:42 AM</div>
+          </div>
+          <div class="completed-card">
+            <div class="completed-check">✓</div>
+            <div style="flex:1">
+              <div class="completed-addr">220 W Magee Rd</div>
+              <div class="completed-meta">Mike Torres · Removal</div>
+            </div>
+            <div class="completed-time">9:15 AM</div>
+          </div>
+
+          <div style="height:20px"></div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="18" height="18" rx="3" stroke="#8E8E93" stroke-width="1.8"/><path d="M6 11h10M6 7h6M6 15h8" stroke="#8E8E93" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="tab-label">Stops</div>
+          </div>
+          <div class="tab active">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="2" width="16" height="18" rx="2" stroke="#185FA5" stroke-width="1.8"/><path d="M7 7h8M7 11h8M7 15h5" stroke="#185FA5" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="tab-label" style="color:#185FA5">Pull list</div>
+          </div>
+          <div class="tab">
+            <div class="tab-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#8E8E93" stroke-width="1.8"/><path d="M7 11l3 3 5-5" stroke="#8E8E93" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="tab-label">Completed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function markDone(btn){
+  btn.textContent='✓ Done';
+  btn.classList.add('completed');
+  btn.disabled=true;
+}
+</script>
+</body>
+</html>

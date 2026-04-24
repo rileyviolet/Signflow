@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Place Order</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.page{max-width:680px;margin:0 auto;padding:20px 16px 60px}
+.page-title{font-size:18px;font-weight:500;margin-bottom:4px}
+.page-sub{font-size:12px;color:#999;margin-bottom:20px}
+
+.section{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.section-label{font-size:10px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.08em;padding:14px 18px 0}
+.section-title{font-size:14px;font-weight:500;padding:4px 18px 14px;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.section-body{padding:16px 18px}
+
+.form-label{font-size:11px;font-weight:500;color:#555;display:block;margin-bottom:5px}
+.form-input{width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;background:#fff;color:#111}
+.form-input:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.form-textarea{width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;background:#fff;color:#111;resize:vertical;min-height:68px;font-family:system-ui}
+.form-textarea:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-group{margin-bottom:12px}
+.form-group:last-child{margin-bottom:0}
+
+.btn{padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500}
+.btn-primary:hover{background:#0C447C}
+.btn-submit{padding:12px 36px;font-size:15px;border-radius:10px;font-weight:500}
+
+.order-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.ot-card{border:1.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.ot-card:hover{border-color:rgba(0,0,0,.25);background:#fafaf9}
+.ot-card.selected{border-color:#185FA5;background:#E6F1FB}
+.ot-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ot-label{font-size:13px;font-weight:500;margin-bottom:1px}
+.ot-sub{font-size:11px;color:#999;line-height:1.3}
+.ot-card.selected .ot-sub{color:#185FA5}
+
+.date-row{display:flex;gap:8px;margin-bottom:4px}
+.date-opt{flex:1;border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px}
+.date-opt.selected{border-color:#185FA5;background:#E6F1FB;color:#0C447C}
+.date-radio{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(0,0,0,.2);flex-shrink:0}
+.date-radio.on{border-color:#185FA5;background:#185FA5;box-shadow:inset 0 0 0 3px #fff}
+
+.map-box{width:100%;height:130px;background:#e8ede8;border-radius:8px;border:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;margin-top:10px;position:relative;overflow:hidden}
+.map-grid{position:absolute;inset:0;opacity:.12}
+
+.post-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.post-card{border:1.5px solid rgba(0,0,0,.1);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .12s}
+.post-card:hover{border-color:rgba(0,0,0,.3)}
+.post-card.selected{border-color:#185FA5;background:#E6F1FB}
+.post-img{width:100%;aspect-ratio:1;background:#f5f5f3;display:flex;align-items:center;justify-content:center}
+.post-body{padding:7px 9px}
+.post-name{font-size:11px;font-weight:500;margin-bottom:1px;line-height:1.3}
+.post-price{font-size:11px;color:#185FA5;font-weight:500}
+
+.sign-hang-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.hang-card{border:1.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:9px}
+.hang-card:hover{border-color:rgba(0,0,0,.25);background:#fafaf9}
+.hang-card.selected{border-color:#185FA5;background:#E6F1FB}
+.hang-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hang-label{font-size:13px;font-weight:500;margin-bottom:1px}
+.hang-sub{font-size:11px;color:#999;line-height:1.3}
+.hang-card.selected .hang-sub{color:#185FA5}
+
+.divider-or{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.divider-or::before,.divider-or::after{content:'';flex:1;height:0.5px;background:rgba(0,0,0,.12)}
+.divider-or span{font-size:11px;color:#999;white-space:nowrap}
+
+.sign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.sign-card{border:1.5px solid rgba(0,0,0,.1);border-radius:10px;overflow:hidden;cursor:pointer}
+.sign-card:hover{border-color:rgba(0,0,0,.25)}
+.sign-card.selected{border-color:#185FA5;background:#E6F1FB}
+.sign-img{width:100%;aspect-ratio:4/3;background:#f5f5f3;display:flex;align-items:center;justify-content:center}
+.sign-body{padding:7px 9px}
+.sign-name{font-size:11px;font-weight:500;line-height:1.3}
+.sign-size{font-size:10px;color:#999;margin-top:1px}
+
+.acc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.acc-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid rgba(0,0,0,.1);border-radius:8px;cursor:pointer}
+.acc-item:hover{border-color:rgba(0,0,0,.25)}
+.acc-item.selected{border-color:#185FA5;background:#E6F1FB}
+.acc-check{width:17px;height:17px;border-radius:4px;border:1.5px solid rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px}
+.acc-item.selected .acc-check{background:#185FA5;border-color:#185FA5;color:#fff}
+.acc-name{flex:1;font-size:12px;font-weight:500;line-height:1.3}
+.acc-price{font-size:12px;color:#185FA5;font-weight:500;white-space:nowrap}
+
+.photo-row{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:0.5px solid rgba(0,0,0,.07);cursor:pointer}
+.photo-checkbox{width:15px;height:15px;border:1px solid rgba(0,0,0,.25);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;background:#fff}
+.photo-checkbox.on{background:#185FA5;border-color:#185FA5;color:#fff}
+.photo-text{font-size:12px;color:#888;user-select:none}
+
+.billing-opts{display:flex;flex-direction:column;gap:8px}
+.billing-opt{border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.billing-opt.selected{border-color:#185FA5;background:#E6F1FB}
+.billing-radio{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(0,0,0,.2);flex-shrink:0}
+.billing-radio.on{border-color:#185FA5;background:#185FA5;box-shadow:inset 0 0 0 3px #fff}
+
+.order-summary{background:#f5f5f3;border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.sum-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;font-size:13px;gap:12px}
+.sum-row:last-child{margin-bottom:0}
+.sum-label{color:#555;flex-shrink:0}
+.sum-val{font-weight:500;text-align:right;font-size:13px}
+.sum-divider{border:none;border-top:0.5px solid rgba(0,0,0,.12);margin:10px 0}
+.sum-total{display:flex;justify-content:space-between;font-size:16px;font-weight:500}
+
+.submit-section{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.submit-note{font-size:12px;color:#888}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+
+#confirmation{display:none;text-align:center;padding:40px 20px;background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px}
+.install-only{display:block}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-title">Place an order</div>
+  <div class="page-sub">Fill out the form below — all sections stay open so you can review and edit before submitting.</div>
+
+  <div id="order-form">
+
+    <!-- ORDER TYPE & TIMING -->
+    <div class="section">
+      <div class="section-label">Step 1</div>
+      <div class="section-title">Order type &amp; timing</div>
+      <div class="section-body">
+        <div class="form-group">
+          <div class="form-label" style="margin-bottom:8px">What do you need?</div>
+          <div class="order-type-grid">
+            <div class="ot-card selected" id="ot-install" onclick="selectOT('install')">
+              <div class="ot-icon" style="background:#E6F1FB"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="2" x2="11" y2="20" stroke="#185FA5" stroke-width="1.7" stroke-linecap="round"/><line x1="7" y1="2" x2="15" y2="2" stroke="#185FA5" stroke-width="1.7" stroke-linecap="round"/><rect x="3" y="6" width="16" height="9" rx="1.5" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.4"/></svg></div>
+              <div><div class="ot-label">Installation</div><div class="ot-sub">Install sign at a property</div></div>
+            </div>
+            <div class="ot-card" id="ot-remove" onclick="selectOT('remove')">
+              <div class="ot-icon" style="background:#FAEEDA"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="2" x2="11" y2="20" stroke="#BA7517" stroke-width="1.7" stroke-linecap="round"/><rect x="3" y="6" width="16" height="9" rx="1.5" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.4"/><line x1="7" y1="9" x2="15" y2="12" stroke="#BA7517" stroke-width="1.4" stroke-linecap="round"/><line x1="15" y1="9" x2="7" y2="12" stroke="#BA7517" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+              <div><div class="ot-label">Removal</div><div class="ot-sub">Remove sign from a property</div></div>
+            </div>
+            <div class="ot-card" id="ot-service" onclick="selectOT('service')">
+              <div class="ot-icon" style="background:#EAF3DE"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="7.5" stroke="#3B6D11" stroke-width="1.4"/><path d="M11 7.5v4" stroke="#3B6D11" stroke-width="1.7" stroke-linecap="round"/><circle cx="11" cy="14.5" r="1" fill="#3B6D11"/></svg></div>
+              <div><div class="ot-label">Service call</div><div class="ot-sub">Sign down or needs attention</div></div>
+            </div>
+            <div class="ot-card" id="ot-delivery" onclick="selectOT('delivery')">
+              <div class="ot-icon" style="background:#E1F5EE"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="7" width="13" height="10" rx="1.5" stroke="#0F6E56" stroke-width="1.4"/><path d="M14 9.5h3l3 4v4h-6V9.5z" stroke="#0F6E56" stroke-width="1.4" stroke-linejoin="round"/><circle cx="5" cy="18" r="1.8" stroke="#0F6E56" stroke-width="1.2"/><circle cx="18" cy="18" r="1.8" stroke="#0F6E56" stroke-width="1.2"/></svg></div>
+              <div><div class="ot-label">Delivery / pickup</div><div class="ot-sub">Drop off or collect signs</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label" style="margin-bottom:7px">When do you need this?</div>
+          <div class="date-row">
+            <div class="date-opt selected" id="do-asap" onclick="selectDate('asap')"><div class="date-radio on" id="dr-asap"></div>As soon as possible</div>
+            <div class="date-opt" id="do-date" onclick="selectDate('date')"><div class="date-radio" id="dr-date"></div>Not before a specific date</div>
+          </div>
+          <div id="date-picker-wrap" style="display:none;margin-top:8px"><input type="date" class="form-input" id="specific-date" style="max-width:200px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROPERTY ADDRESS -->
+    <div class="section">
+      <div class="section-label">Step 2</div>
+      <div class="section-title">Property address</div>
+      <div class="section-body">
+        <div class="form-group"><label class="form-label">Street address</label><input class="form-input" id="addr-street" placeholder="4821 E Sunrise Dr" oninput="updateMap()"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">City</label><input class="form-input" id="addr-city" value="Tucson"></div>
+          <div class="form-group"><label class="form-label">Zip code</label><input class="form-input" id="addr-zip" placeholder="85718"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Access instructions <span style="font-weight:400;color:#999">(optional)</span></label><input class="form-input" id="addr-access" placeholder="Gate code, where to park, etc."></div>
+        <div class="map-box">
+          <svg class="map-grid" viewBox="0 0 400 130" preserveAspectRatio="none"><defs><pattern id="g" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="currentColor" stroke-width="0.5"/></pattern></defs><rect width="400" height="130" fill="url(#g)"/><rect x="0" y="48" width="400" height="6" fill="currentColor" opacity=".06"/><rect x="90" y="0" width="5" height="130" fill="currentColor" opacity=".05"/><rect x="235" y="0" width="7" height="130" fill="currentColor" opacity=".06"/></svg>
+          <div style="position:relative;z-index:1;text-align:center">
+            <svg width="22" height="30" viewBox="0 0 22 30" fill="none"><path d="M11 0C4.925 0 0 4.925 0 11c0 8.25 11 19 11 19S22 19.25 22 11C22 4.925 17.075 0 11 0z" fill="#185FA5"/><circle cx="11" cy="11" r="4" fill="white"/></svg>
+            <div style="font-size:11px;color:#777;margin-top:5px" id="map-label">Enter address above</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#999;margin-top:5px">Live map in production.</div>
+      </div>
+    </div>
+
+    <!-- POST TYPE — install only -->
+    <div class="section install-only" id="section-post">
+      <div class="section-label">Step 3</div>
+      <div class="section-title">Select post type</div>
+      <div class="section-body">
+        <div class="post-grid" id="post-grid"></div>
+      </div>
+    </div>
+
+    <!-- SIGN PANEL — install only -->
+    <div class="section install-only" id="section-sign">
+      <div class="section-label">Step 4</div>
+      <div class="section-title">Sign panel</div>
+      <div class="section-body">
+        <div class="form-label" style="margin-bottom:8px">How is the sign being handled?</div>
+        <div class="sign-hang-opts">
+          <div class="hang-card" id="hang-own" onclick="selectHang('own')">
+            <div class="hang-icon" style="background:#EAF3DE"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="#27500A" stroke-width="1.2"/><path d="M2.5 18c0-3 3.358-5.5 7.5-5.5s7.5 2.5 7.5 5.5" stroke="#27500A" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+            <div><div class="hang-label">I'll hang my own sign</div><div class="hang-sub">Agent installs the panel</div></div>
+          </div>
+          <div class="hang-card" id="hang-leave" onclick="selectHang('leave')">
+            <div class="hang-icon" style="background:#FAEEDA"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="11" rx="1.5" stroke="#854F0B" stroke-width="1.2"/><path d="M6.5 6V5a3.5 3.5 0 017 0v1" stroke="#854F0B" stroke-width="1.2"/><path d="M10 10v3" stroke="#854F0B" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+            <div><div class="hang-label">Leave sign at property</div><div class="hang-sub">Agent handles panel later</div></div>
+          </div>
+        </div>
+        <div class="divider-or"><span>or select from your sign library</span></div>
+        <div class="sign-grid" id="sign-grid"></div>
+        <div style="margin-top:10px;padding:8px 12px;background:#f5f5f3;border-radius:8px;font-size:12px;color:#555">
+          Don't see your sign? <a href="#" style="color:#185FA5" onclick="alert('Contact your admin to add it.')">Contact your admin</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCESSORIES — install only -->
+    <div class="section install-only" id="section-acc">
+      <div class="section-label">Step 5</div>
+      <div class="section-title">Accessories <span style="font-size:12px;font-weight:400;color:#999">(optional)</span></div>
+      <div class="section-body">
+        <div class="acc-grid" id="acc-list"></div>
+        <div style="margin-top:14px">
+          <label class="form-label">Notes for installer <span style="font-weight:400;color:#999">(optional)</span></label>
+          <textarea class="form-textarea" id="notes" placeholder="Special instructions, sign placement details, etc."></textarea>
+        </div>
+        <div class="photo-row" onclick="togglePhoto()">
+          <div class="photo-checkbox on" id="photo-check">✓</div>
+          <span class="photo-text">Receive a photo confirmation when installation is complete</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICE CALL DETAILS — shows only for service calls -->
+    <div class="section" id="section-service" style="display:none">
+      <div class="section-label">Step 3</div>
+      <div class="section-title">Service call details</div>
+      <div class="section-body">
+        <div class="form-group">
+          <label class="form-label">Describe the issue <span style="color:#C0392B">*</span></label>
+          <textarea class="form-textarea" id="service-issue" placeholder="e.g. Sign is leaning badly, post snapped at base, sign panel blown off, vandalism, car hit the post, etc." style="min-height:90px"></textarea>
+        </div>
+        <div style="margin-top:4px">
+          <label class="form-label">Select your sign panel <span style="font-weight:400;color:#999">(optional — select if sign may need replacing)</span></label>
+          <div style="font-size:12px;color:#555;background:#FAEEDA;border-radius:8px;padding:9px 12px;margin-bottom:10px;line-height:1.5">
+            If your sign was destroyed by a car, wind, vandalism, or other damage — select your panel below so we can bring a replacement if needed.
+          </div>
+          <div class="sign-grid" id="service-sign-grid"></div>
+          <div style="margin-top:8px;padding:8px 12px;background:#f5f5f3;border-radius:8px;font-size:12px;color:#555">
+            Don't see your sign? <a href="#" style="color:#185FA5" onclick="alert('Contact your admin to add it.')">Contact your admin</a>
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <label class="form-label">Additional notes <span style="font-weight:400;color:#999">(optional)</span></label>
+          <textarea class="form-textarea" id="service-notes" placeholder="Access instructions, gate codes, anything else the installer should know..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div class="section">
+      <div class="section-label" id="payment-step-label">Step 6</div>
+      <div class="section-title">Payment</div>
+      <div class="section-body">
+        <div class="billing-opts">
+          <div class="billing-opt selected" id="bo-card" onclick="selectBilling('card')">
+            <div class="billing-radio on" id="br-card"></div>
+            <div><div style="font-size:13px;font-weight:500">Charge card on file</div><div style="font-size:11px;color:#999">Visa ···· 4242 — charged on submission</div></div>
+          </div>
+          <div class="billing-opt" id="bo-invoice" onclick="selectBilling('invoice')">
+            <div class="billing-radio" id="br-invoice"></div>
+            <div><div style="font-size:13px;font-weight:500">Invoice me</div><div style="font-size:11px;color:#999">Added to your monthly invoice</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDER SUMMARY + SUBMIT -->
+    <div class="section">
+      <div class="section-label">Summary</div>
+      <div class="section-title">Order summary</div>
+      <div class="section-body">
+        <div class="order-summary" id="order-summary">
+          <div style="font-size:12px;color:#999">Fill in the form above to see your order summary.</div>
+        </div>
+        <div class="submit-section">
+          <div class="submit-note">You can scroll up to edit any section before submitting.</div>
+          <button class="btn btn-primary btn-submit" onclick="submitOrder()">Submit order</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CONFIRMATION -->
+  <div id="confirmation">
+    <div style="width:50px;height:50px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5 11-9" stroke="#27500A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="font-size:18px;font-weight:500;margin-bottom:6px">Order submitted!</div>
+    <div style="font-size:13px;color:#777;margin-bottom:6px">Your installer will be assigned shortly.</div>
+    <div id="confirm-photo" style="font-size:12px;color:#888;margin-bottom:20px"></div>
+    <button class="btn btn-primary" style="padding:8px 24px" onclick="location.reload()">Place another order</button>
+  </div>
+
+</div>
+
+<script>
+const ORDER_TYPES={
+  install: {label:'Installation',   color:'#185FA5',bg:'#E6F1FB',base:65},
+  remove:  {label:'Removal',        color:'#BA7517',bg:'#FAEEDA',base:0},
+  service: {label:'Service call',   color:'#3B6D11',bg:'#EAF3DE',base:55},
+  delivery:{label:'Delivery/Pickup',color:'#0F6E56',bg:'#E1F5EE',base:35},
+};
+const HANG_LABELS={'own':'I\'ll hang my own sign','leave':'Leave sign at property'};
+const POSTS=[
+  {id:1, name:'White Post',         price:42,color:'#e8e8e8',stroke:'#bbb'},
+  {id:2, name:'Black Post',         price:49,color:'#333',   stroke:'#222'},
+  {id:3, name:'Brown Post',         price:49,color:'#8B5E3C',stroke:'#6B4423'},
+  {id:4, name:'Red Post',           price:49,color:'#C0392B',stroke:'#922B21'},
+  {id:5, name:'Blue Post',          price:49,color:'#2471A3',stroke:'#1A5276'},
+  {id:6, name:'Teal Sign Post',     price:68,color:'#148F77',stroke:'#0E6655'},
+  {id:7, name:'H-Post',             price:55,color:'#666',   stroke:'#444'},
+  {id:8, name:'Black Post — Luxury',price:46,color:'#222',   stroke:'#000'},
+  {id:9, name:'No Post — Gate/Wall',price:38,color:'#aaa',   stroke:'#888'},
+  {id:10,name:'Custom Subdivision', price:75,color:'#7D3C98',stroke:'#6C3483'},
+];
+const SIGNS=[
+  {id:1,name:'Angela Tennison 18x24',size:'18x24'},
+  {id:2,name:'Angela Tennison Luxury',size:'24x36'},
+  {id:3,name:'Tennison Parks 2x2',   size:'24x24'},
+];
+const ACCESSORIES=[
+  {id:1,name:'Coming Soon Rider',  price:19.68},
+  {id:2,name:'3 Bedroom Rider',    price:8.60},
+  {id:3,name:'4 Bedroom Rider',    price:8.60},
+  {id:4,name:'Pool Rider',         price:8.60},
+  {id:5,name:'Pool/Spa Rider',     price:8.60},
+  {id:6,name:'For Rent Rider',     price:8.60},
+  {id:7,name:'By Appointment Only',price:8.60},
+  {id:8,name:'Open House Rider',   price:25.00},
+  {id:9,name:'Directional Arrow',  price:12.00},
+];
+
+let state={
+  orderType:'install',dateMode:'asap',
+  postId:null,hangMode:null,signId:null,serviceSignId:null,
+  accessories:[],photoConfirm:true,notes:'',billing:'card'
+};
+
+function fmtMoney(n){return'$'+n.toFixed(2)}
+
+function selectOT(type){
+  state.orderType=type;
+  Object.keys(ORDER_TYPES).forEach(t=>document.getElementById('ot-'+t).classList.toggle('selected',t===type));
+  const isInstall=type==='install';
+  const isService=type==='service';
+  ['section-post','section-sign','section-acc'].forEach(id=>document.getElementById(id).style.display=isInstall?'block':'none');
+  document.getElementById('section-service').style.display=isService?'block':'none';
+  document.getElementById('payment-step-label').textContent=isInstall?'Step 6':isService?'Step 4':'Step 3';
+  if(isService) renderServiceSignGrid();
+  updateSummary();
+}
+
+function selectDate(mode){
+  state.dateMode=mode;
+  ['asap','date'].forEach(m=>{
+    document.getElementById('do-'+m).classList.toggle('selected',m===mode);
+    document.getElementById('dr-'+m).classList.toggle('on',m===mode);
+  });
+  document.getElementById('date-picker-wrap').style.display=mode==='date'?'block':'none';
+  updateSummary();
+}
+
+function updateMap(){
+  const s=document.getElementById('addr-street').value,c=document.getElementById('addr-city').value,z=document.getElementById('addr-zip').value;
+  document.getElementById('map-label').textContent=s?[s,c,z].filter(Boolean).join(', '):'Enter address above';
+  updateSummary();
+}
+
+function renderPosts(){
+  document.getElementById('post-grid').innerHTML=POSTS.map(p=>`
+    <div class="post-card${state.postId===p.id?' selected':''}" onclick="selectPost(${p.id})">
+      <div class="post-img">
+        <svg width="32" height="46" viewBox="0 0 32 46" fill="none">
+          <line x1="16" y1="3" x2="16" y2="44" stroke="${p.stroke}" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="11" y1="3" x2="21" y2="3" stroke="${p.stroke}" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="3" y="10" width="26" height="16" rx="2" fill="${p.color}" opacity=".3" stroke="${p.stroke}" stroke-width="1.3"/>
+        </svg>
+      </div>
+      <div class="post-body">
+        <div class="post-name">${p.name}</div>
+        <div class="post-price">${fmtMoney(p.price)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function selectPost(id){state.postId=id;renderPosts();updateSummary();}
+
+function selectHang(mode){
+  state.hangMode=state.hangMode===mode?null:mode;
+  if(state.hangMode) state.signId=null;
+  document.getElementById('hang-own').classList.toggle('selected',state.hangMode==='own');
+  document.getElementById('hang-leave').classList.toggle('selected',state.hangMode==='leave');
+  renderSigns();updateSummary();
+}
+
+function renderSigns(){
+  document.getElementById('sign-grid').innerHTML=SIGNS.map(s=>`
+    <div class="sign-card${state.signId===s.id?' selected':''}" onclick="selectSign(${s.id})">
+      <div class="sign-img">
+        <div style="text-align:center;padding:8px">
+          <svg width="38" height="28" viewBox="0 0 38 28" fill="none"><rect x="1" y="1" width="36" height="20" rx="2" stroke="#B5D4F4" stroke-width="1.2" fill="#E6F1FB"/><path d="M4 17l7-5 6 4 6-5 11 6" stroke="#B5D4F4" stroke-width="1.1" stroke-linecap="round"/><circle cx="11" cy="9" r="2.5" stroke="#B5D4F4" stroke-width="1.1"/></svg>
+          <div style="font-size:9px;color:#999;margin-top:2px">${s.size}</div>
+        </div>
+      </div>
+      <div class="sign-body">
+        <div class="sign-name">${s.name}</div>
+        <div class="sign-size">${s.size}</div>
+      </div>
+    </div>`).join('');
+}
+
+function selectSign(id){
+  state.signId=state.signId===id?null:id;
+  if(state.signId){state.hangMode=null;document.getElementById('hang-own').classList.remove('selected');document.getElementById('hang-leave').classList.remove('selected');}
+  renderSigns();updateSummary();
+}
+
+function renderServiceSignGrid(){
+  const grid=document.getElementById('service-sign-grid');
+  if(!grid)return;
+  grid.innerHTML=SIGNS.map(s=>`
+    <div class="sign-card${state.serviceSignId===s.id?' selected':''}" onclick="selectServiceSign(${s.id})">
+      <div class="sign-img">
+        <div style="text-align:center;padding:8px">
+          <svg width="38" height="28" viewBox="0 0 38 28" fill="none"><rect x="1" y="1" width="36" height="20" rx="2" stroke="#B5D4F4" stroke-width="1.2" fill="#E6F1FB"/><path d="M4 17l7-5 6 4 6-5 11 6" stroke="#B5D4F4" stroke-width="1.1" stroke-linecap="round"/><circle cx="11" cy="9" r="2.5" stroke="#B5D4F4" stroke-width="1.1"/></svg>
+          <div style="font-size:9px;color:#999;margin-top:2px">${s.size}</div>
+        </div>
+      </div>
+      <div class="sign-body">
+        <div class="sign-name">${s.name}</div>
+        <div class="sign-size">${s.size}</div>
+      </div>
+    </div>`).join('');
+}
+
+function selectServiceSign(id){
+  state.serviceSignId=state.serviceSignId===id?null:id;
+  renderServiceSignGrid();
+  updateSummary();
+}
+
+function renderAccessories(){
+  document.getElementById('acc-list').innerHTML=ACCESSORIES.map(a=>`
+    <div class="acc-item${state.accessories.includes(a.id)?' selected':''}" onclick="toggleAcc(${a.id})">
+      <div class="acc-check">${state.accessories.includes(a.id)?'✓':''}</div>
+      <div class="acc-name">${a.name}</div>
+      <div class="acc-price">+${fmtMoney(a.price)}</div>
+    </div>`).join('');
+}
+
+function toggleAcc(id){
+  state.accessories=state.accessories.includes(id)?state.accessories.filter(x=>x!==id):[...state.accessories,id];
+  renderAccessories();updateSummary();
+}
+
+function togglePhoto(){
+  state.photoConfirm=!state.photoConfirm;
+  const cb=document.getElementById('photo-check');
+  cb.classList.toggle('on',state.photoConfirm);
+  cb.textContent=state.photoConfirm?'✓':'';
+}
+
+function selectBilling(mode){
+  state.billing=mode;
+  ['card','invoice'].forEach(m=>{
+    document.getElementById('bo-'+m).classList.toggle('selected',m===mode);
+    document.getElementById('br-'+m).classList.toggle('on',m===mode);
+  });
+  updateSummary();
+}
+
+function updateSummary(){
+  const ot=ORDER_TYPES[state.orderType];
+  const post=POSTS.find(p=>p.id===state.postId);
+  const sign=SIGNS.find(s=>s.id===state.signId);
+  const serviceSign=SIGNS.find(s=>s.id===state.serviceSignId);
+  const accs=ACCESSORIES.filter(a=>state.accessories.includes(a.id));
+  const addr=[document.getElementById('addr-street').value,document.getElementById('addr-city').value,document.getElementById('addr-zip').value].filter(Boolean).join(', ');
+  const dateStr=state.dateMode==='asap'?'As soon as possible':(document.getElementById('specific-date').value||'Specific date');
+  const isInstall=state.orderType==='install';
+  const isService=state.orderType==='service';
+  const accTotal=accs.reduce((s,a)=>s+a.price,0);
+  const total=ot.base+(isInstall&&post?post.price:0)+accTotal;
+  const signLine=state.hangMode?HANG_LABELS[state.hangMode]:sign?sign.name:null;
+  const issueText=isService?(document.getElementById('service-issue')?.value||''):'';
+
+  let rows=`
+    <div class="sum-row"><span class="sum-label">Order type</span><span class="sum-val"><span class="badge" style="background:${ot.bg};color:${ot.color}">${ot.label}</span></span></div>
+    <div class="sum-row"><span class="sum-label">Timing</span><span class="sum-val">${dateStr}</span></div>
+    ${addr?`<div class="sum-row"><span class="sum-label">Property</span><span class="sum-val" style="font-size:12px">${addr}</span></div>`:''}
+    ${isService&&issueText?`<div class="sum-row"><span class="sum-label">Issue</span><span class="sum-val" style="font-size:11px;max-width:280px;color:#633806">${issueText}</span></div>`:''}
+    ${isService&&serviceSign?`<div class="sum-row"><span class="sum-label">Sign (if replacement needed)</span><span class="sum-val" style="font-size:11px">${serviceSign.name}</span></div>`:''}
+    ${isInstall&&post?`<div class="sum-row"><span class="sum-label">Post type</span><span class="sum-val">${post.name} · ${fmtMoney(post.price)}</span></div>`:''}
+    ${isInstall&&signLine?`<div class="sum-row"><span class="sum-label">Sign panel</span><span class="sum-val" style="font-size:12px">${signLine}</span></div>`:''}
+    ${accs.map(a=>`<div class="sum-row"><span class="sum-label">${a.name}</span><span class="sum-val">+${fmtMoney(a.price)}</span></div>`).join('')}
+    <div class="sum-row"><span class="sum-label">Payment</span><span class="sum-val">${state.billing==='card'?'Card on file':'Invoice'}</span></div>
+    <hr class="sum-divider">
+    <div class="sum-total"><span>Total</span><span>${fmtMoney(total)}</span></div>`;
+
+  document.getElementById('order-summary').innerHTML=rows;
+}
+
+function submitOrder(){
+  const addr=document.getElementById('addr-street').value.trim();
+  if(!addr){alert('Please enter a property address.');return;}
+  if(state.orderType==='install'&&!state.postId){alert('Please select a post type.');return;}
+  if(state.orderType==='install'&&!state.hangMode&&!state.signId){alert('Please choose how the sign is being handled or select a panel from your library.');return;}
+  document.getElementById('order-form').style.display='none';
+  document.getElementById('confirmation').style.display='block';
+  document.getElementById('confirm-photo').textContent=state.photoConfirm&&state.orderType==='install'
+    ?'A photo confirmation will be sent to you once your sign is installed.':'';
+}
+
+renderPosts();
+renderSigns();
+renderAccessories();
+updateSummary();
+</script>
+</body>
+</html>

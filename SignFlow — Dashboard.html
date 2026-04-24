@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+.sidebar{width:210px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999;line-height:1.8}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:500}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* STAT BAR */
+.stat-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;flex-shrink:0;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.stat-item{padding:10px 16px;background:#fff;border-right:0.5px solid rgba(0,0,0,.08);cursor:pointer}
+.stat-item:last-child{border-right:none}
+.stat-item:hover{background:#f9f9f9}
+.stat-item.active-filter{background:#E6F1FB;border-bottom:2px solid #185FA5}
+.stat-label{font-size:10px;color:#999;margin-bottom:2px}
+.stat-val{font-size:18px;font-weight:500}
+.stat-sub{font-size:10px;color:#999;margin-top:1px}
+
+/* MAP */
+.map-section{height:280px;flex-shrink:0;position:relative}
+#map{width:100%;height:100%}
+.map-legend{position:absolute;bottom:10px;left:10px;z-index:900;background:#fff;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;padding:8px 12px;font-size:11px}
+.legend-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.legend-row:last-child{margin-bottom:0}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.map-filter{position:absolute;top:10px;right:10px;z-index:900;display:flex;gap:6px}
+.map-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;background:#fff;border:1px solid rgba(0,0,0,.15);color:#555}
+.map-chip.active{background:#185FA5;color:#fff;border-color:#185FA5}
+
+/* ORDER LIST */
+.order-section{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.order-filter-bar{padding:8px 20px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.form-input{padding:5px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.form-input:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
+.form-select{padding:5px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.order-scroll{flex:1;overflow-y:auto;padding:0 20px 16px}
+.order-table{width:100%;border-collapse:collapse;min-width:700px}
+.order-table th{font-size:10px;font-weight:500;color:#999;text-align:left;padding:8px 12px;border-bottom:0.5px solid rgba(0,0,0,.1);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#fff;position:sticky;top:0;z-index:2}
+.order-table td{padding:9px 12px;font-size:12px;border-bottom:0.5px solid rgba(0,0,0,.07);vertical-align:middle}
+.order-table tbody tr:last-child td{border-bottom:none}
+.order-table tbody tr:hover td{background:#fafaf9;cursor:pointer}
+.order-table tbody tr.highlighted td{background:#FFF9E6}
+
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;white-space:nowrap}
+.badge-install{background:#E6F1FB;color:#0C447C}
+.badge-remove{background:#F1EFE8;color:#5F5E5A}
+.badge-service{background:#EAF3DE;color:#27500A}
+.badge-delivery{background:#E1F5EE;color:#085041}
+.badge-pending{background:#FAEEDA;color:#633806}
+.badge-scheduled{background:#E6F1FB;color:#0C447C}
+.badge-asap{background:#FCEBEB;color:#791F1F}
+
+.avatar-sm{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:#fff;flex-shrink:0}
+.time-chip{font-size:10px;padding:1px 6px;border-radius:10px;font-weight:500}
+.time-overdue{background:#FCEBEB;color:#791F1F}
+.time-today{background:#FAEEDA;color:#633806}
+.time-future{background:#f0f0f0;color:#666}
+
+.count-label{margin-left:auto;font-size:12px;color:#999;white-space:nowrap}
+.section-title-bar{padding:8px 20px 4px;font-size:11px;font-weight:500;color:#555;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Sign Up Sign Services</div></div>
+    <div class="nav-label">Main</div>
+    <div class="nav-item active"><div class="dot" style="background:#185FA5"></div>Dashboard</div>
+    <div class="nav-item"><div class="dot" style="background:#1D9E75"></div>Peg board</div>
+    <div class="nav-item"><div class="dot" style="background:#BA7517"></div>Schedule</div>
+    <div class="nav-item"><div class="dot" style="background:#7F77DD"></div>Order history</div>
+    <div class="nav-label">Admin</div>
+    <div class="nav-item"><div class="dot" style="background:#185FA5"></div>Offices & agents</div>
+    <div class="nav-item"><div class="dot" style="background:#1D9E75"></div>Sign panels</div>
+    <div class="nav-item"><div class="dot" style="background:#BA7517"></div>Post types</div>
+    <div class="nav-label">Billing</div>
+    <div class="nav-item"><div class="dot" style="background:#639922"></div>Invoices</div>
+    <div class="nav-item"><div class="dot" style="background:#185FA5"></div>Monthly batch</div>
+    <div class="sidebar-footer" id="sidebar-footer">
+      <div id="sf-date" style="font-weight:500;color:#111;font-size:12px;margin-bottom:2px"></div>
+      <div id="sf-pending"></div>
+      <div id="sf-today"></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Good morning, Kelly</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:12px;color:#999" id="topbar-date"></span>
+        <button class="btn btn-primary" onclick="alert('New order form opens')">+ New order</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- STAT BAR -->
+      <div class="stat-bar">
+        <div class="stat-item active-filter" id="sf-all" onclick="setStatFilter('all')">
+          <div class="stat-label">All pending</div>
+          <div class="stat-val" id="sv-all">0</div>
+          <div class="stat-sub">orders awaiting action</div>
+        </div>
+        <div class="stat-item" id="sf-install" onclick="setStatFilter('install')">
+          <div class="stat-label">Installs</div>
+          <div class="stat-val" style="color:#185FA5" id="sv-install">0</div>
+          <div class="stat-sub">pending up</div>
+        </div>
+        <div class="stat-item" id="sf-remove" onclick="setStatFilter('remove')">
+          <div class="stat-label">Removals</div>
+          <div class="stat-val" style="color:#888" id="sv-remove">0</div>
+          <div class="stat-sub">pending down</div>
+        </div>
+        <div class="stat-item" id="sf-service" onclick="setStatFilter('service')">
+          <div class="stat-label">Service calls</div>
+          <div class="stat-val" style="color:#3B6D11" id="sv-service">0</div>
+          <div class="stat-sub">needs attention</div>
+        </div>
+
+      </div>
+
+      <!-- MAP -->
+      <div class="map-section">
+        <div id="map"></div>
+        <div class="map-filter">
+          <div class="map-chip active" id="mc-all" onclick="setMapFilter('all')">All</div>
+          <div class="map-chip" id="mc-install" onclick="setMapFilter('install')">Installs</div>
+          <div class="map-chip" id="mc-remove" onclick="setMapFilter('remove')">Removals</div>
+          <div class="map-chip" id="mc-service" onclick="setMapFilter('service')">Service</div>
+        </div>
+        <div class="map-legend">
+          <div class="legend-row"><div class="legend-dot" style="background:#185FA5"></div>Installation</div>
+          <div class="legend-row"><div class="legend-dot" style="background:#888780"></div>Removal</div>
+          <div class="legend-row"><div class="legend-dot" style="background:#639922"></div>Service call</div>
+
+        </div>
+      </div>
+
+      <!-- ORDER LIST -->
+      <div class="order-section">
+        <div class="order-filter-bar">
+          <input class="form-input" placeholder="Search address or agent..." id="order-search" oninput="renderOrders()" style="width:220px">
+          <select class="form-select" id="office-filter" onchange="renderOrders()">
+            <option value="">All offices</option>
+          </select>
+          <select class="form-select" id="timing-filter" onchange="renderOrders()">
+            <option value="">All timing</option>
+            <option value="asap">ASAP</option>
+            <option value="scheduled">Scheduled</option>
+
+          </select>
+          <span class="count-label" id="order-count"></span>
+        </div>
+        <div class="section-title-bar">
+          <span id="list-title">All pending orders</span>
+          <span style="font-size:11px;color:#999">Click any order to view full detail</span>
+        </div>
+        <div class="order-scroll">
+          <table class="order-table">
+            <thead><tr>
+              <th>Date</th>
+              <th>Address · Agent · Office</th>
+              <th>Type</th>
+              <th>Installer</th>
+              <th>Notes</th>
+            </tr></thead>
+            <tbody id="order-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const TODAY=new Date();
+const TODAYSTR=TODAY.toISOString().split('T')[0];
+
+function daysAgo(n){const d=new Date(TODAY);d.setDate(d.getDate()-n);return d.toISOString().split('T')[0];}
+function daysAhead(n){const d=new Date(TODAY);d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
+function fmtDate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+const OFFICES=[
+  {id:1,name:'KW Tucson NW',           color:'#185FA5'},
+  {id:2,name:'RE/MAX Excalibur',        color:'#D85A30'},
+  {id:3,name:'Coldwell Banker',         color:'#1D9E75'},
+  {id:4,name:'Long Realty Foothills',   color:'#7F77DD'},
+  {id:5,name:'Tierra Antigua Realty',   color:'#639922'},
+  {id:6,name:'Realty Executives AZ',    color:'#BA7517'},
+];
+
+const AGENTS=[
+  {id:1,first:'Sarah', last:'Johnson',  officeId:1,color:'#185FA5'},
+  {id:2,first:'Mike',  last:'Torres',   officeId:1,color:'#1D9E75'},
+  {id:3,first:'Linda', last:'Park',     officeId:2,color:'#BA7517'},
+  {id:4,first:'Chris', last:'Davis',    officeId:2,color:'#7F77DD'},
+  {id:5,first:'Angela',last:'Tennison', officeId:4,color:'#D85A30'},
+  {id:6,first:'Dana',  last:'Hill',     officeId:3,color:'#639922'},
+  {id:7,first:'Bev',   last:'Stone',    officeId:4,color:'#185FA5'},
+  {id:8,first:'Rex',   last:'Morgan',   officeId:3,color:'#BA7517'},
+];
+
+const INSTALLERS=['Juan R.','Tom K.','Maria S.','Devon W.'];
+const TYPES={install:'Installation',remove:'Removal',service:'Service call',delivery:'Delivery/Pickup'};
+const POSTS=['White Post','Black Post','Brown Post','Red Post','No Post'];
+
+function rnd(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+const RAW_ORDERS=[
+  // Overdue
+  {id:1,lat:32.312,lng:-110.927,addr:'4821 E Sunrise Dr',agentId:5,type:'install',post:'White Post',date:daysAgo(3),installer:'Juan R.',notes:'Gate code 1234',asap:false},
+  {id:2,lat:32.341,lng:-110.989,addr:'220 W Magee Rd',agentId:1,type:'remove',post:null,date:daysAgo(2),installer:'Tom K.',notes:'',asap:false},
+  {id:3,lat:32.268,lng:-110.916,addr:'7910 E Golf Links Rd',agentId:3,type:'service',post:null,date:daysAgo(1),installer:'Maria S.',notes:'Post knocked over by car',asap:false},
+  // Today ASAP
+  {id:4,lat:32.298,lng:-110.970,addr:'3300 N Campbell Ave',agentId:2,type:'install',post:'Black Post',date:TODAYSTR,installer:'Juan R.',notes:'',asap:true},
+  {id:5,lat:32.271,lng:-110.953,addr:'5500 E Speedway Blvd',agentId:4,type:'remove',post:null,date:TODAYSTR,installer:'Tom K.',notes:'Leave post in ground',asap:true},
+  {id:6,lat:32.345,lng:-111.031,addr:'7703 N Oracle Rd',agentId:7,type:'install',post:'White Post',date:TODAYSTR,installer:'Devon W.',notes:'',asap:true},
+  {id:7,lat:32.258,lng:-110.971,addr:'4100 S 6th Ave',agentId:6,type:'service',post:null,date:TODAYSTR,installer:'Maria S.',notes:'Sign leaning badly',asap:true},
+  {id:8,lat:32.391,lng:-110.974,addr:'10100 N Oracle Rd',agentId:8,type:'install',post:'Red Post',date:TODAYSTR,installer:null,notes:'',asap:true},
+  // Scheduled future
+  {id:9,lat:32.320,lng:-110.958,addr:'1800 N Stone Ave',agentId:1,type:'install',post:'Brown Post',date:daysAhead(1),installer:'Juan R.',notes:'',asap:false},
+  {id:10,lat:32.245,lng:-110.915,addr:'5300 E 29th St',agentId:3,type:'remove',post:null,date:daysAhead(1),installer:'Tom K.',notes:'',asap:false},
+  {id:11,lat:32.356,lng:-110.989,addr:'8500 N Thornydale Rd',agentId:5,type:'install',post:'White Post',date:daysAhead(2),installer:null,notes:'Not before 9am',asap:false},
+  {id:12,lat:32.291,lng:-110.899,addr:'9200 E Tanque Verde Rd',agentId:2,type:'install',post:'Black Post',date:daysAhead(2),installer:'Devon W.',notes:'',asap:false},
+  {id:13,lat:32.264,lng:-110.983,addr:'740 W Ajo Way',agentId:4,type:'delivery',post:null,date:daysAhead(3),installer:'Maria S.',notes:'',asap:false},
+  {id:14,lat:32.339,lng:-111.020,addr:'7000 N La Cholla Blvd',agentId:7,type:'install',post:'White Post',date:daysAhead(3),installer:null,notes:'HOA area — white post only',asap:false},
+  {id:15,lat:32.224,lng:-110.996,addr:'3600 W Irvington Rd',agentId:8,type:'remove',post:null,date:daysAhead(4),installer:'Juan R.',notes:'',asap:false},
+  {id:16,lat:32.310,lng:-110.940,addr:'2200 E Fort Lowell Rd',agentId:6,type:'service',post:null,date:daysAhead(1),installer:'Tom K.',notes:'Rider blew off',asap:false},
+  {id:17,lat:32.280,lng:-110.928,addr:'7900 E Golf Links Rd',agentId:5,type:'install',post:'Teal Post',date:daysAhead(2),installer:null,notes:'',asap:false},
+  {id:18,lat:32.368,lng:-110.941,addr:'4500 N Flowing Wells',agentId:1,type:'install',post:'White Post',date:TODAYSTR,installer:'Devon W.',notes:'',asap:true},
+  {id:19,lat:32.230,lng:-110.962,addr:'9901 E Broadway Blvd',agentId:3,type:'remove',post:null,date:daysAgo(1),installer:null,notes:'',asap:false},
+  {id:20,lat:32.305,lng:-110.960,addr:'1550 S Kolb Rd',agentId:2,type:'install',post:'Black Post',date:TODAYSTR,installer:'Maria S.',notes:'Call first',asap:true},
+];
+
+// Annotate with timing
+const ORDERS=RAW_ORDERS.map(o=>{
+  let timing='scheduled';
+  if(o.date<TODAYSTR) timing='overdue';
+  else if(o.asap||o.date===TODAYSTR) timing='asap';
+  return {...o,timing,agent:AGENTS.find(a=>a.id===o.agentId),office:OFFICES.find(of=>of.id===AGENTS.find(a=>a.id===o.agentId)?.officeId)};
+});
+
+let map,markers=[];
+let mapFilter='all';
+let statFilter='all';
+
+function typeColor(type,timing){
+  if(type==='install') return'#185FA5';
+  if(type==='remove') return'#888780';
+  if(type==='service') return'#639922';
+  if(type==='delivery') return'#0F6E56';
+  return'#185FA5';
+}
+
+function makeIcon(color){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><path d="M13 0C5.82 0 0 5.82 0 13c0 9.1 13 21 13 21S26 22.1 26 13C26 5.82 20.18 0 13 0z" fill="${color}" stroke="white" stroke-width="1.5"/><circle cx="13" cy="13" r="4" fill="white" opacity="0.9"/></svg>`;
+  return L.divIcon({html:svg,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-34],className:''});
+}
+
+function initMap(){
+  map=L.map('map',{zoomControl:true,attributionControl:false}).setView([32.274,-110.965],11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
+  L.control.attribution({prefix:'© OpenStreetMap'}).addTo(map);
+  renderMapPins();
+}
+
+function renderMapPins(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  const visible=ORDERS.filter(o=>{
+    if(mapFilter!=='all'&&o.type!==mapFilter) return false;
+    return true;
+  });
+  visible.forEach(o=>{
+    const color=typeColor(o.type,o.timing);
+    const m=L.marker([o.lat,o.lng],{icon:makeIcon(color)}).addTo(map);
+    m.bindPopup(`<div style="font-size:12px;min-width:160px"><div style="font-weight:500;margin-bottom:3px">${o.addr}</div><div style="color:#666;margin-bottom:3px">${o.agent?.first} ${o.agent?.last}</div><div>${TYPES[o.type]}${o.timing==='overdue'?' · <span style="color:#E24B4A;font-weight:500">Overdue</span>':''}</div></div>`,{maxWidth:200});
+    m.on('click',()=>{highlightOrder(o.id);});
+    markers.push(m);
+  });
+}
+
+function setMapFilter(f){
+  mapFilter=f;
+  ['all','install','remove','service'].forEach(v=>document.getElementById('mc-'+v).classList.toggle('active',v===f));
+  renderMapPins();
+}
+
+function highlightOrder(id){
+  document.querySelectorAll('.order-table tbody tr').forEach(tr=>{
+    tr.classList.toggle('highlighted',parseInt(tr.dataset.id)===id);
+  });
+  const row=document.querySelector(`tr[data-id="${id}"]`);
+  if(row) row.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function getFiltered(){
+  const s=document.getElementById('order-search').value.toLowerCase();
+  const of=document.getElementById('office-filter').value;
+  const tf=document.getElementById('timing-filter').value;
+  return ORDERS.filter(o=>{
+    if(statFilter!=='all'&&o.type!==statFilter) return false;
+    if(s&&!o.addr.toLowerCase().includes(s)&&!(o.agent?.first+' '+o.agent?.last).toLowerCase().includes(s)) return false;
+    if(of&&String(o.office?.id)!==of) return false;
+    if(tf&&o.timing!==tf) return false;
+    return true;
+  });
+}
+
+function renderOrders(){
+  const filtered=getFiltered();
+  document.getElementById('order-count').textContent=filtered.length+' order'+(filtered.length!==1?'s':'');
+  document.getElementById('order-tbody').innerHTML=filtered.map(o=>{
+    const fullDate=new Date(o.date+'T00:00:00').toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
+    const isFuture=o.date>TODAYSTR;
+    return`<tr data-id="${o.id}" onclick="highlightOrder(${o.id})">
+      <td style="white-space:nowrap;color:${isFuture?'#C0392B':'#555'};font-weight:${isFuture?'500':'400'}">${fullDate}</td>
+      <td style="min-width:180px">
+        <div style="font-size:12px;font-weight:500;margin-bottom:2px">${o.addr}</div>
+        <div style="display:flex;align-items:center;gap:5px;margin-bottom:1px">
+          <div class="avatar-sm" style="background:${o.agent?.color||'#aaa'};width:16px;height:16px;font-size:8px">${o.agent?(o.agent.first[0]+o.agent.last[0]):'?'}</div>
+          <span style="font-size:11px;color:#555">${o.agent?.first} ${o.agent?.last}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div style="width:6px;height:6px;border-radius:2px;background:${o.office?.color||'#aaa'};flex-shrink:0"></div>
+          <span style="font-size:10px;color:#999">${o.office?.name||'—'}</span>
+        </div>
+      </td>
+      <td><span class="badge badge-${o.type}">${TYPES[o.type]}</span></td>
+      <td style="font-size:11px">${o.installer?o.installer:'<span style="color:#E24B4A;font-weight:500">Unassigned</span>'}</td>
+      <td style="font-size:11px;color:#777;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.notes||'—'}</td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="7" style="padding:20px;text-align:center;color:#999;font-size:13px">No pending orders match this filter.</td></tr>`;
+}
+
+function setStatFilter(f){
+  statFilter=f;
+  ['all','install','remove','service'].forEach(v=>{
+    document.getElementById('sf-'+v).classList.toggle('active-filter',v===f);
+  });
+  const titles={all:'All pending orders',install:'Pending installs',remove:'Pending removals',service:'Service calls'};
+  document.getElementById('list-title').textContent=titles[f];
+  renderOrders();
+}
+
+function updateStats(){
+  document.getElementById('sv-all').textContent=ORDERS.length;
+  document.getElementById('sv-install').textContent=ORDERS.filter(o=>o.type==='install').length;
+  document.getElementById('sv-remove').textContent=ORDERS.filter(o=>o.type==='remove').length;
+  document.getElementById('sv-service').textContent=ORDERS.filter(o=>o.type==='service').length;
+  document.getElementById('sf-pending').textContent=ORDERS.length+' pending orders';
+  document.getElementById('sf-today').textContent=ORDERS.filter(o=>o.timing==='asap').length+' scheduled today';
+}
+
+function populateOfficeFilter(){
+  document.getElementById('office-filter').innerHTML='<option value="">All offices</option>'+
+    OFFICES.map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+}
+
+function setGreeting(){
+  const h=TODAY.getHours();
+
+  document.getElementById('page-title').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+', Kelly';
+  const opts={weekday:'long',month:'long',day:'numeric',year:'numeric'};
+  document.getElementById('topbar-date').textContent=TODAY.toLocaleDateString('en-US',opts);
+  document.getElementById('sf-date').textContent=TODAY.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+}
+
+setGreeting();
+populateOfficeFilter();
+updateStats();
+renderOrders();
+setTimeout(initMap,100);
+</script>
+</body>
+</html>

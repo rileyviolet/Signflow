@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Scope of Work</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #fff; }
+body {
+  font-family: Arial, sans-serif;
+  font-size: 11pt;
+  color: #111;
+  width: 750px;
+  margin: 0 auto;
+  padding: 40px 0 60px;
+}
+h2 { font-size: 13pt; font-weight: 700; color: #185FA5; margin: 24px 0 8px; border-bottom: 1.5px solid #185FA5; padding-bottom: 4px; }
+h3 { font-size: 11pt; font-weight: 700; margin: 14px 0 5px; }
+p { line-height: 1.6; margin-bottom: 10px; }
+ul { margin: 5px 0 12px 20px; }
+li { line-height: 1.8; }
+.cover { text-align: center; border-bottom: 2px solid #185FA5; padding-bottom: 24px; margin-bottom: 28px; }
+.cover-title { font-size: 26pt; font-weight: 700; color: #185FA5; }
+.cover-sub { font-size: 13pt; color: #555; margin: 4px 0 20px; }
+.meta { border-collapse: collapse; margin: 0 auto; }
+.meta td { padding: 3px 10px; font-size: 10pt; }
+.meta td:first-child { color: #999; width: 110px; }
+.meta td:last-child { font-weight: 500; }
+.intro { background: #f0f5fc; border-left: 3px solid #185FA5; padding: 9px 13px; margin-bottom: 12px; font-size: 10.5pt; line-height: 1.6; }
+.note { background: #fdf3e3; border-left: 3px solid #f0a500; padding: 9px 13px; margin: 10px 0; font-size: 10pt; line-height: 1.6; color: #633806; }
+table.data { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 10pt; }
+table.data th { background: #185FA5; color: #fff; padding: 7px 10px; text-align: left; font-size: 9.5pt; }
+table.data td { padding: 7px 10px; border-bottom: 0.5px solid #ddd; vertical-align: top; line-height: 1.5; }
+table.data tr:nth-child(even) td { background: #f7fafd; }
+.toc-box { border: 0.5px solid #ddd; padding: 14px 18px; margin-bottom: 24px; background: #f7f9fc; }
+.toc-title { font-size: 11pt; font-weight: 700; margin-bottom: 8px; }
+.toc-item { display: block; font-size: 10.5pt; line-height: 2.1; }
+.footer { text-align: center; font-size: 9pt; color: #999; margin-top: 36px; border-top: 0.5px solid #ddd; padding-top: 12px; }
+.tip { background: #185FA5; color: #fff; padding: 10px 16px; text-align: center; font-size: 12pt; margin-bottom: 28px; border-radius: 6px; }
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .tip { display: none; }
+  body { width: 100% !important; padding: 0 !important; margin: 0 !important; }
+  h2 { break-after: avoid; }
+  h3 { break-after: avoid; }
+  table.data { break-inside: auto; }
+  tr { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="tip">To save as PDF in Chrome: press Ctrl+P (Win) or Cmd+P (Mac) &rarr; Destination: Save as PDF &rarr; More settings &rarr; Margins: None &rarr; check Background graphics &rarr; Save</div>
+
+<div class="cover">
+  <div class="cover-title">SignFlow</div>
+  <div class="cover-sub">Software Development — Scope of Work</div>
+  <table class="meta">
+    <tr><td>Client</td><td>Sign Up Sign Services Inc</td></tr>
+    <tr><td>Contact</td><td>Kelly Sollenberger, Owner</td></tr>
+    <tr><td>Email</td><td>kelly@signuptucson.com</td></tr>
+    <tr><td>Address</td><td>1201 E 22nd St, Tucson AZ 85713</td></tr>
+    <tr><td>Vendor</td><td>Simform LLC</td></tr>
+    <tr><td>NDA</td><td>Signed — DocuSign Envelope 4A23AD7C</td></tr>
+    <tr><td>Date</td><td>April 2026</td></tr>
+    <tr><td>Version</td><td>1.0 — Initial SOW</td></tr>
+  </table>
+</div>
+
+<div class="toc-box">
+  <div class="toc-title">Table of Contents</div>
+  <span class="toc-item">1. Project Overview</span>
+  <span class="toc-item">2. Background &amp; Business Motivation</span>
+  <span class="toc-item">3. Scope of Work</span>
+  <span class="toc-item">4. Out of Scope</span>
+  <span class="toc-item">5. Technical Requirements</span>
+  <span class="toc-item">6. Phases &amp; Milestones</span>
+  <span class="toc-item">7. Ownership &amp; Intellectual Property</span>
+  <span class="toc-item">8. Assumptions &amp; Dependencies</span>
+</div>
+
+<h2>1. Project Overview</h2>
+<div class="intro">SignFlow is a custom SaaS platform to manage real estate sign installation and removal operations for Sign Up Sign Services Inc in Tucson, Arizona. The platform replaces a third-party system (UpSignDown) and gives the client full ownership of their data, workflows, and billing operations.</div>
+<p>Sign Up Sign Services installs, maintains, and removes real estate yard signs for real estate offices and independent agents throughout the Tucson metro area and surrounding communities including Green Valley. The business manages a team of field installers, a roster of real estate offices and hundreds of agents, and a high daily volume of installation, removal, service call, and delivery orders.</p>
+<p>The current third-party platform (UpSignDown) costs approximately $100/month plus 1% on all credit card transactions plus $1 per order. SignFlow will replace it entirely, giving the client full ownership of all data and operations.</p>
+
+<h2>2. Background &amp; Business Motivation</h2>
+<p>Sign Up Sign Services has outgrown its current third-party platform and requires a purpose-built solution that provides full data ownership, modern workflows, and the operational efficiency needed to scale. Key drivers for building SignFlow include:</p>
+<ul>
+  <li>Eliminating ongoing third-party licensing fees and per-transaction charges</li>
+  <li>Full ownership and control of all business data</li>
+  <li>Office-level post type menus and bulk pricing management</li>
+  <li>A streamlined installer mobile experience with route-ordered stops and pull lists</li>
+  <li>Integrated photo confirmation workflow</li>
+  <li>Built-in invoicing, batch billing, and payment processing</li>
+  <li>The ability to schedule removals directly from completed installs</li>
+  <li>A modern, efficient admin experience built around actual daily workflows</li>
+</ul>
+<h3>Prototype</h3>
+<p>A full interactive prototype of SignFlow has been designed and is available at the GitHub Pages URL provided separately. The prototype covers all screens listed in Section 3 and reflects all key design and business logic decisions. Simform should treat the prototype as the primary design specification.</p>
+
+<h2>3. Scope of Work</h2>
+<div class="intro">All features below are in scope. The prototype is the reference for UI/UX. Where behavior is not visible in the prototype, this document governs.</div>
+
+<h3>3.1 Admin Portal (Web — Desktop)</h3>
+<table class="data">
+  <tr><th style="width:36%">Feature</th><th>Description</th></tr>
+  <tr><td><strong>Dashboard</strong></td><td>Live Tucson map (Google Maps) with color-coded pins by order type. Pending order queue below. Stat bar: All Pending, Installs, Removals, Service Calls. Future dates shown in red. Unassigned installers shown in red. View only.</td></tr>
+  <tr><td><strong>Peg board map</strong></td><td>Full interactive map with installer zones, zone polygons, installer pins, auto-routing by zone, order assignment.</td></tr>
+  <tr><td><strong>Order history</strong></td><td>All order types in one list, 200 at a time. Large search bar. Filters by type, status, and office. Columns: date (MM/DD/YYYY), address, agent with mailto link, type, office, sign panel, accessories, amount, status. Click row opens detail drawer with notes, sign type, service call issue description, and schedule removal button on completed installs. No financial totals visible to staff.</td></tr>
+  <tr><td><strong>Schedule removal</strong></td><td>From any completed install, one tap pre-fills a removal order with the same address, sign panel, and original install notes. Agent can add additional removal-specific notes.</td></tr>
+  <tr><td><strong>Offices &amp; agents</strong></td><td>Office cards with agent lists, billing mode per office (Invoice, Auto pay, Pay now), CC on file (last 4 + expiration), expiring card flags, mailto links, agent assignment.</td></tr>
+  <tr><td><strong>Sign panels</strong></td><td>Sign image upload (.bmp/.jpg/.png), name, size, agent assignment. No status tracking.</td></tr>
+  <tr><td><strong>Post types admin</strong></td><td>Image card grid. Per post: name, install price, image, tax flag, enabled/disabled toggle. Export/import Excel.</td></tr>
+  <tr><td><strong>Office post menus</strong></td><td>Office-centric view. Manage each office's available post types and prices. Bulk price updater skips volume-discounted offices. Copy menu from one office to another.</td></tr>
+  <tr><td><strong>Accessories admin</strong></td><td>Image card grid. Name, price, image, tax flag, enabled/disabled.</td></tr>
+  <tr><td><strong>Invoicing</strong></td><td>Build invoices by date range per agent or office. Removals always $0. Batch email: PDF for invoice customers, charge and receipt for auto pay. POS excluded. One-click send all.</td></tr>
+  <tr><td><strong>Agent payment history</strong></td><td>Date range picker, filter by type/status, grouped by month, invoice PDF download, export to Excel/PDF/print.</td></tr>
+  <tr><td><strong>Scheduler</strong></td><td>Calendar view for installer assignment and scheduling.</td></tr>
+</table>
+
+<h3>3.2 Agent Portal (Web — Desktop &amp; Mobile browser)</h3>
+<table class="data">
+  <tr><th style="width:36%">Feature</th><th>Description</th></tr>
+  <tr><td><strong>Dashboard</strong></td><td>Active orders and order history. Place order CTA at top. Stats: active orders, sign panels, orders this month, or balance due for independent agents.</td></tr>
+  <tr><td><strong>Order form</strong></td><td>6-section scrollable form, all sections open simultaneously. Order type (install/remove/service call/delivery), property address with map pin, post type selection filtered to office menu and prices, sign panel, accessories, photo confirmation pre-checked. Service calls include required issue description and optional replacement sign selection. Install notes carry over to removal orders automatically.<br><br><strong>Charge breakdown (critical data architecture requirement):</strong> Every order must store all charge components as separate fields in the database even though the agent sees only one total. Required fields per order: (1) Post install charge — taxable, (2) Zone fee — not taxable, determined automatically by the zone boundary the property address falls in, (3) Photo fee — not taxable, (4) Accessories total — not taxable, (5) Grand total shown to agent — sum of all above. The agent-facing UI displays one combined total only. The admin and reporting layer has access to all individual components for sales tax reporting and auditing purposes.</td></tr>
+  <tr><td><strong>My signs</strong></td><td>Agent's registered sign panels showing image, name, and size.</td></tr>
+  <tr><td><strong>Schedule removal</strong></td><td>Button on each completed install. Pre-fills removal with address, sign, and original notes. Agent adds removal-specific notes and confirms.</td></tr>
+  <tr><td><strong>Billing — independent agents only</strong></td><td>Invoice history, amounts, Pay Now button, PDF download. Hidden for office-billed agents.</td></tr>
+</table>
+
+<h3>3.3 Installer Mobile App (Web-based, mobile browser)</h3>
+<table class="data">
+  <tr><th style="width:36%">Feature</th><th>Description</th></tr>
+  <tr><td><strong>Today's stops</strong></td><td>Numbered stops in route order. UP NEXT banner on current stop. Sign image thumbnail, order type badge, agent name, office. Progress bar. Completed stops grayed with checkmark.</td></tr>
+  <tr><td><strong>Stop detail</strong></td><td>Full sign image. Order type, post type, accessories, agent notes, access instructions. Photo upload. Mark complete button. One-tap Google Maps navigation.</td></tr>
+  <tr><td><strong>Pull list</strong></td><td>Three sections before leaving: Posts to bring (type + quantity), Signs to bring (name + quantity), Accessories (name + quantity). Tap to check off each item.</td></tr>
+  <tr><td><strong>Completed stops</strong></td><td>List of completed stops with timestamps.</td></tr>
+</table>
+
+<h3>3.4 Integrations</h3>
+<table class="data">
+  <tr><th style="width:36%">Integration</th><th>Details</th></tr>
+  <tr><td><strong>Google Maps</strong></td><td>Admin dashboard, peg board, order form address pin, installer navigation, address autocomplete.</td></tr>
+  <tr><td><strong>Stripe</strong></td><td>Card on file (tokenized, PCI compliant), auto-charge on 3rd of month for auto pay offices, pay-now checkout at order submission.</td></tr>
+  <tr><td><strong>Email</strong></td><td>Invoice PDF delivery, photo confirmation to agents, receipts, card expiration notices, order confirmations.</td></tr>
+  <tr><td><strong>PDF generation</strong></td><td>Invoice PDFs and payment receipts.</td></tr>
+  <tr><td><strong>Excel export</strong></td><td>Order history, pricing, payment history, post menus.</td></tr>
+</table>
+
+<h2>4. Out of Scope</h2>
+<div class="note">The following are explicitly excluded from this engagement. Any additions require a written change order.</div>
+<ul>
+  <li>Native iOS or Android app (installer app is web-based mobile browser)</li>
+  <li>QuickBooks or accounting software integration</li>
+  <li>SMS/text messaging to agents or installers</li>
+  <li>Marketing tools (e-flyers, CALLcapture, QR codes)</li>
+  <li>Audio readout of order notes</li>
+  <li>Multi-region / multi-city support (Tucson only at launch)</li>
+  <li>Agent-to-agent sign transfers or marketplace features</li>
+  <li>Automated route optimization engine (manual zone assignment at launch)</li>
+  <li>Custom reporting or analytics beyond what is specified</li>
+</ul>
+
+<h2>5. Technical Requirements</h2>
+<h3>Platform</h3>
+<ul>
+  <li>Web application — admin and agent portals accessible via desktop browser</li>
+  <li>Installer app — responsive web app optimized for mobile browser (iOS Safari + Android Chrome)</li>
+  <li>No native app builds required at launch</li>
+</ul>
+<h3>Hosting &amp; Infrastructure</h3>
+<ul>
+  <li>Cloud-hosted (AWS, GCP, or Azure — vendor recommendation)</li>
+  <li>SSL/HTTPS on all endpoints</li>
+  <li>Automated daily database backups</li>
+  <li>99.5% uptime SLA minimum</li>
+</ul>
+<h3>Security</h3>
+<ul>
+  <li>Role-based access control: Admin, Agent, Installer</li>
+  <li>PCI-compliant card handling via Stripe — no raw card data stored</li>
+  <li>Secure session management with auto-logout</li>
+</ul>
+<h3>Admin Access</h3>
+<ul>
+  <li>Client retains full admin access to all data at all times</li>
+  <li>Admin must be able to export all data to Excel at any time</li>
+  <li>No vendor lock-in on data — client owns all data stored in the platform</li>
+</ul>
+<h3>Browser Support</h3>
+<ul>
+  <li>Admin portal: Chrome, Safari, Firefox, Edge (latest 2 versions)</li>
+  <li>Agent portal: Same as admin, plus mobile Safari and mobile Chrome</li>
+  <li>Installer app: Mobile Safari (iOS) and Chrome (Android)</li>
+</ul>
+
+<h2>6. Phases &amp; Milestones</h2>
+<div class="intro">Work is organized into four phases. Each phase ends with a client review and sign-off before the next phase begins.</div>
+<table class="data">
+  <tr><th style="width:22%">Phase</th><th>Deliverables</th><th style="width:18%">Duration</th></tr>
+  <tr><td><strong>Phase 1</strong><br>Foundation</td><td>Database schema and architecture, authentication (admin/agent/installer roles), offices and agents admin, post types and accessories admin, office post menus with pricing</td><td>TBD by vendor</td></tr>
+  <tr><td><strong>Phase 2</strong><br>Order management</td><td>Agent order form (all 4 types), admin order history, admin dashboard with Google Maps, peg board map, schedule removal from completed install</td><td>TBD by vendor</td></tr>
+  <tr><td><strong>Phase 3</strong><br>Billing &amp; payments</td><td>Stripe integration (card on file, auto charge, pay now), invoicing module, monthly batch sender, agent payment history, PDF generation</td><td>TBD by vendor</td></tr>
+  <tr><td><strong>Phase 4</strong><br>Installer app &amp; launch</td><td>Installer mobile web app (stops, pull list, photo upload, navigation), photo confirmation to agents, email notifications, QA and testing, production launch and handoff</td><td>TBD by vendor</td></tr>
+</table>
+<div class="note">Phase durations and milestone dates to be provided by Simform after reviewing this SOW and the prototype. Client reserves the right to re-prioritize phases based on business need.</div>
+
+<h2>7. Ownership &amp; Intellectual Property</h2>
+<ul>
+  <li>All code, designs, and deliverables produced under this agreement are owned exclusively by Sign Up Sign Services Inc upon full payment</li>
+  <li>Vendor retains no license to use, resell, or repurpose any deliverable without written consent</li>
+  <li>All data entered into the platform by the client, agents, or installers is owned by Sign Up Sign Services Inc</li>
+  <li>Client may request a full data export at any time at no charge</li>
+  <li>Source code must be delivered to client at the conclusion of each phase via a private GitHub repository to which the client has full access</li>
+  <li>Vendor must not use any proprietary business logic, pricing structures, or workflow designs from this project in competing products</li>
+</ul>
+
+<h2>8. Assumptions &amp; Dependencies</h2>
+<h3>Client responsibilities</h3>
+<ul>
+  <li>Client will provide all content, logos, and branding assets within 5 business days of request</li>
+  <li>Client will provide timely feedback (within 3 business days) at each review milestone</li>
+  <li>Client will set up Stripe account and provide API keys</li>
+  <li>Client will manage data entry of any additional offices, agents, and sign panels not migrated from the existing system</li>
+</ul>
+<h3>Vendor responsibilities</h3>
+<ul>
+  <li>Vendor will set up Google Maps API account on behalf of the client and configure all required API keys</li>
+  <li>Vendor will manage the transition from the existing platform (UpSignDown). Client will request a full data export from UpSignDown. If a complete data export is not available, vendor may be needed to assist in re-creating data in the new system</li>
+  <li>Vendor will treat the provided prototype as the primary design specification</li>
+  <li>Vendor will flag any technical constraints that would prevent implementing a prototyped feature before beginning that feature</li>
+  <li>Vendor will provide weekly status updates including hours burned, hours remaining, and blockers</li>
+  <li>Vendor will maintain a private GitHub repository with current source code accessible to the client at all times</li>
+  <li>Vendor will not begin work on a new phase until the prior phase has been accepted in writing by the client</li>
+</ul>
+<div class="note">The interactive prototype represents the agreed-upon design for all screens. Any deviation from the prototype requires explicit written approval from the client prior to implementation.</div>
+
+<div class="footer">SignFlow SOW v1.0 &nbsp;·&nbsp; Sign Up Sign Services Inc &nbsp;·&nbsp; Confidential &nbsp;·&nbsp; April 2026</div>
+
+</body>
+</html>

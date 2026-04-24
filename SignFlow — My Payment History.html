@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — My Payment History</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5f3}
+.app{display:flex;height:100vh;min-height:800px}
+.sidebar{width:210px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.agent-card{padding:14px 16px;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:10px}
+.agent-avatar{width:36px;height:36px;border-radius:50%;background:#185FA5;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#fff;flex-shrink:0}
+.agent-name{font-size:13px;font-weight:500}
+.agent-office{font-size:11px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:10px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:0.5px solid rgba(0,0,0,.1);font-size:11px;color:#999;line-height:1.7}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:500}
+.btn{padding:5px 13px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.btn-sm{padding:3px 10px;font-size:11px}
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.filter-bar{padding:12px 20px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.form-input{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.form-select{padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;background:#fff;color:#111}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px;flex-shrink:0}
+.stat-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;padding:11px 14px}
+.stat-label{font-size:10px;color:#999;margin-bottom:3px}
+.stat-val{font-size:20px;font-weight:500}
+.scroll{flex:1;overflow-y:auto;padding:0 20px 20px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-install{background:#E6F1FB;color:#0C447C}
+.badge-remove{background:#F1EFE8;color:#5F5E5A}
+.badge-service{background:#EAF3DE;color:#27500A}
+.badge-delivery{background:#E1F5EE;color:#085041}
+.badge-paid{background:#EAF3DE;color:#27500A}
+.badge-unpaid{background:#FAEEDA;color:#633806}
+.badge-charged{background:#E6F1FB;color:#0C447C}
+.order-table{width:100%;border-collapse:collapse;margin-top:14px}
+.order-table th{font-size:10px;font-weight:500;color:#999;text-align:left;padding:8px 14px;border-bottom:0.5px solid rgba(0,0,0,.1);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#fff;position:sticky;top:0;z-index:2}
+.order-table td{padding:11px 14px;font-size:13px;border-bottom:0.5px solid rgba(0,0,0,.07);vertical-align:middle}
+.order-table tbody tr:last-child td{border-bottom:none}
+.order-table tbody tr:hover td{background:#fafaf9}
+.order-table tr.removal-row td{color:#999}
+.month-group{margin-bottom:6px}
+.month-header{padding:8px 14px;background:#f5f5f3;font-size:11px;font-weight:500;color:#555;text-transform:uppercase;letter-spacing:.06em;border-top:0.5px solid rgba(0,0,0,.08);border-bottom:0.5px solid rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center}
+.month-total{font-size:12px;font-weight:500;color:#185FA5}
+.email-link{color:#185FA5;text-decoration:none}
+.email-link:hover{text-decoration:underline}
+.export-bar{padding:12px 20px;background:#fff;border-top:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.export-label{font-size:12px;color:#555;margin-right:4px}
+.total-display{margin-left:auto;display:flex;align-items:center;gap:8px}
+.total-label{font-size:12px;color:#555}
+.total-val{font-size:15px;font-weight:500;color:#185FA5}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Agent portal</div></div>
+    <div class="agent-card">
+      <div class="agent-avatar">AT</div>
+      <div>
+        <div class="agent-name">Angela Tennison</div>
+        <div class="agent-office">Long Realty Foothills</div>
+      </div>
+    </div>
+    <div class="nav-label">My account</div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h12" stroke="currentColor" stroke-width="1.2"/></svg>
+      Place order
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3l2 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Order history
+    </div>
+    <div class="nav-item">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 5h6M4 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      My signs
+    </div>
+    <div class="nav-item active">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 6h12M4 9h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Payment history
+    </div>
+    <div class="sidebar-footer">
+      <div style="font-weight:500;color:#111;font-size:12px;margin-bottom:3px">Billing mode</div>
+      <div>Invoice — pay by check</div>
+      <div style="margin-top:6px;font-size:11px;color:#999">Questions? Contact your admin</div>
+      <a class="email-link" href="mailto:admin@signuptucson.com" style="font-size:11px">admin@signuptucson.com</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title">Payment history</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="exportExcel()">Export to Excel</button>
+        <button class="btn btn-primary" onclick="printPDF()">Download PDF</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-label">Total billed</div><div class="stat-val" style="color:#185FA5" id="st-billed">$0</div></div>
+        <div class="stat-card"><div class="stat-label">Paid</div><div class="stat-val" style="color:#3B6D11" id="st-paid">$0</div></div>
+        <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-val" style="color:#BA7517" id="st-outstanding">$0</div></div>
+        <div class="stat-card"><div class="stat-label">Total orders</div><div class="stat-val" id="st-orders">0</div></div>
+      </div>
+
+      <div class="filter-bar">
+        <label style="font-size:12px;color:#555">From</label>
+        <input type="date" class="form-input" id="date-from" value="2026-01-01" onchange="renderOrders()">
+        <label style="font-size:12px;color:#555">To</label>
+        <input type="date" class="form-input" id="date-to" value="2026-04-21" onchange="renderOrders()">
+        <select class="form-select" id="type-filter" onchange="renderOrders()">
+          <option value="">All types</option>
+          <option value="install">Installation</option>
+          <option value="remove">Removal</option>
+          <option value="service">Service call</option>
+          <option value="delivery">Delivery/Pickup</option>
+        </select>
+        <select class="form-select" id="status-filter" onchange="renderOrders()">
+          <option value="">All statuses</option>
+          <option value="paid">Paid</option>
+          <option value="unpaid">Unpaid</option>
+        </select>
+        <button class="btn btn-sm" onclick="resetFilters()">Reset</button>
+        <span style="margin-left:auto;font-size:12px;color:#999" id="count-label"></span>
+      </div>
+
+      <div class="scroll">
+        <div id="orders-body"></div>
+      </div>
+
+      <div class="export-bar">
+        <span class="export-label">Export filtered results:</span>
+        <button class="btn btn-sm" onclick="exportExcel()">Excel</button>
+        <button class="btn btn-sm" onclick="printPDF()">PDF</button>
+        <button class="btn btn-sm" onclick="window.print()">Print</button>
+        <div class="total-display">
+          <span class="total-label">Filtered total:</span>
+          <span class="total-val" id="filtered-total">$0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SERVICE_LABELS={install:'Installation',remove:'Removal',service:'Service call',delivery:'Delivery/Pickup'};
+const BILLABLE=['install','service','delivery'];
+
+const ORDERS=[
+  {id:1001,date:'2026-04-15',addr:'4821 E Sunrise Dr, Tucson',    type:'install', amount:65,  status:'unpaid',  invoice:'INV-042'},
+  {id:1002,date:'2026-04-10',addr:'220 W Magee Rd, Tucson',       type:'remove',  amount:0,   status:'paid',    invoice:'INV-042'},
+  {id:1003,date:'2026-04-03',addr:'7703 N Oracle Rd, Tucson',     type:'install', amount:65,  status:'unpaid',  invoice:'INV-042'},
+  {id:1004,date:'2026-03-28',addr:'1550 S Kolb Rd, Tucson',       type:'service', amount:55,  status:'paid',    invoice:'INV-038'},
+  {id:1005,date:'2026-03-20',addr:'9901 E Broadway Blvd, Tucson', type:'install', amount:65,  status:'paid',    invoice:'INV-038'},
+  {id:1006,date:'2026-03-14',addr:'3300 N Campbell Ave, Tucson',  type:'remove',  amount:0,   status:'paid',    invoice:'INV-038'},
+  {id:1007,date:'2026-03-07',addr:'5500 E Speedway Blvd, Tucson', type:'install', amount:65,  status:'paid',    invoice:'INV-038'},
+  {id:1008,date:'2026-03-01',addr:'8800 E 22nd St, Tucson',       type:'delivery',amount:35,  status:'paid',    invoice:'INV-038'},
+  {id:1009,date:'2026-02-22',addr:'600 S Wilmot Rd, Tucson',      type:'install', amount:65,  status:'paid',    invoice:'INV-031'},
+  {id:1010,date:'2026-02-15',addr:'2200 E Fort Lowell Rd, Tucson',type:'remove',  amount:0,   status:'paid',    invoice:'INV-031'},
+  {id:1011,date:'2026-02-09',addr:'4100 S 6th Ave, Tucson',       type:'install', amount:65,  status:'paid',    invoice:'INV-031'},
+  {id:1012,date:'2026-02-02',addr:'3600 W Irvington Rd, Tucson',  type:'service', amount:55,  status:'paid',    invoice:'INV-031'},
+  {id:1013,date:'2026-01-25',addr:'5600 E Grant Rd, Tucson',      type:'install', amount:65,  status:'paid',    invoice:'INV-024'},
+  {id:1014,date:'2026-01-18',addr:'1800 N Stone Ave, Tucson',     type:'install', amount:65,  status:'paid',    invoice:'INV-024'},
+  {id:1015,date:'2026-01-12',addr:'9200 E Tanque Verde Rd, Tucson',type:'remove', amount:0,   status:'paid',    invoice:'INV-024'},
+  {id:1016,date:'2026-01-05',addr:'740 W Ajo Way, Tucson',        type:'delivery',amount:35,  status:'paid',    invoice:'INV-024'},
+];
+
+function fmtDate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function fmtMoney(n){return n===0?'$0.00':'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function monthKey(d){const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-US',{month:'long',year:'numeric'})}
+function isBillable(type){return BILLABLE.includes(type)}
+
+function getFiltered(){
+  const from=new Date(document.getElementById('date-from').value+'T00:00:00');
+  const to=new Date(document.getElementById('date-to').value+'T23:59:59');
+  const type=document.getElementById('type-filter').value;
+  const status=document.getElementById('status-filter').value;
+  return ORDERS.filter(o=>{
+    const d=new Date(o.date+'T00:00:00');
+    if(d<from||d>to)return false;
+    if(type&&o.type!==type)return false;
+    if(status&&o.status!==status)return false;
+    return true;
+  });
+}
+
+function renderOrders(){
+  const filtered=getFiltered();
+  const billableTotal=filtered.filter(o=>isBillable(o.type)).reduce((s,o)=>s+o.amount,0);
+  const paidTotal=filtered.filter(o=>o.status==='paid'&&isBillable(o.type)).reduce((s,o)=>s+o.amount,0);
+  const unpaidTotal=filtered.filter(o=>o.status==='unpaid'&&isBillable(o.type)).reduce((s,o)=>s+o.amount,0);
+
+  document.getElementById('st-billed').textContent=fmtMoney(billableTotal);
+  document.getElementById('st-paid').textContent=fmtMoney(paidTotal);
+  document.getElementById('st-outstanding').textContent=fmtMoney(unpaidTotal);
+  document.getElementById('st-orders').textContent=filtered.length;
+  document.getElementById('count-label').textContent=filtered.length+' order'+(filtered.length!==1?'s':'');
+  document.getElementById('filtered-total').textContent=fmtMoney(billableTotal);
+
+  // Group by month
+  const months={};
+  filtered.forEach(o=>{
+    const mk=monthKey(o.date);
+    if(!months[mk])months[mk]=[];
+    months[mk].push(o);
+  });
+
+  if(!filtered.length){
+    document.getElementById('orders-body').innerHTML='<div style="padding:30px;text-align:center;color:#999;font-size:13px">No orders found for this date range and filter.</div>';
+    return;
+  }
+
+  document.getElementById('orders-body').innerHTML=Object.entries(months).map(([month,orders])=>{
+    const monthBillable=orders.filter(o=>isBillable(o.type)).reduce((s,o)=>s+o.amount,0);
+    const monthPaid=orders.filter(o=>o.status==='paid'&&isBillable(o.type)).reduce((s,o)=>s+o.amount,0);
+    const monthUnpaid=orders.filter(o=>o.status==='unpaid'&&isBillable(o.type)).reduce((s,o)=>s+o.amount,0);
+    const invoice=[...new Set(orders.map(o=>o.invoice))][0];
+
+    return`<div class="month-group">
+      <div class="month-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span>${month}</span>
+          ${invoice?`<span style="font-size:11px;color:#185FA5;font-weight:400;cursor:pointer" onclick="downloadInvoice('${invoice}')">${invoice} — Download PDF</span>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          ${monthUnpaid>0?`<span style="font-size:11px;color:#BA7517;font-weight:500">${fmtMoney(monthUnpaid)} unpaid</span>`:''}
+          ${monthPaid>0?`<span style="font-size:11px;color:#639922;font-weight:400">${fmtMoney(monthPaid)} paid</span>`:''}
+          <span class="month-total">${fmtMoney(monthBillable)} total</span>
+        </div>
+      </div>
+      <table class="order-table">
+        <thead><tr>
+          <th>Date</th><th>Property address</th><th>Service</th><th>Amount</th><th>Payment</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${orders.map(o=>{
+            const isRemoval=o.type==='remove';
+            const statusBadge=isRemoval
+              ?'<span class="badge badge-remove" style="font-size:10px">No charge</span>'
+              :o.status==='paid'
+                ?'<span class="badge badge-paid">Paid</span>'
+                :'<span class="badge badge-unpaid">Unpaid</span>';
+            return`<tr class="${isRemoval?'removal-row':''}">
+              <td style="white-space:nowrap;color:#777;font-size:12px">${fmtDate(o.date)}</td>
+              <td style="font-size:13px">${o.addr}</td>
+              <td><span class="badge badge-${o.type}" style="font-size:10px">${SERVICE_LABELS[o.type]}</span></td>
+              <td style="font-weight:${isRemoval?'400':'500'};color:${isRemoval?'#bbb':'#111'}">${isRemoval?'$0.00 <span style="font-size:10px;color:#bbb;font-style:italic">(no charge)</span>':fmtMoney(o.amount)}</td>
+              <td>${statusBadge}</td>
+              <td><button class="btn btn-sm" onclick="printOrder(${o.id})">Print</button></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function resetFilters(){
+  document.getElementById('date-from').value='2026-01-01';
+  document.getElementById('date-to').value='2026-04-21';
+  document.getElementById('type-filter').value='';
+  document.getElementById('status-filter').value='';
+  renderOrders();
+}
+
+function downloadInvoice(inv){
+  alert('Downloading '+inv+' as PDF...\n(Opens PDF in production — itemized invoice for this month)');
+}
+
+function exportExcel(){
+  alert('Exporting payment history to Excel...\n\nIncludes: date, address, service type, amount, payment status\n(Downloads history.xlsx in production)');
+}
+
+function printPDF(){
+  alert('Generating PDF of payment history...\n\nIncludes all orders in the selected date range.\n(Opens print-ready PDF in production)');
+}
+
+function printOrder(id){
+  const o=ORDERS.find(x=>x.id===id);
+  alert('Printing order receipt:\n\n'+fmtDate(o.date)+'\n'+o.addr+'\n'+SERVICE_LABELS[o.type]+'\n'+(o.amount===0?'No charge':fmtMoney(o.amount)));
+}
+
+renderOrders();
+</script>
+</body>
+</html>
