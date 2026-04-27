@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -56,6 +57,8 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
 .badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;white-space:nowrap}
 .badge-install{background:#E6F1FB;color:#0C447C}
 .badge-remove{background:#F1EFE8;color:#5F5E5A}
+.badge-up{background:#E6F1FB;color:#0C447C;font-weight:700}
+.badge-down{background:#F1EFE8;color:#5F5E5A;font-weight:700}
 .badge-service{background:#EAF3DE;color:#27500A}
 .badge-delivery{background:#E1F5EE;color:#085041}
 .badge-complete{background:#EAF3DE;color:#27500A}
@@ -108,10 +111,11 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
       <div class="dot" style="background:#1D9E75"></div>Schedule
     </div>
     <div class="nav-label">Quick filters</div>
-    <div class="nav-item" onclick="quickFilter('today')"><div class="dot" style="background:#185FA5"></div>Today's orders</div>
-    <div class="nav-item" onclick="quickFilter('pending')"><div class="dot" style="background:#BA7517"></div>Pending</div>
-    <div class="nav-item" onclick="quickFilter('install')"><div class="dot" style="background:#185FA5"></div>Installs only</div>
-    <div class="nav-item" onclick="quickFilter('remove')"><div class="dot" style="background:#888780"></div>Removals only</div>
+    <div class="nav-item" onclick="quickFilter('all')"><div class="dot" style="background:#185FA5"></div>All completed</div>
+    <div class="nav-item" onclick="quickFilter('install')"><div class="dot" style="background:#185FA5"></div>UP only</div>
+    <div class="nav-item" onclick="quickFilter('remove')"><div class="dot" style="background:#888780"></div>DOWN only</div>
+    <div class="nav-item" onclick="quickFilter('service')"><div class="dot" style="background:#639922"></div>Service calls</div>
+    <div class="nav-item" onclick="quickFilter('delivery')"><div class="dot" style="background:#0F6E56"></div>Deliveries</div>
     <div class="sidebar-footer" id="sidebar-footer">Loading...</div>
   </div>
 
@@ -125,14 +129,6 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
     </div>
 
     <div class="content">
-      <div class="stat-row">
-        <div class="stat-card"><div class="stat-label">Showing</div><div class="stat-val" id="st-showing">0</div></div>
-        <div class="stat-card"><div class="stat-label">Installs</div><div class="stat-val" style="color:#185FA5" id="st-installs">0</div></div>
-        <div class="stat-card"><div class="stat-label">Removals</div><div class="stat-val" style="color:#888" id="st-removals">0</div></div>
-        <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val" style="color:#BA7517" id="st-pending">0</div></div>
-
-      </div>
-
       <div class="filter-bar">
         <input class="form-input" placeholder="Search address, agent, or office..." id="search-inp" oninput="applyFilters()" style="flex:1;min-width:200px">
         <select class="form-select" id="type-filter" onchange="applyFilters()">
@@ -141,13 +137,6 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
           <option value="remove">Removal</option>
           <option value="service">Service call</option>
           <option value="delivery">Delivery/Pickup</option>
-        </select>
-        <select class="form-select" id="status-filter" onchange="applyFilters()">
-          <option value="">All statuses</option>
-          <option value="complete">Complete</option>
-          <option value="pending">Pending</option>
-          <option value="scheduled">Scheduled</option>
-          <option value="cancelled">Cancelled</option>
         </select>
         <select class="form-select" id="office-filter" onchange="applyFilters()">
           <option value="">All offices</option>
@@ -162,15 +151,12 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
             <thead>
               <tr>
                 <th onclick="sortBy('date')">Date <span id="sort-date"></span></th>
-                <th onclick="sortBy('addr')">Property address <span id="sort-addr"></span></th>
-                <th onclick="sortBy('agent')">Agent</th>
                 <th onclick="sortBy('type')">Type <span id="sort-type"></span></th>
-                <th>Office</th>
-                <th>Post</th>
-                <th>Sign panel</th>
-                <th>Accessories</th>
-                <th onclick="sortBy('amount')">Amount <span id="sort-amount"></span></th>
-                <th onclick="sortBy('status')">Status <span id="sort-status"></span></th>
+                <th onclick="sortBy('addr')">Address <span id="sort-addr"></span></th>
+                <th onclick="sortBy('agent')">Agent</th>
+                <th>Notes</th>
+                <th>Photo</th>
+                <th>Repair</th>
               </tr>
             </thead>
             <tbody id="order-tbody"></tbody>
@@ -211,7 +197,7 @@ const AGENTS=[
   {id:9,first:'Mark',  last:'Burns',   email:'mark@lr.com',       officeId:4},
   {id:10,first:'Bev',  last:'Stone',   email:'bev@lr.com',        officeId:4},
 ];
-const TYPES={install:'Installation',remove:'Removal',service:'Service call',delivery:'Delivery/Pickup'};
+const TYPES={install:'UP',remove:'DOWN',service:'Service call',delivery:'Delivery/Pickup'};
 const POSTS=['White Post','Black Post','Brown Post','Red Post','Blue Post','Teal Post','H-Post','No Post'];
 const SIGNS=['Standard 18x24','Luxury 24x36','Parks 2x2','Standard 18x18'];
 const ACCS=['Coming Soon','3 Bed','4 Bed','Pool','For Rent','Open House','Directional'];
@@ -285,15 +271,12 @@ function avatarColor(id){const c=['#185FA5','#1D9E75','#BA7517','#7F77DD','#D85A
 
 function applyFilters(){
   const s=document.getElementById('search-inp').value.toLowerCase();
-
   const tf=document.getElementById('type-filter').value;
-  const sf=document.getElementById('status-filter').value;
   const of=document.getElementById('office-filter').value;
   filtered=ALL_ORDERS.filter(o=>{
+    if(o.status!=='complete') return false; // completed only
     if(s&&!o.addr.toLowerCase().includes(s)&&!(o.agent.first+' '+o.agent.last).toLowerCase().includes(s)&&!o.office.name.toLowerCase().includes(s))return false;
-
     if(tf&&o.type!==tf)return false;
-    if(sf&&o.status!==sf)return false;
     if(of&&String(o.office.id)!==of)return false;
     return true;
   });
@@ -333,30 +316,37 @@ function renderTable(){
   document.getElementById('count-label').textContent=filtered.length.toLocaleString()+' orders'+(filtered.length>PAGE_SIZE?' — showing '+PAGE_SIZE+' at a time':'');
   document.getElementById('order-tbody').innerHTML=page.map(o=>`
     <tr onclick="openDrawer(${o.id})" class="${selectedOrderId===o.id?'selected':''}">
-      <td style="white-space:nowrap;color:#777">${fmtDate(o.date)}</td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${o.addr}</td>
+      <td style="white-space:nowrap;color:#777;font-size:12px">${fmtDate(o.date)}</td>
+      <td><span class="badge ${o.type==='install'?'badge-up':o.type==='remove'?'badge-down':'badge-'+o.type}">${TYPES[o.type]}</span></td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:500">${o.addr}</td>
       <td>
         <div style="display:flex;align-items:center;gap:6px">
           <div class="avatar-sm" style="background:${avatarColor(o.agent.id)}">${ini(o.agent)}</div>
           <div>
             <div style="font-size:12px;font-weight:500">${o.agent.first} ${o.agent.last}</div>
+            <div style="font-size:11px;color:#555">${o.office.name}</div>
             <a class="email-link" href="mailto:${o.agent.email}" onclick="event.stopPropagation()" style="font-size:10px">${o.agent.email}</a>
           </div>
         </div>
       </td>
-      <td><span class="badge badge-${o.type}">${TYPES[o.type]}</span></td>
-      <td>
-        <div style="display:flex;align-items:center;gap:5px">
-          <div style="width:8px;height:8px;border-radius:2px;background:${o.office.color};flex-shrink:0"></div>
-          <span style="font-size:11px;color:#555;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px">${o.office.name.split(' ').slice(0,2).join(' ')}</span>
+      <td style="text-align:center">
+        <div onclick="event.stopPropagation();editNotes(${o.id})" title="${o.notes?'Edit notes':'Add notes'}" style="width:28px;height:28px;border-radius:6px;background:${o.notes?'#E6F1FB':'#f5f5f3'};display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto;border:0.5px solid ${o.notes?'#B5D4F4':'rgba(0,0,0,.1)'}">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1.5" stroke="${o.notes?'#185FA5':'#aaa'}" stroke-width="1.1"/><path d="M3 4.5h7M3 6.5h7M3 8.5h4" stroke="${o.notes?'#185FA5':'#aaa'}" stroke-width="1.1" stroke-linecap="round"/></svg>
         </div>
       </td>
-      <td style="font-size:11px;color:#555">${o.post||'—'}</td>
-      <td style="font-size:11px;color:#555;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.sign||'—'}</td>
-      <td style="font-size:11px;color:#555">${o.accs.length?o.accs.join(', '):'—'}</td>
-      <td style="font-weight:500;white-space:nowrap">${o.amount===0?'<span style="color:#aaa">$0.00</span>':fmtMoney(o.amount)}</td>
-      <td><span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span></td>
-    </tr>`).join('')||`<tr><td colspan="10" style="padding:24px;text-align:center;color:#999;font-size:13px">No orders match this filter.</td></tr>`;
+      <td style="text-align:center">
+        ${o.photo
+          ?`<div onclick="event.stopPropagation();showPhoto(${o.id})" title="View photo confirmation" style="width:28px;height:28px;border-radius:6px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto">
+              <svg width="14" height="13" viewBox="0 0 14 13" fill="none"><rect x="0.5" y="2" width="13" height="10" rx="1.5" stroke="#27500A" stroke-width="1.1"/><circle cx="7" cy="7" r="2.5" stroke="#27500A" stroke-width="1.1"/><path d="M4.5 2L5.5 0h3l1 2" stroke="#27500A" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>`
+          :`<span style="font-size:10px;color:#ccc">—</span>`}
+      </td>
+      <td style="text-align:center">
+        <div onclick="event.stopPropagation();requestRepair(${o.id})" title="Request repair/service call" style="width:28px;height:28px;border-radius:6px;background:#FAEEDA;display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#BA7517" stroke-width="1.1"/><path d="M6.5 4v3" stroke="#BA7517" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="9" r="0.8" fill="#BA7517"/></svg>
+        </div>
+      </td>
+    </tr>`).join('')||`<tr><td colspan="7" style="padding:24px;text-align:center;color:#999;font-size:13px">No completed orders match this filter.</td></tr>`;
   renderPagination();
 }
 
@@ -375,13 +365,9 @@ function renderPagination(){
 function goPage(p){currentPage=p;renderTable();document.getElementById('table-wrap').scrollTop=0;}
 
 function updateStats(){
-  const shown=filtered.slice((currentPage-1)*PAGE_SIZE,currentPage*PAGE_SIZE);
-  document.getElementById('st-showing').textContent=Math.min(filtered.length,PAGE_SIZE).toLocaleString();
-  document.getElementById('st-installs').textContent=filtered.filter(o=>o.type==='install').length;
-  document.getElementById('st-removals').textContent=filtered.filter(o=>o.type==='remove').length;
-  document.getElementById('st-pending').textContent=filtered.filter(o=>o.status==='pending').length;
-
-  document.getElementById('sidebar-footer').textContent=ALL_ORDERS.length.toLocaleString()+' total orders\n'+ALL_ORDERS.filter(o=>o.status==='pending').length+' pending';
+  const completed=ALL_ORDERS.filter(o=>o.status==='complete');
+  document.getElementById('count-label').textContent=filtered.length.toLocaleString()+' completed orders'+(filtered.length>PAGE_SIZE?' — showing '+PAGE_SIZE+' at a time':'');
+  document.getElementById('sidebar-footer').textContent=completed.length.toLocaleString()+' completed orders\n'+ALL_ORDERS.filter(o=>o.status==='pending').length+' still pending';
 }
 
 function openDrawer(id){
@@ -461,13 +447,7 @@ function closeDrawer(){
 
 function quickFilter(type){
   resetFilters();
-  if(type==='today'){
-    const today=new Date().toISOString().split('T')[0];
-    document.getElementById('date-from').value=today;
-    document.getElementById('date-to').value=today;
-  } else if(type==='pending'){
-    document.getElementById('status-filter').value='pending';
-  } else if(type==='install'||type==='remove'){
+  if(type!=='all'){
     document.getElementById('type-filter').value=type;
   }
   applyFilters();
@@ -475,11 +455,170 @@ function quickFilter(type){
 
 function resetFilters(){
   document.getElementById('search-inp').value='';
-
   document.getElementById('type-filter').value='';
-  document.getElementById('status-filter').value='';
   document.getElementById('office-filter').value='';
   applyFilters();
+}
+
+function showPhoto(id){
+  const o=ALL_ORDERS.find(x=>x.id===id);
+  document.getElementById('modal-title').textContent='Photo confirmation — '+o.addr;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="background:#EAF3DE;border-radius:10px;padding:20px;text-align:center;margin-bottom:14px">
+      <svg width="48" height="40" viewBox="0 0 48 40" fill="none"><rect x="1" y="5" width="46" height="32" rx="3" stroke="#27500A" stroke-width="2"/><circle cx="24" cy="21" r="8" stroke="#27500A" stroke-width="2"/><path d="M15 5l3-5h12l3 5" stroke="#27500A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div style="font-size:13px;color:#27500A;font-weight:500;margin-top:10px">Installation photo on file</div>
+      <div style="font-size:11px;color:#639922;margin-top:4px">Photo sent to agent on ${fmtDate(o.date)}</div>
+    </div>
+    <div style="font-size:12px;color:#555;line-height:1.8">
+      <strong>Address:</strong> ${o.addr}<br>
+      <strong>Agent:</strong> ${o.agent.first} ${o.agent.last}<br>
+      <strong>Installer:</strong> ${o.installer}
+    </div>`;
+  document.getElementById('action-modal').style.display='flex';
+}
+
+function editNotes(id){
+  const o=ALL_ORDERS.find(x=>x.id===id);
+  document.getElementById('modal-title').textContent='Notes — '+o.addr;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="font-size:12px;color:#555;margin-bottom:8px;line-height:1.5">Add or update notes for this order. Agents often call to add gate codes, access changes, or placement updates.</div>
+    <textarea id="notes-edit-field" style="width:100%;padding:10px 12px;border:1.5px solid #185FA5;border-radius:8px;font-size:13px;color:#111;resize:vertical;min-height:100px;font-family:system-ui;line-height:1.6">${o.notes||''}</textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button onclick="closeModal()" style="padding:7px 16px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#fff;font-size:13px;cursor:pointer">Cancel</button>
+      <button onclick="saveNotes(${id})" style="padding:7px 16px;border-radius:8px;border:none;background:#185FA5;color:#fff;font-size:13px;font-weight:500;cursor:pointer">Save notes</button>
+    </div>`;
+  document.getElementById('modal-close-btn').style.display='none';
+  document.getElementById('action-modal').style.display='flex';
+}
+
+function saveNotes(id){
+  const o=ALL_ORDERS.find(x=>x.id===id);
+  const newNotes=document.getElementById('notes-edit-field').value.trim();
+  o.notes=newNotes;
+  closeModal();
+  renderTable();
+  showToast('Notes saved for '+o.addr);
+}
+
+function requestRepair(id){
+  const o=ALL_ORDERS.find(x=>x.id===id);
+  document.getElementById('modal-title').textContent='Request service call — '+o.addr;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="font-size:12px;color:#555;margin-bottom:14px;line-height:1.6">A service call will be pre-filled for this address. Set the fee and billing method below before sending.</div>
+
+    <div style="background:#f5f5f3;border-radius:10px;padding:12px 16px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Property</div>
+      <div style="font-size:13px;font-weight:500">${o.addr}</div>
+    </div>
+
+    <div style="background:#f5f5f3;border-radius:10px;padding:12px 16px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Agent</div>
+      <div style="font-size:13px;font-weight:500">${o.agent.first} ${o.agent.last}</div>
+      <a href="mailto:${o.agent.email}" style="font-size:12px;color:#185FA5">${o.agent.email}</a>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:500;color:#555;margin-bottom:6px">Service call fee</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div id="fee-opt-standard" onclick="selectFee('standard')" style="flex:1;min-width:100px;border:1.5px solid #185FA5;background:#E6F1FB;border-radius:8px;padding:8px 12px;cursor:pointer;text-align:center">
+          <div style="font-size:12px;font-weight:600;color:#185FA5">$55.00</div>
+          <div style="font-size:10px;color:#185FA5">Standard fee</div>
+        </div>
+        <div id="fee-opt-custom" onclick="selectFee('custom')" style="flex:1;min-width:100px;border:1.5px solid rgba(0,0,0,.15);border-radius:8px;padding:8px 12px;cursor:pointer;text-align:center">
+          <div style="font-size:12px;font-weight:600;color:#555">Custom</div>
+          <div style="font-size:10px;color:#999">Enter amount</div>
+        </div>
+        <div id="fee-opt-comp" onclick="selectFee('comp')" style="flex:1;min-width:100px;border:1.5px solid rgba(0,0,0,.15);border-radius:8px;padding:8px 12px;cursor:pointer;text-align:center">
+          <div style="font-size:12px;font-weight:600;color:#639922">$0.00</div>
+          <div style="font-size:10px;color:#639922">Comp / our mistake</div>
+        </div>
+      </div>
+      <div id="custom-fee-wrap" style="display:none;margin-top:8px;display:none">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:13px;color:#555">$</span>
+          <input type="number" id="custom-fee-input" placeholder="0.00" step="0.01" min="0" style="width:100px;padding:6px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px">
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:500;color:#555;margin-bottom:6px">Billing method</div>
+      <div style="display:flex;gap:8px">
+        <div id="bill-opt-invoice" onclick="selectBilling('invoice')" style="flex:1;border:1.5px solid #185FA5;background:#E6F1FB;border-radius:8px;padding:8px 12px;cursor:pointer;text-align:center">
+          <div style="font-size:12px;font-weight:600;color:#185FA5">Invoice</div>
+          <div style="font-size:10px;color:#185FA5">Add to monthly</div>
+        </div>
+        <div id="bill-opt-card" onclick="selectBilling('card')" style="flex:1;border:1.5px solid rgba(0,0,0,.15);border-radius:8px;padding:8px 12px;cursor:pointer;text-align:center">
+          <div style="font-size:12px;font-weight:600;color:#555">Card on file</div>
+          <div style="font-size:10px;color:#999">Charge now</div>
+        </div>
+        <div id="bill-opt-comp" onclick="selectBilling('comp')" style="flex:1;border:1.5px solid rgba(0,0,0,.15);border-radius:8px;padding:8px 12px;cursor:pointer;text-align:center">
+          <div style="font-size:12px;font-weight:600;color:#639922">No charge</div>
+          <div style="font-size:10px;color:#639922">Comped</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:500;color:#555;margin-bottom:5px">Notes <span style="font-weight:400;color:#999">(optional)</span></div>
+      <textarea id="repair-notes" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;color:#111;resize:vertical;min-height:60px;font-family:system-ui" placeholder="Describe the issue, reason for comp, or any other notes..."></textarea>
+    </div>
+
+    <div id="comp-note" style="display:none;background:#EAF3DE;border-radius:8px;padding:9px 13px;font-size:12px;color:#27500A;margin-bottom:12px">
+      This service call will be marked as comped — no charge to the agent.
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeModal()" style="padding:7px 16px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#fff;font-size:13px;cursor:pointer">Cancel</button>
+      <button onclick="submitRepair('${o.addr.replace(/'/g,"\\'")}','${o.agent.first}')" style="padding:7px 16px;border-radius:8px;border:none;background:#BA7517;color:#fff;font-size:13px;font-weight:500;cursor:pointer">Send service call</button>
+    </div>`;
+
+  document.getElementById('modal-close-btn').style.display='none';
+  document.getElementById('action-modal').style.display='flex';
+  // defaults
+  window._repairFee='standard';
+  window._repairBilling='invoice';
+}
+
+function selectFee(type){
+  window._repairFee=type;
+  ['standard','custom','comp'].forEach(t=>{
+    const el=document.getElementById('fee-opt-'+t);
+    if(el){el.style.borderColor=t===type?'#185FA5':'rgba(0,0,0,.15)';el.style.background=t===type?'#E6F1FB':'#fff';}
+  });
+  const wrap=document.getElementById('custom-fee-wrap');
+  if(wrap) wrap.style.display=type==='custom'?'block':'none';
+  const compNote=document.getElementById('comp-note');
+  if(compNote) compNote.style.display=type==='comp'?'block':'none';
+  if(type==='comp') selectBilling('comp');
+}
+
+function selectBilling(type){
+  window._repairBilling=type;
+  ['invoice','card','comp'].forEach(t=>{
+    const el=document.getElementById('bill-opt-'+t);
+    if(el){el.style.borderColor=t===type?'#185FA5':'rgba(0,0,0,.15)';el.style.background=t===type?'#E6F1FB':'#fff';}
+  });
+}
+
+function submitRepair(addr, agentFirst){
+  const feeLabels={standard:'$55.00 — standard fee',custom:'$'+( document.getElementById('custom-fee-input')?.value||'0.00')+' — custom fee',comp:'$0.00 — comped'};
+  const billLabels={invoice:'added to invoice',card:'charged to card on file',comp:'no charge'};
+  closeModal();
+  showToast('Service call sent for '+addr+' — '+feeLabels[window._repairFee||'standard']+', '+(billLabels[window._repairBilling||'invoice']));
+}
+
+function closeModal(){
+  document.getElementById('action-modal').style.display='none';
+  document.getElementById('modal-close-btn').style.display='';
+  document.getElementById('modal-body').innerHTML='';
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent='✓ '+msg;
+  t.style.display='block';
+  setTimeout(()=>t.style.display='none',3500);
 }
 
 function populateOfficeFilter(){
@@ -493,5 +632,20 @@ populateOfficeFilter();
 applyFilters();
 document.getElementById('sort-date').textContent=' ↓';
 </script>
+
+<!-- ACTION MODAL -->
+<div id="action-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:14px;padding:22px;width:420px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,.2)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:14px;font-weight:500" id="modal-title"></div>
+      <button id="modal-close-btn" onclick="closeModal()" style="padding:3px 10px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#fff;font-size:12px;cursor:pointer">Close</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#27500A;color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:500;z-index:200;white-space:nowrap"></div>
+
 </body>
 </html>
