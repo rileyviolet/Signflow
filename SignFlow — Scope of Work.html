@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,12 +21,12 @@ p { line-height: 1.6; margin-bottom: 10px; }
 ul { margin: 5px 0 12px 20px; }
 li { line-height: 1.8; }
 .cover { text-align: center; border-bottom: 2px solid #185FA5; padding-bottom: 24px; margin-bottom: 28px; }
-.cover-title { font-size: 26pt; font-weight: 700; color: #185FA5; }
-.cover-sub { font-size: 13pt; color: #555; margin: 4px 0 20px; }
+.cover-title { font-size: 32pt; font-weight: 800; color: #185FA5; }
+.cover-sub { font-size: 16pt; color: #555; margin: 6px 0 24px; font-weight: 500; }
 .meta { border-collapse: collapse; margin: 0 auto; }
-.meta td { padding: 3px 10px; font-size: 10pt; }
-.meta td:first-child { color: #999; width: 110px; }
-.meta td:last-child { font-weight: 500; }
+.meta td { padding: 5px 12px; font-size: 12pt; }
+.meta td:first-child { color: #888; width: 120px; font-weight: 600; }
+.meta td:last-child { font-weight: 700; color: #111; }
 .intro { background: #f0f5fc; border-left: 3px solid #185FA5; padding: 9px 13px; margin-bottom: 12px; font-size: 10.5pt; line-height: 1.6; }
 .note { background: #fdf3e3; border-left: 3px solid #f0a500; padding: 9px 13px; margin: 10px 0; font-size: 10pt; line-height: 1.6; color: #633806; }
 table.data { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 10pt; }
@@ -82,7 +83,6 @@ table.data tr:nth-child(even) td { background: #f7fafd; }
 <h2>1. Project Overview</h2>
 <div class="intro">SignFlow is a custom SaaS platform to manage real estate sign installation and removal operations for Sign Up Sign Services Inc in Tucson, Arizona. The platform replaces a third-party system (UpSignDown) and gives the client full ownership of their data, workflows, and billing operations.</div>
 <p>Sign Up Sign Services installs, maintains, and removes real estate yard signs for real estate offices and independent agents throughout the Tucson metro area and surrounding communities including Green Valley. The business manages a team of field installers, a roster of real estate offices and hundreds of agents, and a high daily volume of installation, removal, service call, and delivery orders.</p>
-<p>The current third-party platform (UpSignDown) costs approximately $100/month plus 1% on all credit card transactions plus $1 per order. SignFlow will replace it entirely, giving the client full ownership of all data and operations.</p>
 
 <h2>2. Background &amp; Business Motivation</h2>
 <p>Sign Up Sign Services has outgrown its current third-party platform and requires a purpose-built solution that provides full data ownership, modern workflows, and the operational efficiency needed to scale. Key drivers for building SignFlow include:</p>
@@ -96,9 +96,6 @@ table.data tr:nth-child(even) td { background: #f7fafd; }
   <li>The ability to schedule removals directly from completed installs</li>
   <li>A modern, efficient admin experience built around actual daily workflows</li>
 </ul>
-<h3>Prototype</h3>
-<p>A full interactive prototype of SignFlow has been designed and is available at the GitHub Pages URL provided separately. The prototype covers all screens listed in Section 3 and reflects all key design and business logic decisions. Simform should treat the prototype as the primary design specification.</p>
-
 <h2>3. Scope of Work</h2>
 <div class="intro">All features below are in scope. The prototype is the reference for UI/UX. Where behavior is not visible in the prototype, this document governs.</div>
 
@@ -155,7 +152,6 @@ table.data tr:nth-child(even) td { background: #f7fafd; }
   <li>QuickBooks or accounting software integration</li>
   <li>SMS/text messaging to agents or installers</li>
   <li>Marketing tools (e-flyers, CALLcapture, QR codes)</li>
-  <li>Audio readout of order notes</li>
   <li>Multi-region / multi-city support (Tucson only at launch)</li>
   <li>Agent-to-agent sign transfers or marketplace features</li>
   <li>Automated route optimization engine (manual zone assignment at launch)</li>
@@ -163,12 +159,6 @@ table.data tr:nth-child(even) td { background: #f7fafd; }
 </ul>
 
 <h2>5. Technical Requirements</h2>
-<h3>Platform</h3>
-<ul>
-  <li>Web application — admin and agent portals accessible via desktop browser</li>
-  <li>Installer app — responsive web app optimized for mobile browser (iOS Safari + Android Chrome)</li>
-  <li>No native app builds required at launch</li>
-</ul>
 <h3>Hosting &amp; Infrastructure</h3>
 <ul>
   <li>Cloud-hosted (AWS, GCP, or Azure — vendor recommendation)</li>
@@ -188,13 +178,6 @@ table.data tr:nth-child(even) td { background: #f7fafd; }
   <li>Admin must be able to export all data to Excel at any time</li>
   <li>No vendor lock-in on data — client owns all data stored in the platform</li>
 </ul>
-<h3>Browser Support</h3>
-<ul>
-  <li>Admin portal: Chrome, Safari, Firefox, Edge (latest 2 versions)</li>
-  <li>Agent portal: Same as admin, plus mobile Safari and mobile Chrome</li>
-  <li>Installer app: Mobile Safari (iOS) and Chrome (Android)</li>
-</ul>
-
 <h2>6. Phases &amp; Milestones</h2>
 <div class="intro">Work is organized into four phases. Each phase ends with a client review and sign-off before the next phase begins.</div>
 <table class="data">
