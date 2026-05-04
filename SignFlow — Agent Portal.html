@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -197,6 +198,27 @@ const INVOICES=[
   {id:'INV-2026-02',date:'Feb 2026',desc:'5 orders',amount:318.80,status:'paid'},
 ];
 
+function cancelOrder(id){
+  const o=ACTIVE_ORDERS.find(x=>x.id===id);
+  if(!o)return;
+  if(confirm(`Cancel your order at ${o.addr}?\n\nThis cannot be undone.`)){
+    ACTIVE_ORDERS.splice(ACTIVE_ORDERS.indexOf(o),1);
+    renderDashboard();
+    showToast('Order at '+o.addr+' has been cancelled.');
+  }
+}
+
+function showToast(msg){
+  let t=document.getElementById('_toast');
+  if(!t){
+    t=document.createElement('div');t.id='_toast';
+    t.style.cssText='position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:9px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);font-family:system-ui;display:none';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);
+}
+
 function fmtMoney(n){return n===0?'$0.00':'$'+n.toFixed(2)}
 
 function setAgentType(type){
@@ -220,13 +242,20 @@ function renderContent(){
   const a=AGENT_TYPES[agentType];
   let html='';
 
-  // CTA
-  html+=`<div class="cta-bar">
-    <div>
-      <div class="cta-title">Need a sign installed or removed?</div>
-      <div class="cta-sub">Place an order and we'll schedule your installer.</div>
+  // ORDER BUTTONS
+  html+=`<div style="background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px 18px;margin-bottom:14px">
+    <div style="font-size:12px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Place an order</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <button onclick="alert('Install order form')" style="flex:1;min-width:120px;padding:16px 14px;border-radius:10px;border:0.5px solid rgba(0,0,0,.15);background:#E6F1FB;color:#0C447C;font-size:16px;font-weight:800;cursor:pointer">⬆ Install</button>
+      <button onclick="alert('Removal order form')" style="flex:1;min-width:120px;padding:16px 14px;border-radius:10px;border:0.5px solid rgba(0,0,0,.15);background:#F1EFE8;color:#5F5E5A;font-size:16px;font-weight:800;cursor:pointer">⬇ Remove</button>
+      <button onclick="alert('Repair order form')" style="flex:1;min-width:120px;padding:16px 14px;border-radius:10px;border:0.5px solid rgba(0,0,0,.15);background:#FAEEDA;color:#633806;font-size:16px;font-weight:800;cursor:pointer">🔧 Repair</button>
     </div>
-    <button class="cta-btn" onclick="alert('Order form opens')">+ Place order</button>
+    <div style="border-top:0.5px solid rgba(0,0,0,.08);padding-top:10px">
+      <button onclick="alert('Delivery order form')" style="width:100%;padding:8px 14px;border-radius:10px;border:0.5px solid rgba(0,0,0,.12);background:#f9f9f7;color:#555;font-size:12px;font-weight:600;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between">
+        <span>📦 Delivery / Pickup — sign panels &amp; accessories only</span>
+        <span style="font-size:10px;color:#999;font-weight:400;margin-left:10px">Not for installations</span>
+      </button>
+    </div>
   </div>`;
 
   // STAT CARDS
@@ -254,40 +283,49 @@ function renderContent(){
     </div>`}
   </div>`;
 
-  // ACTIVE ORDERS
+  // ACTIVE ORDERS — pending only with cancel option
+  const pendingOrders=ACTIVE_ORDERS.filter(o=>o.status==='pending');
   html+=`<div class="section-card">
     <div class="section-header">
-      <div class="section-title">Active orders</div>
-      <button class="btn btn-sm" onclick="alert('Full order history')">View all</button>
+      <div class="section-title">Pending orders</div>
+      <span style="font-size:11px;color:#999">${pendingOrders.length} awaiting scheduling</span>
     </div>
     <div class="section-body">
-      ${ACTIVE_ORDERS.map(o=>`
-      <div class="order-row">
-        <div class="order-date">${o.date}</div>
+      ${pendingOrders.length===0?`<div style="padding:20px;text-align:center;color:#999;font-size:13px">No pending orders.</div>`:
+      pendingOrders.map(o=>`
+      <div class="order-row" style="align-items:flex-start;padding:13px 16px">
+        <div class="order-date" style="padding-top:2px">${o.date}</div>
         <div style="flex:1;min-width:0">
           <div class="order-addr">${o.addr}</div>
           <div class="order-meta">${o.city}</div>
+          <div style="margin-top:5px;display:flex;gap:6px;align-items:center">
+            <span class="badge badge-${o.type}">${o.type.charAt(0).toUpperCase()+o.type.slice(1)}</span>
+            <span class="badge badge-pending">Pending</span>
+            ${o.post?`<span style="font-size:10px;color:#999">${o.post}</span>`:''}
+          </div>
         </div>
-        <span class="badge badge-${o.type}" style="margin-right:6px">${o.type.charAt(0).toUpperCase()+o.type.slice(1)}</span>
-        <span class="badge badge-${o.status}">${o.status.charAt(0).toUpperCase()+o.status.slice(1)}</span>
+        <button onclick="cancelOrder(${o.id})" style="margin-left:10px;padding:5px 12px;border-radius:8px;border:0.5px solid rgba(220,50,50,.3);background:#fff;color:#C0392B;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0">Cancel order</button>
       </div>`).join('')}
     </div>
   </div>`;
 
-  // RECENT HISTORY
+  // RECENT HISTORY — sorted newest to oldest, remove = DOWN
+  const sortedHistory=[...HISTORY_ORDERS].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const typeLabel=(type)=>type==='install'?'UP':type==='remove'?'DOWN':type.charAt(0).toUpperCase()+type.slice(1);
+  const typeBadge=(type)=>type==='remove'?'badge-remove':('badge-'+type);
   html+=`<div class="section-card">
     <div class="section-header">
       <div class="section-title">Recent order history</div>
       <button class="btn btn-sm" onclick="alert('Full history')">View all</button>
     </div>
     <div class="section-body">
-      ${HISTORY_ORDERS.map(o=>`
+      ${sortedHistory.map(o=>`
       <div class="order-row" style="flex-wrap:wrap;gap:8px">
         <div class="order-date">${o.date}</div>
         <div style="flex:1;min-width:0">
           <div class="order-addr">${o.addr}</div>
         </div>
-        <span class="badge badge-${o.type}" style="margin-right:6px">${o.type.charAt(0).toUpperCase()+o.type.slice(1)}</span>
+        <span class="badge ${typeBadge(o.type)}" style="margin-right:6px">${typeLabel(o.type)}</span>
         <span class="badge badge-complete">Complete</span>
         ${isIndependent?`<span style="font-size:12px;font-weight:500;color:#555;margin-left:6px;white-space:nowrap">${fmtMoney(o.amount)}</span>`:''}
         ${o.type==='install'?`<button onclick="event.stopPropagation();scheduleRemoval(${o.id})" style="margin-left:auto;padding:3px 10px;border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid #BA7517;background:#FAEEDA;color:#633806;white-space:nowrap">Schedule removal</button>`:''}
