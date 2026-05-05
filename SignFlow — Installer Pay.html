@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>SignFlow — My Pay</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#f2f2f7;font-family:system-ui,-apple-system,sans-serif;font-size:16px;color:#111;-webkit-font-smoothing:antialiased}
+
+.header{background:#185FA5;color:#fff;padding:14px 16px 16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.header-name{font-size:17px;font-weight:700}
+.header-sub{font-size:12px;opacity:.8}
+.period-bar{background:rgba(255,255,255,.15);border-radius:10px;padding:10px 14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between}
+.period-label{font-size:12px;opacity:.85}
+.period-total{font-size:22px;font-weight:800}
+.period-sub{font-size:11px;opacity:.75;margin-top:1px}
+
+.section-label{padding:10px 16px 5px;font-size:12px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:.05em}
+
+/* RATE CARD */
+.rate-card{background:#fff;margin:0 12px 10px;border-radius:14px;padding:14px;border:0.5px solid rgba(0,0,0,.1)}
+.rate-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.rate-item{background:#f2f2f7;border-radius:10px;padding:10px 12px;text-align:center}
+.rate-type{font-size:11px;color:#8E8E93;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.rate-amt{font-size:18px;font-weight:800;color:#185FA5;margin-top:2px}
+
+/* STOP ROWS */
+.stop-row{background:#fff;margin:0 12px 8px;border-radius:14px;padding:14px;border:0.5px solid rgba(0,0,0,.1);display:flex;align-items:center;gap:12px}
+.stop-row.adjusted{border-color:#BA7517;background:#FFFBF5}
+.stop-row.commercial{border-color:#C9A8F5;background:#FAF5FF}
+.stop-date{font-size:11px;color:#8E8E93;width:44px;flex-shrink:0;text-align:center;line-height:1.3;font-weight:500}
+.stop-info{flex:1;min-width:0}
+.stop-addr{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stop-meta{font-size:12px;color:#8E8E93;margin-top:2px}
+.stop-pay{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.pay-amt{font-size:16px;font-weight:700;color:#185FA5}
+.pay-adj{font-size:10px;color:#BA7517;font-weight:600}
+.edit-btn{padding:4px 10px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#f2f2f7;font-size:12px;cursor:pointer;color:#555}
+
+/* TYPE TAGS */
+.type-tag{padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700}
+.tag-up{background:#E6F1FB;color:#0C447C}
+.tag-dn{background:#F1EFE8;color:#5F5E5A}
+.tag-svc{background:#FAEEDA;color:#633806}
+.tag-del{background:#EAF3DE;color:#27500A}
+
+/* SUBMIT BUTTON */
+.submit-wrap{padding:16px 12px}
+.btn-submit{width:100%;padding:16px;border-radius:14px;border:none;background:#16A322;color:#fff;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-submit:disabled{background:#C7C7CC;cursor:default}
+
+/* PREVIOUS PERIODS */
+.period-card{background:#fff;margin:0 12px 10px;border-radius:14px;overflow:hidden;border:0.5px solid rgba(0,0,0,.1)}
+.period-card-header{padding:13px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.period-card-title{font-size:14px;font-weight:600}
+.period-card-right{display:flex;align-items:center;gap:10px}
+.status-badge{padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600}
+.status-submitted{background:#E6F1FB;color:#0C447C}
+.status-approved{background:#EAF3DE;color:#27500A}
+.status-paid{background:#EAF3DE;color:#27500A}
+.period-card-body{display:none;border-top:0.5px solid rgba(0,0,0,.08);padding:12px 14px}
+.period-card-body.open{display:block}
+.period-line{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:13px}
+.period-line:last-child{border-bottom:none;font-weight:700;font-size:14px;padding-top:8px}
+
+/* ADJUST SHEET */
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200}
+.sheet-overlay.open{display:flex;align-items:flex-end}
+.sheet{background:#fff;width:100%;border-radius:24px 24px 0 0;padding:20px 16px 40px}
+.sheet-handle{width:36px;height:4px;background:#E0E0E0;border-radius:2px;margin:0 auto 16px}
+.sheet-title{font-size:17px;font-weight:700;margin-bottom:4px}
+.sheet-sub{font-size:13px;color:#8E8E93;margin-bottom:16px}
+.sheet-addr{font-size:15px;font-weight:600;margin-bottom:14px;padding:10px 12px;background:#f2f2f7;border-radius:10px}
+.amount-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.amount-label{font-size:14px;color:#555;flex-shrink:0}
+.amount-input{flex:1;padding:12px 14px;border:1.5px solid #185FA5;border-radius:12px;font-size:20px;font-weight:700;color:#185FA5;text-align:center;font-family:system-ui}
+.preset-row{display:flex;gap:8px;margin-bottom:16px}
+.preset-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid #E0E0E0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;color:#555}
+.preset-btn.sel{border-color:#185FA5;background:#E6F1FB;color:#185FA5}
+.sheet-btns{display:flex;gap:10px}
+.sheet-cancel{flex:1;padding:14px;border-radius:14px;border:1.5px solid #E0E0E0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;color:#555}
+.sheet-save{flex:2;padding:14px;border-radius:14px;border:none;background:#185FA5;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+
+.toast{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:9999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-name">Juan Rodriguez</div>
+      <div class="header-sub">My Pay</div>
+    </div>
+    <a href="signflow_installer_app.html" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 14px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none">← Stops</a>
+  </div>
+  <div class="period-bar">
+    <div>
+      <div class="period-label">Current period</div>
+      <div class="period-sub" id="period-dates">Apr 21 – May 4, 2026</div>
+    </div>
+    <div style="text-align:right">
+      <div class="period-total" id="period-total">$0.00</div>
+      <div class="period-sub" id="period-stops">0 stops</div>
+    </div>
+  </div>
+</div>
+
+<!-- DEADLINE BANNER -->
+<div style="background:#FFF3CD;border-bottom:0.5px solid #F0D080;padding:9px 16px;display:flex;align-items:center;gap:8px">
+  <span style="font-size:16px">⏰</span>
+  <div>
+    <div style="font-size:13px;font-weight:600;color:#856404">Submit to Kelly by Monday</div>
+    <div style="font-size:11px;color:#856404;opacity:.8">Payroll deadline: every other Tuesday at 12:00pm</div>
+  </div>
+</div>
+
+<!-- BASE RATES -->
+<div class="section-label">Your base rates</div>
+<div class="rate-card">
+  <div style="font-size:13px;color:#8E8E93">Base rates set by Kelly. Tap any stop below to adjust if a stop paid differently — use $0 for free fixes or enter a pre-agreed amount for commercial jobs.</div>
+  <div class="rate-grid">
+    <div class="rate-item"><div class="rate-type">Install</div><div class="rate-amt">$6.00</div></div>
+    <div class="rate-item"><div class="rate-type">Removal</div><div class="rate-amt">$6.00</div></div>
+    <div class="rate-item"><div class="rate-type">Service</div><div class="rate-amt">$6.00</div></div>
+    <div class="rate-item"><div class="rate-type">Delivery</div><div class="rate-amt">$6.00</div></div>
+  </div>
+</div>
+
+<!-- CURRENT PERIOD STOPS -->
+<div class="section-label">Completed stops this period</div>
+<div id="stops-list"></div>
+
+<!-- SUBMIT BUTTON -->
+<div class="submit-wrap">
+  <button class="btn-submit" id="submit-btn" onclick="submitPay()">
+    Submit for approval
+  </button>
+  <div style="text-align:center;font-size:12px;color:#8E8E93;margin-top:8px">Submit to Kelly by Monday — payroll deadline is every other Tuesday at 12:00pm</div>
+</div>
+
+<!-- PREVIOUS PERIODS -->
+<div class="section-label">Previous pay periods</div>
+
+<div class="period-card">
+  <div class="period-card-header" onclick="togglePeriod(1)">
+    <div>
+      <div class="period-card-title">Apr 7 – Apr 20, 2026</div>
+      <div style="font-size:12px;color:#8E8E93;margin-top:2px">18 stops · $108.00</div>
+    </div>
+    <div class="period-card-right">
+      <span class="status-badge status-paid">✓ Paid</span>
+      <span style="color:#C7C7CC;font-size:18px">›</span>
+    </div>
+  </div>
+  <div class="period-card-body" id="period-1">
+    <div class="period-line"><span>Installations (10)</span><span>$60.00</span></div>
+    <div class="period-line"><span>Removals (5)</span><span>$30.00</span></div>
+    <div class="period-line"><span>Service calls (2)</span><span>$12.00</span></div>
+    <div class="period-line"><span>Deliveries (1)</span><span>$6.00</span></div>
+    <div class="period-line"><span>Adjustments</span><span>+$0.00</span></div>
+    <div class="period-line"><span>Total paid</span><span style="color:#16A322">$108.00</span></div>
+    <div style="font-size:11px;color:#8E8E93;margin-top:8px">Paid Apr 22, 2026</div>
+  </div>
+</div>
+
+<div class="period-card">
+  <div class="period-card-header" onclick="togglePeriod(2)">
+    <div>
+      <div class="period-card-title">Mar 24 – Apr 6, 2026</div>
+      <div style="font-size:12px;color:#8E8E93;margin-top:2px">22 stops · $138.00</div>
+    </div>
+    <div class="period-card-right">
+      <span class="status-badge status-paid">✓ Paid</span>
+      <span style="color:#C7C7CC;font-size:18px">›</span>
+    </div>
+  </div>
+  <div class="period-card-body" id="period-2">
+    <div class="period-line"><span>Installations (14)</span><span>$84.00</span></div>
+    <div class="period-line"><span>Removals (6)</span><span>$36.00</span></div>
+    <div class="period-line"><span>Service calls (1)</span><span>$6.00</span></div>
+    <div class="period-line"><span>Deliveries (1)</span><span>$6.00</span></div>
+    <div class="period-line"><span>Adjustments</span><span>+$6.00</span></div>
+    <div class="period-line"><span>Total paid</span><span style="color:#16A322">$138.00</span></div>
+    <div style="font-size:11px;color:#8E8E93;margin-top:8px">Paid Apr 8, 2026</div>
+  </div>
+</div>
+
+<div style="height:32px"></div>
+
+<!-- ADJUST SHEET -->
+<div class="sheet-overlay" id="adj-overlay" onclick="closeAdj(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Adjust pay for this stop</div>
+    <div class="sheet-sub">Base rate is $6.00. Change it if this stop paid differently.</div>
+    <div class="sheet-addr" id="adj-addr"></div>
+    <div class="preset-row">
+      <button class="preset-btn" onclick="setPreset(0)">$0</button>
+      <button class="preset-btn" onclick="setPreset(6)">$6</button>
+      <button class="preset-btn" onclick="setPreset(8)">$8</button>
+      <button class="preset-btn" onclick="setPreset(10)">$10</button>
+      <button class="preset-btn" onclick="setPreset(12)">$12</button>
+      <button class="preset-btn" onclick="setPreset(15)">$15</button>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:6px">Other amount <span style="font-weight:400;color:#8E8E93">(pre-agreed commercial rate)</span></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px;font-weight:700;color:#555">$</span>
+        <input id="adj-input" type="number" step="0.50" min="0" placeholder="e.g. 120.00" style="flex:1;padding:12px 14px;border:1.5px solid #185FA5;border-radius:12px;font-size:20px;font-weight:700;color:#185FA5;font-family:system-ui">
+      </div>
+    </div>
+    <div class="sheet-btns">
+      <button class="sheet-cancel" onclick="closeAdj()">Cancel</button>
+      <button class="sheet-save" onclick="saveAdj()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STOPS=[
+  {id:1,date:'Apr 21',addr:'4821 E Sunrise Dr',agent:'Angela Tennison',type:'install',base:6.00,pay:6.00,adjusted:false,commercial:false},
+  {id:2,date:'Apr 21',addr:'220 W Magee Rd',agent:'Sarah Johnson',type:'install',base:6.00,pay:6.00,adjusted:false,commercial:false},
+  {id:3,date:'Apr 21',addr:'7703 N Oracle Rd',agent:'Rex Morgan',type:'remove',base:6.00,pay:6.00,adjusted:false,commercial:false},
+  {id:4,date:'Apr 22',addr:'3300 N Campbell Ave — Flag installation',agent:'Commercial',type:'flag',base:25.00,pay:25.00,adjusted:false,commercial:true},
+  {id:5,date:'Apr 22',addr:'5500 E Speedway Blvd',agent:'Linda Park',type:'service',base:6.00,pay:10.00,adjusted:true,commercial:false},
+  {id:6,date:'Apr 22',addr:'1234 W Broadway Blvd — Mailbox repair',agent:'Commercial',type:'mbox',base:30.00,pay:30.00,adjusted:false,commercial:true},
+  {id:7,date:'Apr 23',addr:'9200 E Tanque Verde Rd',agent:'Angela Tennison',type:'install',base:6.00,pay:6.00,adjusted:false,commercial:false},
+  {id:8,date:'Apr 24',addr:'1800 N Stone Ave',agent:'Bev Stone',type:'remove',base:6.00,pay:6.00,adjusted:false,commercial:false},
+  {id:9,date:'Apr 25',addr:'631 W Paseo del Canto, Green Valley',agent:'Tom Freeland',type:'install',base:7.00,pay:7.00,adjusted:false,commercial:false},
+  {id:10,date:'Apr 28',addr:'8800 E 22nd St — Commercial sign install',agent:'Commercial',type:'comm',base:50.00,pay:50.00,adjusted:false,commercial:true},
+  {id:11,date:'Apr 28',addr:'4500 N Flowing Wells Rd',agent:'Mark Burns',type:'install',base:6.00,pay:6.00,adjusted:false,commercial:false},
+  {id:12,date:'Apr 30',addr:'2200 E Fort Lowell Rd',agent:'Dana Hill',type:'delivery',base:6.00,pay:6.00,adjusted:false,commercial:false},
+];
+
+const TYPE_LABEL={install:'UP',remove:'DOWN',service:'Service',delivery:'Delivery',flag:'Flag',mbox:'Mailbox',comm:'Commercial',rta:'Vinyl (RTA)'};
+const TYPE_TAG={install:'tag-up',remove:'tag-dn',service:'tag-svc',delivery:'tag-del',flag:'tag-flag',mbox:'tag-mbox',comm:'tag-comm',rta:'tag-rta'};
+
+let adjId=null;
+
+function total(){return STOPS.reduce((s,x)=>s+x.pay,0);}
+
+function render(){
+  const t=total();
+  document.getElementById('period-total').textContent='$'+t.toFixed(2);
+  document.getElementById('period-stops').textContent=STOPS.length+' stop'+(STOPS.length!==1?'s':'');
+
+  document.getElementById('stops-list').innerHTML=STOPS.map(s=>`
+    <div class="stop-row${s.adjusted?' adjusted':''}${s.commercial?' commercial':''}" id="sr-${s.id}">
+      <div class="stop-date">${s.date.replace('Apr ','')}<br><span style="font-size:10px;color:#C7C7CC">Apr</span></div>
+      <div class="stop-info">
+        <div class="stop-addr">${s.addr}</div>
+        <div class="stop-meta" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+          <span style="padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;background:${
+            s.type==='install'?'#E6F1FB':s.type==='remove'?'#F1EFE8':
+            s.type==='service'?'#FAEEDA':s.type==='delivery'?'#EAF3DE':
+            '#f0f0f0'};color:${
+            s.type==='install'?'#0C447C':s.type==='remove'?'#5F5E5A':
+            s.type==='service'?'#633806':s.type==='delivery'?'#27500A':
+            '#555'}">${TYPE_LABEL[s.type]||s.type}</span>
+          ${s.commercial?`<span style="padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;background:#F3EDFF;color:#5B2D8E">Commercial</span>`:`<span style="font-size:12px;color:#8E8E93">${s.agent.split(' ')[0]}</span>`}
+        </div>
+      </div>
+      <div class="stop-pay">
+        <div class="pay-amt" style="color:${s.commercial?'#5B2D8E':'#185FA5'}">$${s.pay.toFixed(2)}</div>
+        ${s.adjusted?`<div class="pay-adj">Adjusted</div>`:''}
+        <button class="edit-btn" onclick="openAdj(${s.id})">Edit</button>
+      </div>
+    </div>`).join('');
+}
+
+function openAdj(id){
+  const s=STOPS.find(x=>x.id===id);
+  adjId=id;
+  document.getElementById('adj-addr').textContent=s.addr;
+  document.getElementById('adj-input').value=s.pay.toFixed(2);
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('adj-overlay').classList.add('open');
+}
+
+function closeAdj(e){
+  if(!e||e.target===document.getElementById('adj-overlay'))
+    document.getElementById('adj-overlay').classList.remove('open');
+}
+
+function setPreset(amt){
+  document.getElementById('adj-input').value=amt===0?'0':amt.toFixed(2);
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('sel',parseFloat(b.textContent.replace('$',''))===amt));
+}
+
+function saveAdj(){
+  const s=STOPS.find(x=>x.id===adjId);
+  const val=document.getElementById('adj-input').value;
+  const newAmt=val===''||val===null?s.base:parseFloat(val);
+  s.pay=isNaN(newAmt)?s.base:newAmt;
+  s.adjusted=s.pay!==s.base;
+  document.getElementById('adj-overlay').classList.remove('open');
+  render();
+  const msg=s.pay===0?'Marked as $0 — free fix':
+    s.pay>s.base?'Pay adjusted to $'+s.pay.toFixed(2)+' for this stop':
+    s.pay<s.base?'Pay adjusted to $'+s.pay.toFixed(2)+' for this stop':
+    'Pay reset to base rate ($'+s.base.toFixed(2)+')';
+  toast(msg);
+}
+
+function submitPay(){
+  const t=total();
+  if(confirm('Submit $'+t.toFixed(2)+' for '+STOPS.length+' stops?\n\nMake sure all stops and amounts are correct before submitting. Payroll deadline is Tuesday at 12:00pm.')){
+    toast('✓ Pay submitted — $'+t.toFixed(2)+' pending approval');
+    document.getElementById('submit-btn').disabled=true;
+    document.getElementById('submit-btn').textContent='✓ Submitted — awaiting approval';
+  }
+}
+
+function togglePeriod(n){
+  const body=document.getElementById('period-'+n);
+  body.classList.toggle('open');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);
+}
+
+render();
+</script>
+</body>
+</html>
