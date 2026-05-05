@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -213,7 +214,14 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
         </div>
         <div style="padding:12px;background:#f5f5f3;border-radius:8px">
           <div class="toggle-row"><span style="font-size:12px">Taxable</span><div class="toggle" id="m-tax" onclick="this.classList.toggle('on')"></div></div>
-          <div class="toggle-row" style="margin-bottom:0"><span style="font-size:12px">Enabled</span><div class="toggle on" id="m-enabled" onclick="this.classList.toggle('on')"></div></div>
+          <div class="toggle-row"><span style="font-size:12px">Enabled</span><div class="toggle on" id="m-enabled" onclick="this.classList.toggle('on')"></div></div>
+          <div class="toggle-row" style="margin-bottom:0">
+            <div>
+              <div style="font-size:12px">Renewal exempt</div>
+              <div style="font-size:10px;color:#999;margin-top:1px">No renewal fee for this post type</div>
+            </div>
+            <div class="toggle" id="m-renewal-exempt" onclick="this.classList.toggle('on')"></div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -227,18 +235,18 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
 
 <script>
 let POSTS=[
-  {id:1,name:'White Post',          price:42, tax:true,  enabled:true,  note:'Standard residential post',       img:null},
-  {id:2,name:'Black Post',          price:49, tax:true,  enabled:true,  note:'',                                img:null},
-  {id:3,name:'Brown Post',          price:49, tax:true,  enabled:true,  note:'',                                img:null},
-  {id:4,name:'Red Post',            price:49, tax:true,  enabled:true,  note:'',                                img:null},
-  {id:5,name:'Blue Post',           price:49, tax:true,  enabled:true,  note:'',                                img:null},
-  {id:6,name:'Teal Sign Post',      price:68, tax:true,  enabled:true,  note:'',                                img:null},
-  {id:7,name:'H-Post',              price:55, tax:false, enabled:true,  note:'For larger commercial signs',     img:null},
-  {id:8,name:'Black Post — Luxury', price:46, tax:false, enabled:true,  note:'For luxury signs only',          img:null},
-  {id:9,name:'No Post — Gate/Wall', price:38, tax:false, enabled:true,  note:'Attach sign only, no post needed',img:null},
-  {id:10,name:'Custom Subdivision', price:75, tax:false, enabled:true,  note:'HOA/subdivision specific',        img:null},
-  {id:11,name:'Commercial',         price:0,  tax:false, enabled:true,  note:'Commercial properties',           img:null},
-  {id:12,name:'Used Post',          price:47, tax:false, enabled:false, note:'Refurbished post',                img:null},
+  {id:1,name:'White Post',          price:42, tax:true,  enabled:true,  renewalExempt:false, note:'Standard residential post',       img:null},
+  {id:2,name:'Black Post',          price:49, tax:true,  enabled:true,  renewalExempt:false, note:'',                                img:null},
+  {id:3,name:'Brown Post',          price:49, tax:true,  enabled:true,  renewalExempt:false, note:'',                                img:null},
+  {id:4,name:'Red Post',            price:49, tax:true,  enabled:true,  renewalExempt:false, note:'',                                img:null},
+  {id:5,name:'Blue Post',           price:49, tax:true,  enabled:true,  renewalExempt:false, note:'',                                img:null},
+  {id:6,name:'Teal Sign Post',      price:68, tax:true,  enabled:true,  renewalExempt:false, note:'',                                img:null},
+  {id:7,name:'H-Post',              price:55, tax:false, enabled:true,  renewalExempt:false, note:'For larger commercial signs',     img:null},
+  {id:8,name:'Black Post — Luxury', price:46, tax:false, enabled:true,  renewalExempt:false, note:'For luxury signs only',          img:null},
+  {id:9,name:'No Post — Gate/Wall', price:38, tax:false, enabled:true,  renewalExempt:true,  note:'Attach sign only, no post needed',img:null},
+  {id:10,name:'Custom Subdivision', price:75, tax:false, enabled:true,  renewalExempt:true,  note:'HOA/subdivision specific',        img:null},
+  {id:11,name:'Commercial',         price:0,  tax:false, enabled:true,  renewalExempt:false, note:'Commercial properties',           img:null},
+  {id:12,name:'Used Post',          price:47, tax:false, enabled:false, renewalExempt:false, note:'Refurbished post',                img:null},
 ];
 
 let ACCESSORIES=[
@@ -346,6 +354,7 @@ function itemCard(item,type){
     <div class="item-footer">
       <span class="badge ${item.enabled?'badge-enabled':'badge-disabled'}">${item.enabled?'Enabled':'Disabled'}</span>
       ${item.tax?'<span class="badge badge-tax">Tax</span>':''}
+      ${item.renewalExempt?'<span class="badge" style="background:#EEEDFE;color:#3C3489">⊘ Renewal exempt</span>':''}
     </div>
   </div>`;
 }
@@ -379,7 +388,14 @@ function openDetail(id,type){
     <div class="dp-section">
       <div class="dp-section-title">Status</div>
       <div class="toggle-row"><span style="font-size:12px">Enabled</span><div class="toggle${item.enabled?' on':''}" onclick="toggleEnabled(${id},'${type}',this)"></div></div>
-      <div class="toggle-row" style="margin-bottom:0"><span style="font-size:12px">Taxable</span><div class="toggle${item.tax?' on':''}" onclick="toggleTax(${id},'${type}',this)"></div></div>
+      <div class="toggle-row"><span style="font-size:12px">Taxable</span><div class="toggle${item.tax?' on':''}" onclick="toggleTax(${id},'${type}',this)"></div></div>
+      ${type==='post'?`<div class="toggle-row" style="margin-bottom:0">
+        <div>
+          <div style="font-size:12px">Renewal exempt</div>
+          <div style="font-size:10px;color:#999;margin-top:1px">No renewal fee charged for this post type</div>
+        </div>
+        <div class="toggle${item.renewalExempt?' on':''}" onclick="toggleRenewalExempt(${id},this)" style="${item.renewalExempt?'background:#7F77DD;border-color:#7F77DD':''}"></div>
+      </div>`:''}
     </div>
     <div class="dp-section">
       <div class="dp-section-title">Actions</div>
@@ -411,6 +427,15 @@ function toggleEnabled(id,type,el){
   const items=type==='post'?POSTS:ACCESSORIES;
   items.find(x=>x.id===id).enabled=el.classList.contains('on');
   if(type==='post') renderPosts(); else renderAcc();
+}
+
+function toggleRenewalExempt(id,el){
+  el.classList.toggle('on');
+  const exempt=el.classList.contains('on');
+  POSTS.find(x=>x.id===id).renewalExempt=exempt;
+  el.style.background=exempt?'#7F77DD':'';
+  el.style.borderColor=exempt?'#7F77DD':'';
+  renderPosts();
 }
 
 function toggleTax(id,type,el){
