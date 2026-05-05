@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -115,6 +116,7 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
     <div class="nav-item" onclick="quickFilter('remove')"><div class="dot" style="background:#888780"></div>DOWN only</div>
     <div class="nav-item" onclick="quickFilter('service')"><div class="dot" style="background:#639922"></div>Service calls</div>
     <div class="nav-item" onclick="quickFilter('delivery')"><div class="dot" style="background:#0F6E56"></div>Deliveries</div>
+    <div class="nav-item" onclick="quickFilter('flagged')" style="color:#C0392B"><div class="dot" style="background:#C0392B"></div>⚑ Flagged</div>
     <div class="sidebar-footer" id="sidebar-footer">Loading...</div>
   </div>
 
@@ -136,12 +138,14 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
           <option value="remove">Removal</option>
           <option value="service">Service call</option>
           <option value="delivery">Delivery/Pickup</option>
+          <option value="flagged">⚑ Flagged only</option>
         </select>
         <select class="form-select" id="office-filter" onchange="applyFilters()">
           <option value="">All offices</option>
         </select>
         <button class="btn btn-sm" onclick="resetFilters()">Reset</button>
         <span class="count-label" id="count-label"></span>
+        <span id="flagged-alert" style="display:none;background:#FCEBEB;color:#C0392B;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:0.5px solid #F09595">⚑ Flagged orders need attention</span>
       </div>
 
       <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
@@ -252,8 +256,32 @@ for(let i=0;i<350;i++){
     billing:rndItem(['invoice','auto','pay-now']),
     notes:Math.random()>0.5?rndItem(notes):'',
     serviceIssue:type==='service'?rndItem(serviceIssues):'',
+    flagged:false,
+    flagReason:'',
+    tripCharge:0,
   });
 }
+
+// Add 4 flagged orders for demo
+const flagReasons=['No gate code provided','Gate code not working','Bad or incorrect address','Property not marked / can\'t find location'];
+flagReasons.forEach((reason,i)=>{
+  const agent=AGENTS[i];
+  const office=OFFICES.find(o=>o.id===agent.officeId);
+  ALL_ORDERS.unshift({
+    id:orderId++,
+    date:new Date().toISOString().split('T')[0],
+    addr:ADDRESSES[i]+', Tucson AZ',
+    agent,office,type:'install',
+    post:'White Post',sign:'Standard 18x24',accs:['Coming Soon'],
+    amount:65,status:'pending',
+    installer:rndItem(['Juan R.','Tom K.','Maria S.','Devon W.']),
+    photo:false,billing:'invoice',
+    notes:'',serviceIssue:'',
+    flagged:true,
+    flagReason:reason,
+    tripCharge:15,
+  });
+});
 ALL_ORDERS.sort((a,b)=>b.date.localeCompare(a.date));
 
 let filtered=[];
@@ -273,9 +301,12 @@ function applyFilters(){
   const tf=document.getElementById('type-filter').value;
   const of=document.getElementById('office-filter').value;
   filtered=ALL_ORDERS.filter(o=>{
-    if(o.status!=='complete') return false; // completed only
-    if(s&&!o.addr.toLowerCase().includes(s)&&!(o.agent.first+' '+o.agent.last).toLowerCase().includes(s)&&!o.office.name.toLowerCase().includes(s))return false;
-    if(tf&&o.type!==tf)return false;
+    if(tf==='flagged'){if(!o.flagged)return false;}
+    else{
+      if(o.status!=='complete'&&!o.flagged) return false;
+      if(s&&!o.addr.toLowerCase().includes(s)&&!(o.agent.first+' '+o.agent.last).toLowerCase().includes(s)&&!o.office.name.toLowerCase().includes(s))return false;
+      if(tf&&o.type!==tf)return false;
+    }
     if(of&&String(o.office.id)!==of)return false;
     return true;
   });
@@ -283,6 +314,10 @@ function applyFilters(){
   currentPage=1;
   renderTable();
   updateStats();
+  // Show flagged alert
+  const flagCount=ALL_ORDERS.filter(o=>o.flagged).length;
+  const alert=document.getElementById('flagged-alert');
+  if(alert)alert.style.display=flagCount>0?'inline-block':'none';
 }
 
 function sortFiltered(){
@@ -315,7 +350,15 @@ function renderTable(){
   document.getElementById('count-label').textContent=filtered.length.toLocaleString()+' orders'+(filtered.length>PAGE_SIZE?' — showing '+PAGE_SIZE+' at a time':'');
   document.getElementById('order-tbody').innerHTML=page.map(o=>`
     <tr onclick="openDrawer(${o.id})" class="${selectedOrderId===o.id?'selected':''}">
-      <td style="white-space:nowrap;color:#777;font-size:12px">${fmtDate(o.date)}</td>
+      <td style="white-space:nowrap;color:#777;font-size:12px">${fmtDate(o.date)}${o.flagged?`<br><span style="color:#C0392B;font-size:10px;font-weight:700">⚑ Flagged</span><br><span style="display:inline-block;margin-top:3px;padding:2px 7px;border-radius:6px;background:#FCEBEB;color:#C0392B;font-size:10px;font-weight:600">${
+        o.flagReason==='No gate code provided'?'No gate code':
+        o.flagReason==='Gate code not working'?'Bad gate code':
+        o.flagReason==='Bad or incorrect address'?'<button onclick="event.stopPropagation();openAddrFix('+o.id+')" style="padding:2px 7px;border-radius:6px;border:0.5px solid #C0392B;background:#FCEBEB;color:#C0392B;font-size:10px;font-weight:600;cursor:pointer">Fix address</button>':
+        o.flagReason==='Property not marked / can\'t find location'?"Can't find location":
+        o.flagReason==='Access blocked / locked gate'?'Access blocked':
+        o.flagReason==='Sign not available at property'?'Sign not at property':
+        'Other — see notes'
+      }</span>`:''}</td>
       <td><span class="badge ${o.type==='install'?'badge-up':o.type==='remove'?'badge-down':'badge-'+o.type}">${TYPES[o.type]}</span></td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:500">${o.addr}</td>
       <td>
@@ -398,6 +441,29 @@ function openDrawer(id){
       </div>
       <div class="dd-row"><span class="dd-key">Office</span><span class="dd-val" style="font-size:11px">${o.office.name}</span></div>
     </div>
+    ${o.flagged?`
+    <div class="dd-section">
+      <div class="dd-section-title" style="color:#C0392B">⚑ Flagged — could not complete</div>
+      <div style="padding:10px 12px;background:#FCEBEB;border-radius:8px;font-size:13px;color:#C0392B;font-weight:500;line-height:1.5;margin-bottom:10px">
+        <div style="font-weight:700;margin-bottom:4px">Reason:</div>
+        ${o.flagReason||'No reason provided'}
+      </div>
+      <div style="font-size:11px;color:#999;margin-bottom:10px">$15 trip charge applied. Order is unassigned and waiting to be re-queued.</div>
+
+      ${o.flagReason==='Bad or incorrect address'?`
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:5px">Current address</div>
+      <div style="padding:8px 10px;background:#f5f5f3;border-radius:8px;font-size:12px;color:#777;margin-bottom:8px;text-decoration:line-through">${o.addr}</div>
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:5px">Corrected address <span style="color:#C0392B">*</span> <span style="font-weight:400;color:#999">— updates everywhere including installer app, invoice, and map</span></div>
+      <input id="corrected-addr-${o.id}" type="text" value="${o.addr}" style="width:100%;padding:8px 10px;border:1.5px solid #185FA5;border-radius:8px;font-size:13px;color:#111;font-family:system-ui;margin-bottom:8px" placeholder="Enter corrected address...">
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:5px">Notes <span style="font-weight:400;color:#999">(optional)</span></div>
+      <textarea id="resolution-notes-${o.id}" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;color:#111;resize:vertical;min-height:50px;font-family:system-ui;line-height:1.5;margin-bottom:8px" placeholder="Any additional details...">${o.resolutionNotes||''}</textarea>
+      `:`
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:5px">Resolution notes <span style="color:#C0392B">*</span> <span style="font-weight:400;color:#999">— add corrected gate code, access info, or updated details</span></div>
+      <textarea id="resolution-notes-${o.id}" style="width:100%;padding:8px 10px;border:1.5px solid #185FA5;border-radius:8px;font-size:12px;color:#111;resize:vertical;min-height:70px;font-family:system-ui;line-height:1.5;margin-bottom:8px" placeholder="e.g. Gate code is 4521, use the rear entrance on Via Estrada...">${o.resolutionNotes||''}</textarea>
+      `}
+
+      <button onclick="unflagOrder(${o.id})" style="width:100%;padding:9px;border-radius:8px;border:1px solid #16A322;background:#EAF3DE;color:#16A322;font-size:12px;font-weight:600;cursor:pointer">✓ Resolve &amp; return to queue</button>
+    </div>`:''}
     ${o.type==='service'?`
     <div class="dd-section">
       <div class="dd-section-title">Issue reported by agent</div>
@@ -446,7 +512,9 @@ function closeDrawer(){
 
 function quickFilter(type){
   resetFilters();
-  if(type!=='all'){
+  if(type==='flagged'){
+    document.getElementById('type-filter').value='flagged';
+  } else if(type!=='all'){
     document.getElementById('type-filter').value=type;
   }
   applyFilters();
@@ -488,6 +556,29 @@ function editNotes(id){
     </div>`;
   document.getElementById('modal-close-btn').style.display='none';
   document.getElementById('action-modal').style.display='flex';
+}
+
+function unflagOrder(id){
+  const o=ALL_ORDERS.find(x=>x.id===id);
+  if(!o)return;
+  // Save corrected address if it was an address issue
+  const addrField=document.getElementById('corrected-addr-'+id);
+  if(addrField&&addrField.value.trim()&&addrField.value.trim()!==o.addr){
+    o.previousAddr=o.addr; // keep old address for reference
+    o.addr=addrField.value.trim();
+  }
+  // Save resolution notes
+  const notesField=document.getElementById('resolution-notes-'+id);
+  if(notesField&&notesField.value.trim()){
+    o.resolutionNotes=notesField.value.trim();
+    o.notes=notesField.value.trim();
+  }
+  o.flagged=false;
+  o.flagReason='';
+  o.status='pending';
+  applyFilters();
+  const addrUpdated=o.previousAddr?` Address updated to: ${o.addr}`:'';
+  showToast('✓ Order resolved and returned to queue.'+addrUpdated);
 }
 
 function saveNotes(id){
@@ -611,6 +702,45 @@ function closeModal(){
   document.getElementById('action-modal').style.display='none';
   document.getElementById('modal-close-btn').style.display='';
   document.getElementById('modal-body').innerHTML='';
+}
+
+function openAddrFix(id){
+  const o=ALL_ORDERS.find(x=>x.id===id);
+  if(!o)return;
+  document.getElementById('modal-title').textContent='Address Correction';
+  document.getElementById('modal-body').innerHTML=`
+    <div style="font-size:12px;color:#777;margin-bottom:8px">Current: <span style="text-decoration:line-through;color:#aaa">${o.addr}</span></div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:4px">Corrected Address</div>
+      <input id="fix-addr-input" type="text" value="${o.addr}" style="width:100%;padding:7px 10px;border:1.5px solid #185FA5;border-radius:8px;font-size:13px;font-family:system-ui;color:#111">
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:4px">Note <span style="font-weight:400;color:#999">(optional)</span></div>
+      <textarea id="fix-addr-note" style="width:100%;padding:7px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:12px;font-family:system-ui;resize:none;height:60px;color:#111" placeholder="Any additional details..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeModal()" style="padding:7px 14px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#fff;font-size:13px;cursor:pointer">Cancel</button>
+      <button onclick="saveAddrFix(${id})" style="padding:7px 14px;border-radius:8px;border:none;background:#185FA5;color:#fff;font-size:13px;font-weight:500;cursor:pointer">Save &amp; return to queue</button>
+    </div>`;
+  document.getElementById('modal-close-btn').style.display='';
+  document.getElementById('action-modal').style.display='flex';
+}
+
+function saveAddrFix(id){
+  const o=ALL_ORDERS.find(x=>x.id===id);
+  if(!o)return;
+  const newAddr=document.getElementById('fix-addr-input').value.trim();
+  const note=document.getElementById('fix-addr-note').value.trim();
+  if(!newAddr){alert('Please enter a corrected address.');return;}
+  o.previousAddr=o.addr;
+  o.addr=newAddr;
+  if(note) o.notes=note;
+  o.flagged=false;
+  o.flagReason='';
+  o.status='pending';
+  closeModal();
+  applyFilters();
+  showToast('✓ Address updated to '+newAddr+' — order is now unassigned in the pending queue');
 }
 
 function showToast(msg){
