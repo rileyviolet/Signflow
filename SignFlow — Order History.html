@@ -89,7 +89,10 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
 .page-btn:hover{background:#f5f5f5}
 .page-btn.active{background:#185FA5;color:#fff;border-color:#185FA5}
 .page-btn:disabled{opacity:.4;cursor:default}
-</style>
+.tooltip-wrap{position:relative}
+.tooltip-box{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:12px;padding:8px 10px;border-radius:8px;white-space:normal;width:200px;line-height:1.5;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none}
+.tooltip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1a1a1a}
+.tooltip-wrap:hover .tooltip-box{display:block}</style>
 </head>
 <body>
 <div class="app">
@@ -372,14 +375,19 @@ function renderTable(){
         </div>
       </td>
       <td style="text-align:center">
-        <div onclick="event.stopPropagation();editNotes(${o.id})" title="${o.notes?'Edit notes':'Add notes'}" style="width:28px;height:28px;border-radius:6px;background:${o.notes?'#E6F1FB':'#f5f5f3'};display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto;border:0.5px solid ${o.notes?'#B5D4F4':'rgba(0,0,0,.1)'}">
+        <div class="tooltip-wrap" onclick="event.stopPropagation();editNotes(${o.id})" style="width:28px;height:28px;border-radius:6px;background:${o.notes?'#E6F1FB':'#f5f5f3'};display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto;border:0.5px solid ${o.notes?'#B5D4F4':'rgba(0,0,0,.1)'};position:relative">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1.5" stroke="${o.notes?'#185FA5':'#aaa'}" stroke-width="1.1"/><path d="M3 4.5h7M3 6.5h7M3 8.5h4" stroke="${o.notes?'#185FA5':'#aaa'}" stroke-width="1.1" stroke-linecap="round"/></svg>
+          ${o.notes?`<div class="tooltip-box">${o.notes}</div>`:''}
         </div>
       </td>
       <td style="text-align:center">
         ${o.photo
-          ?`<div onclick="event.stopPropagation();showPhoto(${o.id})" title="View photo confirmation" style="width:28px;height:28px;border-radius:6px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto">
+          ?`<div class="tooltip-wrap" onclick="event.stopPropagation();showPhoto(${o.id})" style="width:28px;height:28px;border-radius:6px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;cursor:pointer;margin:0 auto;position:relative">
               <svg width="14" height="13" viewBox="0 0 14 13" fill="none"><rect x="0.5" y="2" width="13" height="10" rx="1.5" stroke="#27500A" stroke-width="1.1"/><circle cx="7" cy="7" r="2.5" stroke="#27500A" stroke-width="1.1"/><path d="M4.5 2L5.5 0h3l1 2" stroke="#27500A" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div class="tooltip-box" style="width:120px;padding:4px;background:#111">
+                <div style="background:#555;border-radius:4px;width:112px;height:80px;display:flex;align-items:center;justify-content:center;font-size:20px">📷</div>
+                <div style="color:#ccc;font-size:10px;margin-top:4px;text-align:center">Photo confirmation</div>
+              </div>
             </div>`
           :`<span style="font-size:10px;color:#ccc">—</span>`}
       </td>
