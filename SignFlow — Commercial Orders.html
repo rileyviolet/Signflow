@@ -1,0 +1,598 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SignFlow — Commercial Orders</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-size:14px;color:#111}
+.app{display:flex;height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:200px;min-width:200px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.logo{padding:13px 15px 11px;border-bottom:0.5px solid rgba(0,0,0,.1)}
+.logo-name{font-size:15px;font-weight:500}
+.logo-sub{font-size:10px;color:#999}
+.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:9px 15px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 15px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 18px;height:50px;min-height:50px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.page-title{font-size:15px;font-weight:600;flex:1}
+.btn{padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111;font-weight:500}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+
+.content{flex:1;overflow-y:auto;padding:18px;display:flex;gap:16px}
+
+/* LEFT PANEL — Customer List */
+.left-panel{width:380px;min-width:380px;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
+.panel-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden}
+.panel-header{padding:12px 14px;border-bottom:0.5px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:13px;font-weight:600}
+.search-input{width:100%;padding:8px 12px;border:none;border-bottom:0.5px solid rgba(0,0,0,.08);font-size:13px;font-family:system-ui;outline:none;background:#fafaf9}
+.customer-item{padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.customer-item:last-child{border-bottom:none}
+.customer-item:hover{background:#f5f5f5}
+.customer-item.selected{background:#E6F1FB;border-left:2px solid #185FA5}
+.customer-name{font-size:13px;font-weight:500}
+.customer-orders{font-size:11px;color:#999}
+.badge-commercial{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;background:#F3EDFF;color:#5B2D8E}
+
+/* RIGHT PANEL — Order Form */
+.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.form-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px 18px}
+.form-title{font-size:13px;font-weight:600;margin-bottom:12px;color:#185FA5}
+.form-row{display:flex;gap:12px;margin-bottom:12px}
+.form-row:last-child{margin-bottom:0}
+.form-group{display:flex;flex-direction:column;gap:4px;flex:1}
+.form-label{font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.04em}
+.form-input{padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none;background:#fff}
+.form-input:focus{border-color:#185FA5}
+.form-select{padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none;background:#fff;cursor:pointer}
+.form-textarea{padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none;resize:vertical;min-height:70px;background:#fff}
+.form-textarea:focus{border-color:#185FA5}
+
+/* ORDER TYPE BUTTONS */
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:4px}
+.type-btn{padding:10px 12px;border-radius:10px;border:1.5px solid rgba(0,0,0,.12);background:#fff;font-size:12px;font-weight:600;cursor:pointer;text-align:left;transition:all .15s}
+.type-btn:hover{border-color:#185FA5;background:#E6F1FB;color:#185FA5}
+.type-btn.selected{border-color:#185FA5;background:#185FA5;color:#fff}
+.type-btn .type-icon{font-size:16px;display:block;margin-bottom:4px}
+
+/* PAY FIELD */
+.pay-row{display:flex;align-items:center;gap:8px}
+.pay-prefix{font-size:16px;font-weight:700;color:#555}
+.pay-input{width:100px;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:16px;font-weight:700;color:#185FA5;font-family:system-ui;outline:none;text-align:center}
+.pay-input:focus{border-color:#185FA5}
+.pay-note{font-size:11px;color:#999;margin-top:4px}
+
+/* NO EMAIL BANNER */
+.no-email-banner{background:#FFF9EC;border:0.5px solid #F0D080;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:12px;color:#856404}
+
+/* ORDER TYPES MANAGER */
+.type-manager-item{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:13px}
+.type-manager-item:last-child{border-bottom:none}
+.del-btn{padding:2px 8px;border-radius:6px;border:0.5px solid rgba(220,50,50,.3);background:#fff;color:#C0392B;font-size:11px;cursor:pointer}
+
+/* RECENT ORDERS */
+.order-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:13px}
+.order-row:last-child{border-bottom:none}
+.order-date{font-size:11px;color:#999;width:50px;flex-shrink:0}
+.order-type-tag{padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;background:#F3EDFF;color:#5B2D8E;white-space:nowrap}
+.order-pay{font-size:13px;font-weight:600;color:#185FA5;margin-left:auto;white-space:nowrap}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:20px;width:380px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:14px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+/* TOAST */
+#toast{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:9px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Commercial Orders</div></div>
+    <div class="nav-label">Navigation</div>
+    <div class="nav-item"><div class="dot" style="background:#185FA5"></div>Dashboard</div>
+    <div class="nav-item"><div class="dot" style="background:#185FA5"></div>Order History</div>
+    <div class="nav-item"><div class="dot" style="background:#BA7517"></div>Installer Order Map</div>
+    <div class="nav-item"><div class="dot" style="background:#639922"></div>Invoicing</div>
+    <div class="nav-item active">
+      <div class="dot" style="background:#5B2D8E"></div>Commercial Orders
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title">Commercial Orders</div>
+      <span class="badge-commercial" style="padding:4px 10px;font-size:11px">Admin only · No email notifications</span>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button class="btn" onclick="alert('Opens agent/office order form')" style="border-color:#7F77DD;color:#7F77DD">+ Agent / Office order</button>
+        <button class="btn btn-primary" onclick="alert('You are here — commercial order form')">+ Commercial order</button>
+        <button class="btn" onclick="openTypeManager()">Manage order types</button>
+        <button class="btn" onclick="openAddCustomer()">+ Add customer</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- LEFT — Customer List -->
+      <div class="left-panel">
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">Commercial customers</div>
+            <span style="font-size:11px;color:#999" id="cust-count">0 customers</span>
+          </div>
+          <input class="search-input" placeholder="Search customers..." oninput="filterCustomers(this.value)">
+          <div id="customer-list" style="max-height:200px;overflow-y:auto"></div>
+        </div>
+
+        <!-- Commercial Signs In Field -->
+        <div class="panel-card" id="signs-in-field-card">
+          <div class="panel-header">
+            <div class="panel-title">Signs in field</div>
+            <span style="font-size:11px;color:#999" id="signs-count">0 active</span>
+          </div>
+          <select id="signs-customer-filter" onchange="renderSignsInField()" style="width:100%;padding:7px 12px;border:none;border-bottom:0.5px solid rgba(0,0,0,.1);font-size:12px;font-family:system-ui;outline:none;background:#fafaf9;color:#555">
+            <option value="">All commercial customers</option>
+            <option value="1">PICOR Commercial Real Estate</option>
+            <option value="2">CBRE Group</option>
+            <option value="3">VOLK Company</option>
+            <option value="4">Cadden Community Management</option>
+            <option value="5">KB Home</option>
+          </select>
+          <input id="signs-search" oninput="renderSignsInField()" placeholder="Search by address..." style="width:100%;padding:8px 12px;border:none;border-bottom:0.5px solid rgba(0,0,0,.1);font-size:12px;font-family:system-ui;outline:none;background:#fff">
+          <div id="signs-in-field-list" style="max-height:400px;overflow-y:auto"></div>
+        </div>
+
+        <!-- Recent orders for selected customer -->
+        <div class="panel-card" id="recent-orders-card" style="display:none">
+          <div class="panel-header">
+            <div class="panel-title">Recent orders</div>
+          </div>
+          <div id="recent-orders-list"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT — Order Form -->
+      <div class="right-panel">
+
+        <div class="form-card" id="no-customer-state">
+          <div style="padding:40px;text-align:center;color:#999">
+            <div style="font-size:36px;margin-bottom:12px">🏢</div>
+            <div style="font-size:15px;font-weight:600;color:#555;margin-bottom:8px">Create a commercial order</div>
+            <div style="font-size:13px;line-height:1.7;max-width:280px;margin:0 auto">
+              1. Select a customer from the list on the left<br>
+              2. Choose an order type<br>
+              3. Enter the job address<br>
+              4. Set installer pay and assign an installer<br>
+              5. Hit <strong>Submit order</strong>
+            </div>
+            <div style="margin-top:16px;padding:10px 14px;background:#FFF9EC;border-radius:8px;font-size:12px;color:#856404;display:inline-block">
+              🔕 No email notifications are sent for commercial orders
+            </div>
+          </div>
+        </div>
+
+          <!-- Order form -->
+          <div style="display:none" id="order-form">
+
+          <!-- Customer header -->
+          <div class="form-card" style="display:flex;align-items:center;gap:12px;padding:12px 18px">
+            <div style="width:36px;height:36px;border-radius:10px;background:#F3EDFF;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏢</div>
+            <div>
+              <div style="font-size:15px;font-weight:700" id="selected-customer-name">—</div>
+              <div style="font-size:11px;color:#999">Commercial account · No email notifications · Billing via QuickBooks</div>
+            </div>
+            <div class="no-email-banner" style="margin-left:auto">
+              <span>🔕</span> No notifications will be sent
+            </div>
+          </div>
+
+          <!-- Step 1: Address -->
+          <div class="form-card">
+            <div class="form-title">1 · Job address</div>
+            <div class="form-row">
+              <div class="form-group">
+                <div class="form-label">Street address</div>
+                <input class="form-input" type="text" id="job-address" placeholder="Enter full job address">
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Order type -->
+          <div class="form-card">
+            <div class="form-title">2 · Order type</div>
+            <div class="form-row">
+              <div class="form-group">
+                <div class="form-label">Order type</div>
+                <select class="form-select" id="order-type">
+                  <option value="">— Select order type —</option>
+                  <option>Comm UP</option>
+                  <option>Comm TD</option>
+                  <option>Repair</option>
+                  <option>Misc</option>
+                  <option>Flag installation</option>
+                  <option>Vinyl decal (RTA)</option>
+                  <option>Custom post</option>
+                  <option>Delivery</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Scheduling -->
+          <div class="form-card">
+            <div class="form-title">3 · Scheduling</div>
+            <div style="font-size:12px;color:#8E8E93;margin-bottom:12px">Select the date for this order. Defaults to tomorrow — pick a future date if needed.</div>
+            <div style="border:0.5px solid rgba(0,0,0,.15);border-radius:12px;overflow:hidden;width:260px;user-select:none">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f5f5f3;border-bottom:0.5px solid rgba(0,0,0,.1)">
+                <button onclick="changeMonth(-1)" style="background:none;border:none;cursor:pointer;font-size:18px;color:#555;padding:2px 8px">‹</button>
+                <div id="cal-month-label" style="font-size:13px;font-weight:600"></div>
+                <button onclick="changeMonth(1)" style="background:none;border:none;cursor:pointer;font-size:18px;color:#555;padding:2px 8px">›</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:8px 6px 4px">
+                <div style="font-size:10px;font-weight:600;color:#999">Mon</div>
+                <div style="font-size:10px;font-weight:600;color:#999">Tue</div>
+                <div style="font-size:10px;font-weight:600;color:#999">Wed</div>
+                <div style="font-size:10px;font-weight:600;color:#999">Thu</div>
+                <div style="font-size:10px;font-weight:600;color:#999">Fri</div>
+                <div style="font-size:10px;font-weight:600;color:#999">Sat</div>
+                <div style="font-size:10px;font-weight:600;color:#C0392B">Sun</div>
+              </div>
+              <div id="cal-days" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:0 6px 10px;gap:2px"></div>
+            </div>
+            <div id="cal-selected-label" style="font-size:12px;color:#185FA5;font-weight:600;margin-top:10px"></div>
+          </div>
+
+          <!-- Step 4: Notes -->
+          <div class="form-card">
+            <div class="form-title">4 · Notes <span style="font-weight:400;color:#999;font-size:11px">optional</span></div>
+            <textarea class="form-textarea" id="job-notes" placeholder="Access instructions, contact on site, special requirements..."></textarea>
+          </div>
+
+          <!-- SUBMIT -->
+          <div class="form-card" style="padding:16px 18px">
+            <button onclick="submitOrder()" style="width:100%;padding:16px;border-radius:12px;border:none;background:#185FA5;color:#fff;font-size:17px;font-weight:700;cursor:pointer;letter-spacing:.01em">
+              Submit Commercial Order →
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CUSTOMER MODAL -->
+<div class="modal-bg" id="add-customer-modal">
+  <div class="modal">
+    <div class="modal-title">Add commercial customer</div>
+    <div class="form-group" style="margin-bottom:12px">
+      <div class="form-label">Company name</div>
+      <input class="form-input" type="text" id="new-customer-name" placeholder="e.g. Tucson Medical Center">
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeAddCustomer()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCustomer()">Add customer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER TYPES MANAGER MODAL -->
+<div class="modal-bg" id="type-manager-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-title">Manage commercial order types</div>
+    <div id="type-manager-list" style="margin-bottom:12px;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;overflow:hidden;max-height:300px;overflow-y:auto"></div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input class="form-input" type="text" id="new-type-input" placeholder="New order type..." style="flex:1">
+      <button class="btn btn-primary" onclick="addOrderType()">Add</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" onclick="closeTypeManager()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const CUSTOMERS = [
+  {id:1, name:'PICOR Commercial Real Estate', orders:22, pinned:true},
+  {id:2, name:'CBRE Group',                   orders:14, pinned:false},
+  {id:3, name:'VOLK Company',                 orders:8,  pinned:false},
+  {id:4, name:'Cadden Community Management',  orders:11, pinned:true},
+  {id:5, name:'KB Home',                      orders:6,  pinned:false},
+];
+
+let ORDER_TYPES = [
+  {id:1, label:'Flag installation',        icon:'🚩'},
+  {id:2, label:'Commercial sign install',  icon:'⬆'},
+  {id:3, label:'Commercial sign removal',  icon:'⬇'},
+  {id:4, label:'Vinyl decal (RTA)',         icon:'🖼'},
+  {id:5, label:'Custom post',              icon:'📦'},
+  {id:6, label:'Service / Repair',         icon:'🔧'},
+  {id:7, label:'Delivery',                 icon:'🚚'},
+];
+
+const RECENT_ORDERS = {
+  1:[
+    {date:'May 2', type:'Flag installation',       pay:25},
+    {date:'Apr 28',type:'Commercial sign install', pay:50},
+    {date:'Apr 15',type:'Service / Repair',        pay:30},
+  ],
+  2:[
+    {date:'Apr 30',type:'Commercial sign install', pay:50},
+    {date:'Apr 12',type:'Vinyl decal (RTA)',        pay:20},
+  ],
+  3:[
+    {date:'May 1', type:'Custom post',             pay:75},
+    {date:'Apr 22',type:'Flag installation',       pay:25},
+  ],
+  4:[
+    {date:'Apr 20',type:'Commercial sign install', pay:50},
+    {date:'Apr 5', type:'Commercial sign removal', pay:35},
+  ],
+  5:[
+    {date:'May 3', type:'Custom post',             pay:75},
+    {date:'Apr 18',type:'Flag installation',       pay:25},
+  ],
+};
+
+let selectedCustomer = null;
+let selectedType = null;
+
+function renderCustomers(filter) {
+  let list = CUSTOMERS
+    .filter(c => !filter || c.name.toLowerCase().includes(filter.toLowerCase()))
+    .sort((a,b) => {
+      if(a.pinned && !b.pinned) return -1;
+      if(!a.pinned && b.pinned) return 1;
+      return b.orders - a.orders;
+    });
+  document.getElementById('cust-count').textContent = CUSTOMERS.length + ' customers';
+  document.getElementById('customer-list').innerHTML = list.map(c => `
+    <div class="customer-item${selectedCustomer?.id===c.id?' selected':''}" onclick="selectCustomer(${c.id})">
+      <div>
+        <div class="customer-name">
+          ${c.pinned?'<span style="color:#BA7517;font-size:11px;margin-right:4px">📌</span>':''}${c.name}
+        </div>
+        <div class="customer-orders">${c.orders} orders</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button onclick="event.stopPropagation();togglePin(${c.id})" title="${c.pinned?'Unpin':'Pin to top'}" style="background:none;border:none;cursor:pointer;font-size:13px;color:${c.pinned?'#BA7517':'#C7C7CC'};padding:2px">${c.pinned?'📌':'📍'}</button>
+        <span style="color:#C7C7CC;font-size:16px">›</span>
+      </div>
+    </div>`).join('');
+}
+
+let calDate = new Date();
+let selectedFutureDate = new Date(); 
+selectedFutureDate.setDate(selectedFutureDate.getDate()+1); // default tomorrow
+
+function renderCalendar(){
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const today = new Date();
+  document.getElementById('cal-month-label').textContent = months[calDate.getMonth()] + '  ' + calDate.getFullYear();
+  const firstDay = new Date(calDate.getFullYear(), calDate.getMonth(), 1);
+  let startDow = firstDay.getDay();
+  startDow = (startDow===0)?6:startDow-1;
+  const daysInMonth = new Date(calDate.getFullYear(), calDate.getMonth()+1, 0).getDate();
+  let html='';
+  for(let i=0;i<startDow;i++) html+=`<div></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const thisDate=new Date(calDate.getFullYear(),calDate.getMonth(),d);
+    const isPast=thisDate<=today;
+    const isSel=selectedFutureDate&&thisDate.toDateString()===selectedFutureDate.toDateString();
+    const isSun=thisDate.getDay()===0;
+    html+=`<div onclick="${isPast?'':'pickDate('+calDate.getFullYear()+','+(calDate.getMonth()+1)+','+d+')'}" style="padding:6px 0;font-size:13px;border-radius:6px;cursor:${isPast?'default':'pointer'};color:${isPast?'#C7C7CC':isSel?'#fff':isSun?'#C0392B':'#111'};background:${isSel?'#185FA5':'transparent'};font-weight:${isSel?'700':'400'}">${d}</div>`;
+  }
+  document.getElementById('cal-days').innerHTML=html;
+  const opts={weekday:'long',month:'long',day:'numeric',year:'numeric'};
+  document.getElementById('cal-selected-label').textContent='📅 '+selectedFutureDate.toLocaleDateString('en-US',opts);
+}
+
+function changeMonth(dir){
+  calDate.setMonth(calDate.getMonth()+dir);
+  renderCalendar();
+}
+
+function pickDate(y,m,d){
+  selectedFutureDate=new Date(y,m-1,d);
+  renderCalendar();
+}
+
+const SIGNS_IN_FIELD = [
+  {id:1, customerId:1, customerName:'PICOR Commercial Real Estate', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Comm UP', date:'Mar 12, 2026', installer:'Juan Rodriguez', notes:'Sign mounted on east wall facing parking lot. Hardware in storage unit B.', photo:true},
+  {id:2, customerId:1, customerName:'PICOR Commercial Real Estate', addr:'7703 N Oracle Rd, Tucson AZ 85704', type:'Flag installation', date:'Apr 2, 2026', installer:'Tom Kowalski', notes:'30ft flag pole. Contact Karen on site before arrival at 520-555-1234.', photo:true},
+  {id:3, customerId:2, customerName:'CBRE Group', addr:'3300 N Campbell Ave, Tucson AZ 85719', type:'Comm UP', date:'Feb 28, 2026', installer:'Maria Santos', notes:'', photo:true},
+  {id:4, customerId:4, customerName:'Cadden Community Management', addr:'5500 E Speedway Blvd, Tucson AZ 85712', type:'Custom post', date:'Apr 15, 2026', installer:'Devon Williams', notes:'HOA entry sign. Use rear access gate code 7732.', photo:false},
+  {id:5, customerId:5, customerName:'KB Home', addr:'9200 E Tanque Verde Rd, Tucson AZ 85749', type:'Comm UP', date:'Mar 30, 2026', installer:'Juan Rodriguez', notes:'Model home directional sign. Do not remove until further notice.', photo:true},
+];
+
+function renderSignsInField(){
+  const custFilter = document.getElementById('signs-customer-filter')?.value || '';
+  const search = document.getElementById('signs-search')?.value.toLowerCase().trim() || '';
+  let list = custFilter
+    ? SIGNS_IN_FIELD.filter(s=>s.customerId===parseInt(custFilter))
+    : SIGNS_IN_FIELD;
+  if(search) list = list.filter(s=>s.addr.toLowerCase().includes(search));
+  document.getElementById('signs-count').textContent = list.length + ' active';
+  document.getElementById('signs-in-field-list').innerHTML = list.length === 0
+    ? `<div style="padding:20px;text-align:center;font-size:12px;color:#999">No signs in field for this customer</div>`
+    : list.map(s=>`
+    <div style="padding:16px;border-bottom:0.5px solid rgba(0,0,0,.08)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
+        <div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px">${s.addr}</div>
+          <div style="font-size:12px;color:#5B2D8E;font-weight:500">${s.type}</div>
+        </div>
+        <span style="font-size:11px;color:#999;white-space:nowrap;flex-shrink:0">${s.date}</span>
+      </div>
+      <div style="font-size:12px;color:#777;margin-bottom:4px">
+        <span style="font-weight:500;color:#555">Installer:</span> ${s.installer}
+      </div>
+      ${!custFilter?`<div style="font-size:12px;color:#777;margin-bottom:6px"><span style="font-weight:500;color:#555">Customer:</span> ${s.customerName}</div>`:''}
+      ${s.notes?`<div style="background:#FFF9EC;border-radius:7px;padding:8px 10px;font-size:12px;color:#555;margin-bottom:10px;line-height:1.6">${s.notes}</div>`:''}
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        ${s.photo
+          ?`<div style="width:70px;height:52px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer" onclick="alert('View photo for ${s.addr}')">📷</div>`
+          :`<div style="font-size:11px;color:#C7C7CC;font-style:italic">No photo on file</div>`}
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="requestCommRepair(${s.id})" style="flex:1;padding:8px 0;border-radius:8px;border:0.5px solid #BA7517;background:#FAEEDA;color:#633806;font-size:12px;font-weight:600;cursor:pointer">🔧 Repair</button>
+        <button onclick="scheduleCommRemoval(${s.id})" style="flex:1;padding:8px 0;border-radius:8px;border:0.5px solid #888780;background:#F1EFE8;color:#5F5E5A;font-size:12px;font-weight:600;cursor:pointer">⬇ Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+function requestCommRepair(id){
+  const s=SIGNS_IN_FIELD.find(x=>x.id===id);
+  toast('🔧 Repair order created for '+s.addr);
+}
+
+function scheduleCommRemoval(id){
+  const s=SIGNS_IN_FIELD.find(x=>x.id===id);
+  if(confirm('Schedule removal for:\n'+s.addr+'\n\nThis will create a removal order.')){
+    SIGNS_IN_FIELD.splice(SIGNS_IN_FIELD.indexOf(s),1);
+    renderSignsInField();
+    toast('⬇ Removal scheduled for '+s.addr);
+  }
+}
+
+function togglePin(id){
+  const c = CUSTOMERS.find(x=>x.id===id);
+  c.pinned = !c.pinned;
+  renderCustomers();
+  toast(c.pinned ? '📌 '+c.name+' pinned to top' : c.name+' unpinned');
+}
+
+function filterCustomers(val) { renderCustomers(val); }
+
+function selectCustomer(id) {
+  selectedCustomer = CUSTOMERS.find(c => c.id === id);
+  renderCustomers();
+  document.getElementById('no-customer-state').style.display = 'none';
+  document.getElementById('order-form').style.display = 'block';
+  document.getElementById('selected-customer-name').textContent = selectedCustomer.name;
+  renderRecentOrders(id);
+  renderSignsInField();
+}
+
+function renderTypeGrid() {
+  document.getElementById('type-grid').innerHTML = ORDER_TYPES.map(t => `
+    <button class="type-btn${selectedType?.id===t.id?' selected':''}" onclick="selectType(${t.id})">
+      <span class="type-icon">${t.icon}</span>${t.label}
+    </button>`).join('');
+}
+
+function selectType(id) {
+  selectedType = ORDER_TYPES.find(t => t.id === id);
+  renderTypeGrid();
+}
+
+function renderRecentOrders(customerId) {
+  const orders = RECENT_ORDERS[customerId] || [];
+  const card = document.getElementById('recent-orders-card');
+  const list = document.getElementById('recent-orders-list');
+  if (!orders.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  list.innerHTML = orders.map(o => `
+    <div class="order-row">
+      <div class="order-date">${o.date}</div>
+      <span class="order-type-tag">${o.type}</span>
+      <div class="order-pay">$${o.pay.toFixed(2)}</div>
+    </div>`).join('');
+}
+
+function submitOrder() {
+  if (!selectedCustomer) { toast('Please select a customer first.'); return; }
+  const orderType = document.getElementById('order-type').value;
+  if (!orderType) { toast('Please select an order type.'); return; }
+  const addr = document.getElementById('job-address').value.trim();
+  if (!addr) { toast('Please enter a job address.'); return; }
+  const schedType = document.querySelector('input[name="sched-type"]:checked').value;
+  const schedMsg = schedType==='next' ? 'scheduled for tomorrow' : selectedFutureDate ? 'held until '+selectedFutureDate.toLocaleDateString() : 'held until selected date';
+  toast('✓ Order submitted for ' + selectedCustomer.name + ' — ' + orderType + ' · ' + schedMsg);
+  // Reset form
+  document.getElementById('order-type').value='';
+  document.getElementById('job-address').value='';
+  document.getElementById('job-notes').value='';
+  document.querySelector('input[name="sched-type"][value="next"]').checked=true;
+  toggleSchedType('next');
+}
+
+function openAddCustomer() {
+  document.getElementById('new-customer-name').value = '';
+  document.getElementById('add-customer-modal').classList.add('open');
+}
+function closeAddCustomer() { document.getElementById('add-customer-modal').classList.remove('open'); }
+
+function saveCustomer() {
+  const name = document.getElementById('new-customer-name').value.trim();
+  if (!name) { toast('Please enter a company name.'); return; }
+  const newId = Math.max(...CUSTOMERS.map(c => c.id)) + 1;
+  CUSTOMERS.push({id: newId, name: name, orders: 0});
+  closeAddCustomer();
+  renderCustomers();
+  toast('✓ ' + name + ' added to commercial customers');
+}
+
+function openTypeManager() {
+  renderTypeManager();
+  document.getElementById('type-manager-modal').classList.add('open');
+}
+function closeTypeManager() {
+  document.getElementById('type-manager-modal').classList.remove('open');
+  renderTypeGrid();
+}
+
+function renderTypeManager() {
+  document.getElementById('type-manager-list').innerHTML = ORDER_TYPES.map(t => `
+    <div class="type-manager-item">
+      <span>${t.icon} ${t.label}</span>
+      <button class="del-btn" onclick="deleteOrderType(${t.id})">Remove</button>
+    </div>`).join('');
+}
+
+function deleteOrderType(id) {
+  ORDER_TYPES = ORDER_TYPES.filter(t => t.id !== id);
+  renderTypeManager();
+}
+
+function addOrderType() {
+  const val = document.getElementById('new-type-input').value.trim();
+  if (!val) return;
+  const newId = Math.max(...ORDER_TYPES.map(t => t.id)) + 1;
+  ORDER_TYPES.push({id: newId, label: val, icon: '📋'});
+  document.getElementById('new-type-input').value = '';
+  renderTypeManager();
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 3000);
+}
+
+// Init
+renderCustomers();
+renderCalendar();
+renderSignsInField();
+</script>
+</body>
+</html>
