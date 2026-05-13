@@ -120,6 +120,11 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
     <div class="nav-item" onclick="quickFilter('service')"><div class="dot" style="background:#639922"></div>Service calls</div>
     <div class="nav-item" onclick="quickFilter('delivery')"><div class="dot" style="background:#0F6E56"></div>Deliveries</div>
     <div class="nav-item" onclick="quickFilter('flagged')" style="color:#C0392B"><div class="dot" style="background:#C0392B"></div>⚑ Flagged</div>
+    <div class="nav-label">Admin</div>
+    <div class="nav-item" onclick="showPurge()" id="purge-nav" style="color:#C0392B">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M5 3V2h4v1M6 6v4M8 6v4M3 3l1 9h6l1-9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Purge old orders
+    </div>
     <div class="sidebar-footer" id="sidebar-footer">Loading...</div>
   </div>
 
@@ -133,6 +138,69 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
     </div>
 
     <div class="content">
+
+      <!-- PURGE PANEL -->
+      <div id="purge-panel" style="display:none;padding:20px;flex-direction:column;gap:14px">
+        <div style="background:#FCEBEB;border:1px solid #F09595;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="#C0392B" stroke-width="1.5"/><path d="M9 5v5" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/><circle cx="9" cy="13" r=".9" fill="#C0392B"/></svg>
+          <div style="font-size:13px;color:#7B1A1A"><strong>Admin only.</strong> Purged orders are permanently deleted and cannot be recovered.</div>
+        </div>
+
+        <div style="background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:18px">
+          <div style="font-size:14px;font-weight:600;margin-bottom:14px">Purge filters</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:16px">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.04em">Date range — older than</div>
+              <select id="purge-age" class="form-select" onchange="updatePurgePreview()">
+                <option value="36">3 years (default)</option>
+                <option value="24">2 years</option>
+                <option value="12">1 year</option>
+                <option value="6">6 months</option>
+                <option value="custom">Custom date range</option>
+              </select>
+            </div>
+            <div id="purge-custom-dates" style="display:none;flex-direction:column;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.04em">Custom — orders before</div>
+              <input type="date" id="purge-before-date" class="form-input" onchange="updatePurgePreview()">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.04em">Order type</div>
+              <select id="purge-type" class="form-select" onchange="updatePurgePreview()">
+                <option value="">All types</option>
+                <option value="install">Installations</option>
+                <option value="remove">Removals</option>
+                <option value="service">Service calls</option>
+                <option value="delivery">Deliveries</option>
+              </select>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.04em">Office</div>
+              <select id="purge-office" class="form-select" onchange="updatePurgePreview()">
+                <option value="">All offices</option>
+              </select>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.04em">Agent</div>
+              <input type="text" id="purge-agent" class="form-input" placeholder="Agent name..." oninput="updatePurgePreview()">
+            </div>
+          </div>
+
+          <!-- PREVIEW -->
+          <div style="background:#f5f5f3;border-radius:8px;padding:12px 16px;margin-bottom:14px">
+            <div style="font-size:12px;color:#555;margin-bottom:6px;font-weight:500">Orders matching these filters:</div>
+            <div id="purge-preview" style="font-size:22px;font-weight:700;color:#C0392B">0 orders</div>
+            <div id="purge-preview-detail" style="font-size:11px;color:#999;margin-top:3px"></div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:center">
+            <button onclick="executePurge()" id="purge-btn" style="padding:10px 24px;border-radius:10px;border:none;background:#C0392B;color:#fff;font-size:14px;font-weight:600;cursor:pointer">🗑 Permanently delete these orders</button>
+            <button onclick="hidePurge()" class="btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN ORDER HISTORY -->
+      <div id="history-panel">
       <div class="filter-bar">
         <input class="form-input" placeholder="Search address, agent, or office..." id="search-inp" oninput="applyFilters()" style="flex:1;min-width:200px">
         <select class="form-select" id="type-filter" onchange="applyFilters()">
@@ -145,6 +213,15 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
         </select>
         <select class="form-select" id="office-filter" onchange="applyFilters()">
           <option value="">All offices</option>
+        </select>
+        <select class="form-select" id="commercial-filter" onchange="applyFilters()">
+          <option value="">All customers</option>
+          <option value="commercial">Commercial only</option>
+          <option value="PICOR Commercial Real Estate">PICOR</option>
+          <option value="CBRE Group">CBRE</option>
+          <option value="VOLK Company">VOLK</option>
+          <option value="Cadden Community Management">Cadden</option>
+          <option value="KB Home">KB Home</option>
         </select>
         <button class="btn btn-sm" onclick="resetFilters()">Reset</button>
         <span class="count-label" id="count-label"></span>
@@ -170,6 +247,7 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
         </div>
         <div class="pagination" id="pagination"></div>
       </div>
+      </div><!-- end history-panel -->
     </div>
   </div>
 
@@ -283,6 +361,26 @@ flagReasons.forEach((reason,i)=>{
     flagged:true,
     flagReason:reason,
     tripCharge:15,
+    releaseDate:null,
+  });
+});
+
+// Add pending orders with future release dates
+const releaseDates=['May 22, 2026','May 28, 2026','Jun 3, 2026'];
+releaseDates.forEach((date,i)=>{
+  const agent=AGENTS[i+1];
+  const office=OFFICES.find(o=>o.id===agent.officeId);
+  ALL_ORDERS.unshift({
+    id:orderId++,
+    date:new Date().toISOString().split('T')[0],
+    addr:ADDRESSES[i+4]+', Tucson AZ',
+    agent,office,type:'install',
+    post:'White Post',sign:'Standard 18x24',accs:[],
+    amount:65,status:'pending',
+    installer:null,photo:false,billing:'invoice',
+    notes:'',serviceIssue:'',
+    flagged:false,flagReason:'',tripCharge:0,
+    releaseDate:date,
   });
 });
 ALL_ORDERS.sort((a,b)=>b.date.localeCompare(a.date));
@@ -361,7 +459,8 @@ function renderTable(){
         o.flagReason==='Access blocked / locked gate'?'Access blocked':
         o.flagReason==='Sign not available at property'?'Sign not at property':
         'Other — see notes'
-      }</span>`:''}</td>
+      }</span>`:''}${o.releaseDate&&!o.flagged?`<br><span style="display:inline-block;margin-top:3px;padding:2px 7px;border-radius:6px;background:#FFF3CD;color:#856404;font-size:10px;font-weight:600;border:0.5px solid #F0D080">📅 Not before ${o.releaseDate}</span>`:''}
+      </td>
       <td><span class="badge ${o.type==='install'?'badge-up':o.type==='remove'?'badge-down':'badge-'+o.type}">${TYPES[o.type]}</span></td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:500">${o.addr}</td>
       <td>
@@ -749,6 +848,75 @@ function saveAddrFix(id){
   closeModal();
   applyFilters();
   showToast('✓ Address updated to '+newAddr+' — order is now unassigned in the pending queue');
+}
+
+function showPurge(){
+  document.getElementById('purge-panel').style.display='flex';
+  document.getElementById('history-panel').style.display='none';
+  document.getElementById('purge-nav').style.fontWeight='600';
+  populatePurgeOffices();
+  updatePurgePreview();
+}
+
+function hidePurge(){
+  document.getElementById('purge-panel').style.display='none';
+  document.getElementById('history-panel').style.display='block';
+  document.getElementById('purge-nav').style.fontWeight='400';
+}
+
+function populatePurgeOffices(){
+  const sel=document.getElementById('purge-office');
+  if(sel.options.length>1) return;
+  const offices=[...new Set(ALL_ORDERS.map(o=>o.office?.name).filter(Boolean))].sort();
+  offices.forEach(name=>{
+    const opt=document.createElement('option');
+    opt.value=name; opt.textContent=name;
+    sel.appendChild(opt);
+  });
+}
+
+function getPurgeMatches(){
+  const age=document.getElementById('purge-age').value;
+  const type=document.getElementById('purge-type').value;
+  const office=document.getElementById('purge-office').value;
+  const agent=document.getElementById('purge-agent').value.toLowerCase().trim();
+  let cutoff;
+  if(age==='custom'){
+    cutoff=document.getElementById('purge-before-date').value;
+  } else {
+    const d=new Date();
+    d.setMonth(d.getMonth()-parseInt(age));
+    cutoff=d.toISOString().split('T')[0];
+  }
+  return ALL_ORDERS.filter(o=>{
+    if(o.date>cutoff) return false;
+    if(type&&o.type!==type) return false;
+    if(office&&o.office?.name!==office) return false;
+    if(agent&&!(o.agent?.first+' '+o.agent?.last).toLowerCase().includes(agent)) return false;
+    return true;
+  });
+}
+
+function updatePurgePreview(){
+  const age=document.getElementById('purge-age').value;
+  document.getElementById('purge-custom-dates').style.display=age==='custom'?'flex':'none';
+  const matches=getPurgeMatches();
+  document.getElementById('purge-preview').textContent=matches.length+' order'+(matches.length!==1?'s':'');
+  document.getElementById('purge-preview-detail').textContent=matches.length>0?'These will be permanently deleted and cannot be recovered.':'No orders match these filters.';
+  document.getElementById('purge-btn').disabled=matches.length===0;
+  document.getElementById('purge-btn').style.opacity=matches.length===0?'0.4':'1';
+}
+
+function executePurge(){
+  const matches=getPurgeMatches();
+  if(matches.length===0) return;
+  if(!confirm('Permanently delete '+matches.length+' order'+(matches.length!==1?'s':'')+' from SignFlow?\n\nThis cannot be undone.')) return;
+  const ids=new Set(matches.map(o=>o.id));
+  for(let i=ALL_ORDERS.length-1;i>=0;i--){
+    if(ids.has(ALL_ORDERS[i].id)) ALL_ORDERS.splice(i,1);
+  }
+  updatePurgePreview();
+  showToast('✓ '+matches.length+' order'+(matches.length!==1?'s':'')+' permanently deleted');
 }
 
 function showToast(msg){
