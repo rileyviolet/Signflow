@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -252,6 +253,8 @@ const RAW_ORDERS=[
   {id:18,lat:32.368,lng:-110.941,addr:'4500 N Flowing Wells',agentId:1,type:'install',post:'White Post',date:TODAYSTR,installer:'Devon W.',notes:'',asap:true},
   {id:19,lat:32.230,lng:-110.962,addr:'9901 E Broadway Blvd',agentId:3,type:'remove',post:null,date:daysAgo(1),installer:null,notes:'',asap:false},
   {id:20,lat:32.305,lng:-110.960,addr:'1550 S Kolb Rd',agentId:2,type:'install',post:'Black Post',date:TODAYSTR,installer:'Maria S.',notes:'Call first',asap:true},
+  {id:21,lat:32.315,lng:-110.945,addr:'6200 E Speedway Blvd',agentId:6,type:'install',post:'White Post',date:daysAhead(10),installer:null,notes:'New listing — not ready until May 22',asap:false,releaseDate:'May 22, 2026'},
+  {id:22,lat:32.275,lng:-110.935,addr:'3100 N Swan Rd',agentId:3,type:'install',post:'Black Post',date:daysAhead(16),installer:null,notes:'',asap:false,releaseDate:'May 28, 2026'},
 ];
 
 // Annotate with timing
@@ -336,7 +339,10 @@ function renderOrders(){
     const fullDate=new Date(o.date+'T00:00:00').toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
     const isFuture=o.date>TODAYSTR;
     return`<tr data-id="${o.id}" onclick="highlightOrder(${o.id})">
-      <td style="white-space:nowrap;color:${isFuture?'#C0392B':'#555'};font-weight:${isFuture?'500':'400'}">${fullDate}</td>
+      <td style="white-space:nowrap;color:${isFuture?'#C0392B':'#555'};font-weight:${isFuture?'500':'400'}">
+        ${fullDate}
+        ${o.releaseDate?`<br><span style="display:inline-block;margin-top:3px;padding:2px 7px;border-radius:6px;background:#FFF3CD;color:#856404;font-size:10px;font-weight:600;border:0.5px solid #F0D080">📅 Not before ${o.releaseDate}</span>`:''}
+      </td>
       <td style="min-width:180px">
         <div style="font-size:12px;font-weight:500;margin-bottom:2px">${o.addr}</div>
         <div style="display:flex;align-items:center;gap:5px;margin-bottom:1px">
