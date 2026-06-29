@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SignFlow — Office Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#185FA5;--blue-light:#E6F1FB;--blue-dark:#0C3D6E;
+  --green:#16A322;--green-light:#EAF3DE;
+  --red:#C0392B;--red-light:#FCEBEB;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --purple:#5B2D8E;--purple-light:#F3EDFF;
+  --border:rgba(0,0,0,.09);--gray:#f5f5f3;--text:#111;--muted:#777;
+}
+body{font-family:system-ui,sans-serif;font-size:14px;color:var(--text);background:var(--gray);min-height:100vh}
+.app{display:flex;height:100vh}
+.sidebar{width:220px;background:#fff;border-right:0.5px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:14px 16px 12px;border-bottom:0.5px solid var(--border)}
+.logo-name{font-size:15px;font-weight:600;color:var(--blue)}
+.logo-sub{font-size:10px;color:#999;margin-top:2px}
+.office-badge{padding:12px 16px;border-bottom:0.5px solid var(--border);background:var(--blue-light)}
+.office-badge-name{font-size:13px;font-weight:600;color:var(--blue)}
+.office-badge-role{font-size:11px;color:#5B8CC4;margin-top:2px}
+.nav-label{font-size:10px;font-weight:600;color:#bbb;letter-spacing:.08em;text-transform:uppercase;padding:12px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#f5f5f5}
+.nav-item.active{color:var(--blue);background:var(--blue-light);border-left-color:var(--blue);font-weight:500}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:#fff;border-bottom:0.5px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:15px;font-weight:600}
+.btn{padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid var(--border);background:#fff;color:var(--text);font-family:system-ui}
+.btn:hover{background:#f5f5f5}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:500}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-danger{background:var(--red-light);color:var(--red);border-color:rgba(192,57,43,.3)}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 18px;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:500}
+
+/* SECTION CARD */
+.section-card{background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.section-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)}
+.section-title{font-size:13px;font-weight:600}
+
+/* AGENT TABLE */
+.agent-table{width:100%;border-collapse:collapse}
+.agent-table th{padding:9px 14px;font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:0.5px solid var(--border);background:#fafaf9}
+.agent-table td{padding:12px 14px;font-size:13px;border-bottom:0.5px solid rgba(0,0,0,.05)}
+.agent-table tr:last-child td{border-bottom:none}
+.agent-table tr:hover td{background:#fafaf9}
+.agent-avatar{width:30px;height:30px;border-radius:8px;background:#7F77DD;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.agent-name-cell{display:flex;align-items:center;gap:10px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-active{background:var(--green-light);color:var(--green)}
+.badge-pending{background:var(--amber-light);color:var(--amber)}
+.badge-invoice{background:var(--blue-light);color:var(--blue)}
+.badge-paynow{background:var(--purple-light);color:var(--purple)}
+.badge-autopay{background:var(--green-light);color:var(--green)}
+
+/* ADD AGENT MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px;width:460px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:12px;font-weight:500;color:#444}
+.form-label span{color:var(--red);margin-left:2px}
+.form-input{padding:8px 12px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none}
+.form-input:focus{border-color:var(--blue)}
+.form-select{padding:8px 12px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none;background:#fff}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn-cancel{padding:7px 16px;border-radius:8px;border:0.5px solid var(--border);background:#fff;font-size:13px;cursor:pointer;font-family:system-ui}
+
+/* ORDER HISTORY TABLE */
+.order-table{width:100%;border-collapse:collapse}
+.order-table th{padding:9px 14px;font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:0.5px solid var(--border);background:#fafaf9}
+.order-table td{padding:11px 14px;font-size:13px;border-bottom:0.5px solid rgba(0,0,0,.05)}
+.order-table tr:hover td{background:#fafaf9}
+.badge-up{background:#EAF3DE;color:#16A322}
+.badge-down{background:#FCEBEB;color:#C0392B}
+.badge-service{background:#E6F1FB;color:#185FA5}
+.badge-complete{background:#EAF3DE;color:#16A322}
+.badge-scheduled{background:#E6F1FB;color:#185FA5}
+
+/* TOAST */
+#toast{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:9px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-name">SignFlow</div>
+      <div class="logo-sub">Sign Up Sign Services</div>
+    </div>
+    <div class="office-badge">
+      <div class="office-badge-name">Long Realty — Dove Mountain</div>
+      <div class="office-badge-role">Office Admin</div>
+    </div>
+    <div class="nav-label">Office Admin</div>
+    <div class="nav-item active"><div class="dot" style="background:#185FA5"></div>My Agents</div>
+    <div class="nav-item"><div class="dot" style="background:#639922"></div>Order History</div>
+    <div class="nav-item"><div class="dot" style="background:#BA7517"></div>Pending Orders</div>
+    <div class="nav-item"><div class="dot" style="background:#7F77DD"></div>Office Settings</div>
+    <div style="margin-top:auto;padding:12px 16px;border-top:0.5px solid var(--border);font-size:11px;color:#999">
+      Susan Martinez · Office Admin
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title">My Agents</div>
+      <button class="btn btn-primary" onclick="document.getElementById('add-agent-modal').classList.add('open')">+ Add Agent</button>
+    </div>
+
+    <div class="content">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'agents-tab')">Agents (8)</div>
+        <div class="tab" onclick="switchTab(this,'orders-tab')">Order History</div>
+        <div class="tab" onclick="switchTab(this,'pending-tab')">Pending Orders</div>
+      </div>
+
+      <!-- AGENTS TAB -->
+      <div id="agents-tab">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Active agents — Long Realty Dove Mountain</div>
+            <input style="padding:6px 12px;border:0.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;width:200px" placeholder="Search agents..." oninput="renderAgents(this.value)">
+          </div>
+          <table class="agent-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Contact</th>
+                <th>Billing</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="agent-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ORDER HISTORY TAB -->
+      <div id="orders-tab" style="display:none">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Order history — Long Realty Dove Mountain</div>
+            <div style="display:flex;gap:8px">
+              <select style="padding:6px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:12px;outline:none">
+                <option>All agents</option>
+                <option>Angela Tennison</option>
+                <option>Cody Lopez</option>
+                <option>Deborah Wierson</option>
+              </select>
+              <select style="padding:6px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:12px;outline:none">
+                <option>All types</option>
+                <option>UP</option>
+                <option>DOWN</option>
+                <option>Service</option>
+              </select>
+            </div>
+          </div>
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Agent</th>
+                <th>Address</th>
+                <th>Type</th>
+                <th>Post</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="order-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PENDING TAB -->
+      <div id="pending-tab" style="display:none">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Pending orders — Long Realty Dove Mountain</div>
+          </div>
+          <table class="order-table">
+            <thead>
+              <tr>
+                <th>Submitted</th>
+                <th>Agent</th>
+                <th>Address</th>
+                <th>Type</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pending-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD AGENT MODAL -->
+<div class="modal-bg" id="add-agent-modal">
+  <div class="modal">
+    <div class="modal-title">Add agent to Long Realty — Dove Mountain</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">First name <span>*</span></div>
+        <input class="form-input" placeholder="First name">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Last name <span>*</span></div>
+        <input class="form-input" placeholder="Last name">
+      </div>
+      <div class="form-group full">
+        <div class="form-label">Email address <span>*</span></div>
+        <input class="form-input" type="email" placeholder="agent@longrealty.com">
+        <div style="font-size:11px;color:#999;margin-top:3px">A password setup link will be sent to this email</div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Phone number</div>
+        <input class="form-input" type="tel" placeholder="(520) 555-0000">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Billing mode</div>
+        <select class="form-select">
+          <option>Office Invoice</option>
+          <option>Pay Now</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="document.getElementById('add-agent-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('add-agent-modal').classList.remove('open');toast('✓ Agent added — setup link sent')">Add Agent</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const AGENTS = [
+  {first:'Justin',  last:'Byrd',      email:'justin@longrealty.com', phone:'(520) 555-0700', billing:'Invoice', status:'active',  initials:'JB', color:'#185FA5'},
+  {first:'Julie',   last:'Esquer',    email:'julie@longrealty.com',  phone:'(520) 555-0600', billing:'Pay Now', status:'active',  initials:'JE', color:'#5B2D8E'},
+  {first:'Keith',   last:'Jones',     email:'keith@longrealty.com',  phone:'(520) 555-0800', billing:'Invoice', status:'pending', initials:'KJ', color:'#999'},
+  {first:'Cody',    last:'Lopez',     email:'cody@longrealty.com',   phone:'(520) 555-0200', billing:'Invoice', status:'active',  initials:'CL', color:'#185FA5'},
+  {first:'Janine',  last:'Niebrugge', email:'janine@longrealty.com', phone:'(520) 555-0500', billing:'Invoice', status:'active',  initials:'JN', color:'#C0392B'},
+  {first:'Jacquie', last:'Scott',     email:'jacquie@longrealty.com',phone:'(520) 555-0400', billing:'Invoice', status:'active',  initials:'JS', color:'#BA7517'},
+  {first:'Angela',  last:'Tennison',  email:'angela@longrealty.com', phone:'(520) 555-0100', billing:'Invoice', status:'active',  initials:'AT', color:'#7F77DD'},
+  {first:'Deborah', last:'Wierson',   email:'deb@longrealty.com',    phone:'(520) 555-0300', billing:'Pay Now', status:'active',  initials:'DW', color:'#639922'},
+];
+
+let editingIndex = null;
+
+function renderAgents(filter=''){
+  const sorted = [...AGENTS].sort((a,b)=>a.last.localeCompare(b.last));
+  const filtered = filter ? sorted.filter(a=>(a.first+' '+a.last).toLowerCase().includes(filter.toLowerCase())||a.email.toLowerCase().includes(filter.toLowerCase())) : sorted;
+  document.getElementById('agent-tbody').innerHTML = filtered.map((a)=>{
+    const idx = AGENTS.indexOf(a);
+    const isEditing = editingIndex===idx;
+    const billingClass = a.billing==='Invoice'?'badge-invoice':a.billing==='Auto Pay'?'badge-autopay':'badge-paynow';
+    return '<tr style="'+(isEditing?'background:#F0F7FF;':'')+'" id="row-'+idx+'">'+
+      '<td><div class="agent-name-cell">'+
+        '<div class="agent-avatar" style="background:'+a.color+'">'+a.initials+'</div>'+
+        '<div>'+(isEditing
+          ? '<div style="display:flex;gap:6px"><input id="ef-'+idx+'" value="'+a.first+'" style="width:80px;padding:4px 8px;border:0.5px solid var(--blue);border-radius:6px;font-size:12px;font-family:system-ui;outline:none"><input id="el-'+idx+'" value="'+a.last+'" style="width:100px;padding:4px 8px;border:0.5px solid var(--blue);border-radius:6px;font-size:12px;font-family:system-ui;outline:none"></div>'
+          : '<div style="font-weight:600">'+a.last+', '+a.first+'</div>')+
+        '</div></div></td>'+
+      '<td>'+(isEditing
+        ? '<input id="ee-'+idx+'" value="'+a.email+'" style="width:100%;padding:4px 8px;border:0.5px solid var(--blue);border-radius:6px;font-size:12px;font-family:system-ui;outline:none;margin-bottom:4px;display:block"><input id="ep-'+idx+'" value="'+a.phone+'" style="width:150px;padding:4px 8px;border:0.5px solid var(--blue);border-radius:6px;font-size:12px;font-family:system-ui;outline:none">'
+        : '<a href="mailto:'+a.email+'" style="color:var(--blue);text-decoration:none;display:block;font-size:13px">'+a.email+'</a><div style="font-size:12px;color:var(--muted);margin-top:2px">'+a.phone+'</div>')+
+      '</td>'+
+      '<td>'+(isEditing
+        ? '<select id="eb-'+idx+'" style="padding:5px 8px;border:0.5px solid var(--blue);border-radius:6px;font-size:12px;font-family:system-ui;outline:none"><option '+(a.billing==='Invoice'?'selected':'')+'>Invoice</option><option '+(a.billing==='Auto Pay'?'selected':'')+'>Auto Pay</option><option '+(a.billing==='Pay Now'?'selected':'')+'>Pay Now</option></select>'
+        : '<span class="badge '+billingClass+'">'+a.billing+'</span>')+
+      '</td>'+
+      '<td><div style="display:flex;gap:6px">'+(isEditing
+        ? '<button class="btn btn-primary" style="font-size:11px" onclick="saveAgent('+idx+')">Save</button><button class="btn" style="font-size:11px" onclick="cancelEdit()">Cancel</button>'
+        : '<button class="btn" style="font-size:11px" onclick="editAgent('+idx+')">Edit</button><button class="btn" style="font-size:11px" onclick="toast(&quot;Move to another office&quot;)">Move office</button><button class="btn btn-danger" style="font-size:11px" onclick="deleteAgent('+idx+')">Delete</button>')+
+      '</div></td></tr>';
+  }).join('');
+}
+
+function editAgent(idx){ editingIndex=idx; renderAgents(); }
+function cancelEdit(){ editingIndex=null; renderAgents(); }
+function deleteAgent(idx){
+  if(confirm('Permanently delete '+AGENTS[idx].first+' '+AGENTS[idx].last+'?')){
+    AGENTS.splice(idx,1); editingIndex=null; renderAgents(); toast('Agent deleted');
+  }
+}
+function saveAgent(idx){
+  AGENTS[idx].first   = document.getElementById('ef-'+idx).value;
+  AGENTS[idx].last    = document.getElementById('el-'+idx).value;
+  AGENTS[idx].email   = document.getElementById('ee-'+idx).value;
+  AGENTS[idx].phone   = document.getElementById('ep-'+idx).value;
+  AGENTS[idx].billing = document.getElementById('eb-'+idx).value;
+  AGENTS[idx].initials= (AGENTS[idx].first[0]||'')+(AGENTS[idx].last[0]||'');
+  editingIndex=null; renderAgents();
+  toast('\u2713 '+AGENTS[idx].first+' '+AGENTS[idx].last+' updated');
+}
+
+function renderOrders(){
+  document.getElementById('order-tbody').innerHTML = ORDERS.map(o=>`
+    <tr>
+      <td style="color:var(--muted);font-size:12px">${o.date}</td>
+      <td style="font-weight:500">${o.agent}</td>
+      <td>${o.addr}</td>
+      <td><span class="badge badge-${o.type==='UP'?'up':o.type==='DOWN'?'down':'service'}">${o.type}</span></td>
+      <td style="color:var(--muted)">${o.post}</td>
+      <td style="font-weight:500">${o.amount}</td>
+      <td><span class="badge badge-complete">Complete</span></td>
+    </tr>`).join('');
+}
+
+function renderPending(){
+  document.getElementById('pending-tbody').innerHTML = PENDING.map(o=>`
+    <tr>
+      <td style="color:var(--muted);font-size:12px">${o.date}</td>
+      <td style="font-weight:500">${o.agent}</td>
+      <td>${o.addr}</td>
+      <td><span class="badge badge-${o.type==='UP'?'up':'down'}">${o.type}</span></td>
+      <td style="color:var(--muted);font-size:12px">${o.notes||'—'}</td>
+      <td><div style="display:flex;gap:6px">
+        <button class="btn" style="font-size:11px" onclick="toast('Edit order')">Edit</button>
+        <button class="btn btn-danger" style="font-size:11px" onclick="toast('Cancel order')">Cancel</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function switchTab(el, id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['agents-tab','orders-tab','pending-tab'].forEach(t=>document.getElementById(t).style.display='none');
+  document.getElementById(id).style.display='block';
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none',2500);
+}
+
+renderAgents();
+renderOrders();
+renderPending();
+</script>
+</body>
+</html>
