@@ -290,13 +290,11 @@ function renderAgents(filter=''){
         ? '<input id="ee-'+idx+'" value="'+a.email+'" style="width:100%;padding:4px 8px;border:0.5px solid var(--blue);border-radius:6px;font-size:12px;font-family:system-ui;outline:none;margin-bottom:4px;display:block"><input id="ep-'+idx+'" value="'+a.phone+'" style="width:150px;padding:4px 8px;border:0.5px solid var(--blue);border-radius:6px;font-size:12px;font-family:system-ui;outline:none">'
         : '<a href="mailto:'+a.email+'" style="color:var(--blue);text-decoration:none;display:block;font-size:13px">'+a.email+'</a><div style="font-size:12px;color:var(--muted);margin-top:2px">'+a.phone+'</div>')+
       '</td>'+
-      '<td>'+(isEditing
-        ? '<select id="eb-'+idx+'" style="padding:5px 8px;border:0.5px solid var(--blue);border-radius:6px;font-size:12px;font-family:system-ui;outline:none"><option '+(a.billing==='Invoice'?'selected':'')+'>Invoice</option><option '+(a.billing==='Auto Pay'?'selected':'')+'>Auto Pay</option><option '+(a.billing==='Pay Now'?'selected':'')+'>Pay Now</option></select>'
-        : '<span class="badge '+billingClass+'">'+a.billing+'</span>')+
+      '<td>'+'<span class="badge '+billingClass+'">'+a.billing+'</span>'+
       '</td>'+
       '<td><div style="display:flex;gap:6px">'+(isEditing
         ? '<button class="btn btn-primary" style="font-size:11px" onclick="saveAgent('+idx+')">Save</button><button class="btn" style="font-size:11px" onclick="cancelEdit()">Cancel</button>'
-        : '<button class="btn" style="font-size:11px" onclick="editAgent('+idx+')">Edit</button><button class="btn" style="font-size:11px" onclick="toast(&quot;Move to another office&quot;)">Move office</button><button class="btn btn-danger" style="font-size:11px" onclick="deleteAgent('+idx+')">Delete</button>')+
+        : '<button class="btn" style="font-size:11px" onclick="editAgent('+idx+')">Edit</button>')+
       '</div></td></tr>';
   }).join('');
 }
@@ -313,7 +311,6 @@ function saveAgent(idx){
   AGENTS[idx].last    = document.getElementById('el-'+idx).value;
   AGENTS[idx].email   = document.getElementById('ee-'+idx).value;
   AGENTS[idx].phone   = document.getElementById('ep-'+idx).value;
-  AGENTS[idx].billing = document.getElementById('eb-'+idx).value;
   AGENTS[idx].initials= (AGENTS[idx].first[0]||'')+(AGENTS[idx].last[0]||'');
   editingIndex=null; renderAgents();
   toast('\u2713 '+AGENTS[idx].first+' '+AGENTS[idx].last+' updated');
