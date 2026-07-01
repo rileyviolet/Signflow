@@ -244,9 +244,63 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
       <div class="section-title">Accessories <span style="font-size:12px;font-weight:400;color:#999">(optional)</span></div>
       <div class="section-body">
         <div class="acc-grid" id="acc-list"></div>
-        <div style="margin-top:14px">
-          <label class="form-label">Notes for installer <span style="font-weight:400;color:#999">(optional)</span></label>
-          <textarea class="form-textarea" id="notes" placeholder="Special instructions, sign placement details, etc."></textarea>
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:14px">
+
+          <!-- Gate Code -->
+          <div style="background:#fafaf9;border:0.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+              <div>
+                <div class="form-label" style="margin-bottom:1px">🔒 Gate code required?</div>
+                <div style="font-size:11px;color:#999">Is there a gate the installer needs access through?</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button type="button" id="gate-yes" onclick="toggleGate(true)" style="padding:5px 16px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#fff;font-size:12px;font-weight:500;cursor:pointer">Yes</button>
+                <button type="button" id="gate-no" onclick="toggleGate(false)" style="padding:5px 16px;border-radius:8px;border:none;background:#185FA5;color:#fff;font-size:12px;font-weight:500;cursor:pointer">No</button>
+              </div>
+            </div>
+            <div id="gate-code-box" style="display:none;margin-top:10px">
+              <input class="form-input" id="gate-code" placeholder="Enter gate code..." style="width:100%;padding:8px 12px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none">
+            </div>
+          </div>
+
+          <!-- Vacant Land -->
+          <div style="background:#fafaf9;border:0.5px solid rgba(0,0,0,.1);border-radius:10px;padding:12px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div class="form-label" style="margin-bottom:1px">🌵 Vacant land?</div>
+                <div style="font-size:11px;color:#999">If yes, a map upload is required before submitting</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button type="button" id="vacant-yes" onclick="toggleVacant(true)" style="padding:5px 16px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#fff;font-size:12px;font-weight:500;cursor:pointer">Yes</button>
+                <button type="button" id="vacant-no" onclick="toggleVacant(false)" style="padding:5px 16px;border-radius:8px;border:none;background:#185FA5;color:#fff;font-size:12px;font-weight:500;cursor:pointer">No</button>
+              </div>
+            </div>
+            <div id="vacant-upload-box" style="display:none;margin-top:10px">
+              <div style="background:#FFF3CD;border:0.5px solid #F0D080;border-radius:8px;padding:8px 12px;font-size:12px;color:#856404;margin-bottom:8px">
+                ⚠️ A map is required for vacant land orders. You cannot submit without uploading one.
+              </div>
+              <label style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:1.5px dashed #C7C7CC;border-radius:8px;cursor:pointer;font-size:13px;color:#555;background:#fff" onclick="document.getElementById('vacant-map-input').click()">
+                📎 Click to upload map
+              </label>
+              <input type="file" id="vacant-map-input" accept="image/*,.pdf" style="display:none" onchange="handleMapUpload(this)">
+              <div id="map-upload-confirm" style="display:none;margin-top:6px;font-size:12px;color:#16A322;font-weight:500">✓ Map uploaded</div>
+            </div>
+          </div>
+
+          <!-- Installer Notes -->
+          <div>
+            <label class="form-label">Installer notes <span style="font-weight:400;color:#999">(optional)</span></label>
+            <div style="font-size:11px;color:#999;margin-bottom:5px">Placement instructions, access info, anything the installer needs on site</div>
+            <textarea class="form-textarea" id="notes" placeholder="e.g. Place sign on north side of driveway, call before arrival, hard to find — look for red mailbox..."></textarea>
+          </div>
+
+          <!-- Order Notes (internal) -->
+          <div>
+            <label class="form-label">Order notes <span style="font-weight:400;color:#999;font-size:11px">— internal only, installer does not see this</span></label>
+            <div style="font-size:11px;color:#999;margin-bottom:5px">Rider pickup reminders, follow-up items, anything for the office</div>
+            <textarea class="form-textarea" id="order-notes" placeholder="e.g. Rider ready for pickup at office, call agent after install..."></textarea>
+          </div>
+
         </div>
         <div class="photo-row" onclick="togglePhoto()">
           <div class="photo-checkbox on" id="photo-check">✓</div>
@@ -384,6 +438,34 @@ function selectOT(type){
   document.getElementById('payment-step-label').textContent=isInstall?'Step 6':isService?'Step 4':'Step 3';
   if(isService) renderServiceSignGrid();
   updateSummary();
+}
+
+function toggleGate(yes){
+  document.getElementById('gate-code-box').style.display = yes?'block':'none';
+  document.getElementById('gate-yes').style.background = yes?'#185FA5':'#fff';
+  document.getElementById('gate-yes').style.color = yes?'#fff':'';
+  document.getElementById('gate-yes').style.border = yes?'none':'0.5px solid rgba(0,0,0,.2)';
+  document.getElementById('gate-no').style.background = yes?'#fff':'#185FA5';
+  document.getElementById('gate-no').style.color = yes?'':'#fff';
+  document.getElementById('gate-no').style.border = yes?'0.5px solid rgba(0,0,0,.2)':'none';
+}
+
+function toggleVacant(yes){
+  document.getElementById('vacant-upload-box').style.display = yes?'block':'none';
+  document.getElementById('vacant-yes').style.background = yes?'#185FA5':'#fff';
+  document.getElementById('vacant-yes').style.color = yes?'#fff':'';
+  document.getElementById('vacant-yes').style.border = yes?'none':'0.5px solid rgba(0,0,0,.2)';
+  document.getElementById('vacant-no').style.background = yes?'#fff':'#185FA5';
+  document.getElementById('vacant-no').style.color = yes?'':'#fff';
+  document.getElementById('vacant-no').style.border = yes?'0.5px solid rgba(0,0,0,.2)':'none';
+  if(!yes) document.getElementById('map-upload-confirm').style.display='none';
+}
+
+function handleMapUpload(input){
+  if(input.files && input.files[0]){
+    document.getElementById('map-upload-confirm').style.display='block';
+    document.getElementById('map-upload-confirm').textContent='✓ '+input.files[0].name+' uploaded';
+  }
 }
 
 function selectDate(mode){
@@ -578,6 +660,12 @@ function submitOrder(){
   if(!addr){alert('Please enter a property address.');return;}
   if(state.orderType==='install'&&!state.postId){alert('Please select a post type.');return;}
   if(state.orderType==='install'&&!state.hangMode&&!state.signId){alert('Please choose how the sign is being handled or select a panel from your library.');return;}
+  // Vacant land map check
+  const vacantYes = document.getElementById('vacant-yes');
+  const mapConfirm = document.getElementById('map-upload-confirm');
+  if(vacantYes && vacantYes.style.background==='rgb(24, 95, 165)' && mapConfirm && mapConfirm.style.display==='none'){
+    alert('Vacant land orders require a map upload before submitting.');return;
+  }
   document.getElementById('order-form').style.display='none';
   document.getElementById('confirmation').style.display='block';
   document.getElementById('confirm-photo').textContent=state.photoConfirm&&state.orderType==='install'
