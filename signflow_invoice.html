@@ -79,6 +79,7 @@ tbody td:last-child{text-align:right;font-weight:500}
 .chip-down{background:#FEF2F2;color:#DC2626}
 .chip-service{background:#EFF6FF;color:#2563EB}
 .chip-delivery{background:#FFF7ED;color:#C2410C}
+.chip-missing{background:#FEF3C7;color:#92400E}
 .td-agent{color:#555;font-size:12px;width:140px;padding:0 8px}
 .td-amt{width:90px}
 
@@ -148,6 +149,7 @@ tbody td:last-child{text-align:right;font-weight:500}
         <button class="tbtn" id="state-partial" onclick="setInvoiceState('partial')" style="border-radius:7px;font-size:12px;padding:6px 14px;border:none">Past Due + Partial</button>
       </div>
       <button class="tbtn tbtn-outline" onclick="toggleSettings()">⚙ Invoice Settings</button>
+      <button class="tbtn tbtn-outline" onclick="exportExcel()">📊 Export to Excel</button>
       <button class="tbtn tbtn-outline" onclick="window.print()">🖨 Print / Save PDF</button>
       <button class="tbtn tbtn-primary" onclick="alert('Invoice emailed successfully')">✉ Email Invoice</button>
     </div>
@@ -265,8 +267,6 @@ tbody td:last-child{text-align:right;font-weight:500}
         <div class="meta-grid">
           <div class="meta-key">Issue date</div>
           <div class="meta-val">Jul 1, 2026</div>
-          <div class="meta-key">Due date</div>
-          <div class="meta-val">Jul 31, 2026</div>
           <div class="meta-key">Period</div>
           <div class="meta-val">Jun 2026</div>
         </div>
@@ -303,6 +303,8 @@ tbody td:last-child{text-align:right;font-weight:500}
             <th>Address</th>
             <th class="td-type">Service</th>
             <th class="td-agent">Agent</th>
+            <th class="td-agent">Post & Sign</th>
+            <th class="td-agent">Accessories</th>
             <th class="td-amt">Amount</th>
           </tr>
         </thead>
@@ -323,30 +325,53 @@ tbody td:last-child{text-align:right;font-weight:500}
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+function exportExcel(){
+  const rows = ORDERS.map(o=>[
+    o.addr + ', ' + o.city,
+    o.amt + o.zoneFee,
+    o.agent,
+    'Jun 2026',
+    [o.post, o.sign, o.accs].filter(Boolean).join(', '),
+    o.type
+  ]);
+  // Add total row
+  const total = ORDERS.reduce((s,o)=>s+o.amt+o.zoneFee, 0);
+  rows.push(['', total, '', '', '', '']);
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // Column widths matching Long Realty format
+  ws['!cols'] = [{wch:50},{wch:10},{wch:22},{wch:20},{wch:55},{wch:12}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Long Realty RC - Jun 2026');
+  XLSX.writeFile(wb, 'LongRealty_RC_Jun2026.xlsx');
+}
 const ORDERS = [
-  {date:'Jun 2',  addr:'4821 E Sunrise Dr',      city:'Tucson AZ 85718', type:'UP',       agent:'Angela Tennison',  amt:65.00, zoneFee:0},
-  {date:'Jun 3',  addr:'7703 N Oracle Rd',        city:'Tucson AZ 85704', type:'UP',       agent:'Cody Lopez',       amt:68.00, zoneFee:0},
-  {date:'Jun 5',  addr:'3300 N Campbell Ave',     city:'Tucson AZ 85719', type:'DOWN',     agent:'Angela Tennison',  amt:65.00, zoneFee:0},
-  {date:'Jun 6',  addr:'9200 E Tanque Verde Rd',  city:'Tucson AZ 85749', type:'UP',       agent:'Deborah Wierson',  amt:65.00, zoneFee:25.00},
-  {date:'Jun 9',  addr:'5500 E Speedway Blvd',    city:'Tucson AZ 85712', type:'Service',  agent:'Jacquie Scott',    amt:25.00, zoneFee:0},
-  {date:'Jun 10', addr:'1550 S Kolb Rd',          city:'Tucson AZ 85710', type:'UP',       agent:'Cody Lopez',       amt:65.00, zoneFee:0},
-  {date:'Jun 12', addr:'2100 N Alvernon Way',     city:'Tucson AZ 85712', type:'DOWN',     agent:'Julie Esquer',     amt:65.00, zoneFee:0},
-  {date:'Jun 13', addr:'6200 E Broadway Blvd',    city:'Tucson AZ 85710', type:'UP',       agent:'Angela Tennison',  amt:68.00, zoneFee:0},
-  {date:'Jun 16', addr:'8030 E Tanque Verde Rd',  city:'Tucson AZ 85749', type:'UP',       agent:'Justin Byrd',      amt:65.00, zoneFee:0},
-  {date:'Jun 17', addr:'4101 S Escalante Ridge',  city:'Tucson AZ 85730', type:'DOWN',     agent:'Deborah Wierson',  amt:65.00, zoneFee:0},
-  {date:'Jun 18', addr:'531 W Aspenwood St',      city:'Green Valley AZ', type:'UP',       agent:'Janine Niebrugge', amt:65.00, zoneFee:25.00},
-  {date:'Jun 19', addr:'155 N Scenic Vista Dr',   city:'Sahuarita AZ',    type:'Service',  agent:'Cody Lopez',       amt:25.00, zoneFee:25.00},
-  {date:'Jun 20', addr:'917 S Bill Martin Dr',    city:'Tucson AZ 85745', type:'UP',       agent:'Keith Jones',      amt:65.00, zoneFee:0},
-  {date:'Jun 23', addr:'2756 S Oakenshield Way',  city:'Tucson AZ 85730', type:'DOWN',     agent:'Angela Tennison',  amt:65.00, zoneFee:0},
-  {date:'Jun 24', addr:'4400 N Scottsdale Rd',    city:'Tucson AZ 85251', type:'UP',       agent:'Julie Esquer',     amt:65.00, zoneFee:0},
-  {date:'Jun 25', addr:'9557 N Elan Ln',          city:'Tucson AZ 85743', type:'DOWN',     agent:'Justin Byrd',      amt:65.00, zoneFee:0},
-  {date:'Jun 26', addr:'2772 N Bell Hollow Pl',   city:'Tucson AZ 85745', type:'UP',       agent:'Jacquie Scott',    amt:65.00, zoneFee:0},
-  {date:'Jun 27', addr:'6940 N Pelto Path',       city:'Tucson AZ 85743', type:'UP',       agent:'Deborah Wierson',  amt:65.00, zoneFee:0},
-  {date:'Jun 28', addr:'3419 E Broadway Blvd',    city:'Tucson AZ 85716', type:'Delivery', agent:'Cody Lopez',       amt:35.00, zoneFee:0},
-  {date:'Jun 29', addr:'1111 S Alvernon Way',     city:'Tucson AZ 85711', type:'UP',       agent:'Angela Tennison',  amt:65.00, zoneFee:0},
-  {date:'Jun 30', addr:'6052 E 17th St',          city:'Tucson AZ 85711', type:'DOWN',     agent:'Keith Jones',      amt:65.00, zoneFee:0},
-  {date:'Jun 30', addr:'9820 E Nichols Ave',      city:'Tucson AZ 85749', type:'UP',       agent:'Julie Esquer',     amt:68.00, zoneFee:40.00},
+  {date:'Jun 2',  addr:'4821 E Sunrise Dr',      city:'Tucson AZ 85718', type:'UP',       agent:'Angela Tennison',  post:'White Post',        sign:'Angela Tennison 18x24',       accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 3',  addr:'7703 N Oracle Rd',        city:'Tucson AZ 85704', type:'UP',       agent:'Cody Lopez',       post:'Black Post Luxury',  sign:'Cody Lopez LUXURY',            accs:'',                              amt:68.00,  zoneFee:0},
+  {date:'Jun 5',  addr:'3300 N Campbell Ave',     city:'Tucson AZ 85719', type:'DOWN',     agent:'Angela Tennison',  post:'White Post',        sign:'Angela Tennison 18x24',       accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 6',  addr:'9200 E Tanque Verde Rd',  city:'Tucson AZ 85749', type:'UP',       agent:'Deborah Wierson',  post:'White Post',        sign:'Deborah Wierson 18x24',       accs:'Coming Soon Rider',             amt:65.00,  zoneFee:25.00},
+  {date:'Jun 9',  addr:'5500 E Speedway Blvd',    city:'Tucson AZ 85712', type:'Service',  agent:'Jacquie Scott',    post:'White Post',        sign:'Jacquie Scott 18x24',         accs:'',                              amt:25.00,  zoneFee:0},
+  {date:'Jun 10', addr:'1550 S Kolb Rd',          city:'Tucson AZ 85710', type:'UP',       agent:'Cody Lopez',       post:'White Post',        sign:'Cody Lopez 18x24',            accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 12', addr:'2100 N Alvernon Way',     city:'Tucson AZ 85712', type:'DOWN',     agent:'Julie Esquer',     post:'White Post',        sign:'Julie Esquer 18x24',          accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 13', addr:'6200 E Broadway Blvd',    city:'Tucson AZ 85710', type:'UP',       agent:'Angela Tennison',  post:'Black Post Luxury',  sign:'Angela Tennison LUXURY',      accs:'',                              amt:68.00,  zoneFee:0},
+  {date:'Jun 16', addr:'8030 E Tanque Verde Rd',  city:'Tucson AZ 85749', type:'UP',       agent:'Justin Byrd',      post:'White Post',        sign:'Justin Byrd 18x24',           accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 17', addr:'4101 S Escalante Ridge',  city:'Tucson AZ 85730', type:'DOWN',     agent:'Deborah Wierson',  post:'White Post',        sign:'Deborah Wierson 18x24',       accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 18', addr:'531 W Aspenwood St',      city:'Green Valley AZ', type:'UP',       agent:'Janine Niebrugge', post:'White Post',        sign:'Janine Niebrugge 18x24',      accs:'Info Pak',                      amt:65.00,  zoneFee:25.00},
+  {date:'Jun 19', addr:'155 N Scenic Vista Dr',   city:'Sahuarita AZ',    type:'Service',  agent:'Cody Lopez',       post:'White Post',        sign:'Cody Lopez 18x24',            accs:'',                              amt:25.00,  zoneFee:25.00},
+  {date:'Jun 20', addr:'917 S Bill Martin Dr',    city:'Tucson AZ 85745', type:'UP',       agent:'Keith Jones',      post:'White Post',        sign:'Keith Jones 18x24',           accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 23', addr:'2756 S Oakenshield Way',  city:'Tucson AZ 85730', type:'DOWN',     agent:'Angela Tennison',  post:'White Post',        sign:'Angela Tennison 18x24',       accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 24', addr:'4400 N Scottsdale Rd',    city:'Tucson AZ 85251', type:'UP',       agent:'Julie Esquer',     post:'White Post',        sign:'Julie Esquer 18x24',          accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 25', addr:'9557 N Elan Ln',          city:'Tucson AZ 85743', type:'DOWN',     agent:'Justin Byrd',      post:'White Post',        sign:'Justin Byrd 18x24',           accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 26', addr:'2772 N Bell Hollow Pl',   city:'Tucson AZ 85745', type:'UP',       agent:'Jacquie Scott',    post:'White Post',        sign:'Jacquie Scott 18x24',         accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 27', addr:'6940 N Pelto Path',       city:'Tucson AZ 85743', type:'UP',       agent:'Deborah Wierson',  post:'White Post',        sign:'Deborah Wierson 18x24',       accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 28', addr:'3419 E Broadway Blvd',    city:'Tucson AZ 85716', type:'Delivery', agent:'Cody Lopez',       post:'',                  sign:'',                            accs:'',                              amt:35.00,  zoneFee:0},
+  {date:'Jun 29', addr:'1111 S Alvernon Way',     city:'Tucson AZ 85711', type:'UP',       agent:'Angela Tennison',  post:'White Post',        sign:'Angela Tennison 18x24',       accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 30', addr:'6052 E 17th St',          city:'Tucson AZ 85711', type:'DOWN',     agent:'Keith Jones',      post:'White Post',        sign:'Keith Jones 18x24',           accs:'',                              amt:65.00,  zoneFee:0},
+  {date:'Jun 30', addr:'9820 E Nichols Ave',      city:'Tucson AZ 85749', type:'UP',       agent:'Julie Esquer',     post:'Black Post Luxury',  sign:'Julie Esquer LUXURY',         accs:'Coming Soon Rider, Info Pak',   amt:68.00,  zoneFee:40.00},
+  {date:'Jun 14', addr:'3850 W Overton Rd',        city:'Tucson AZ 85742', type:'Missing Post', agent:'Mark Clark',   post:'',                  sign:'',                            accs:'',                              amt:70.00,  zoneFee:0,   missingNote:''},
+  {date:'Jun 21', addr:'5120 N La Cholla Blvd',    city:'Tucson AZ 85741', type:'Missing Post', agent:'Anna Delgado', post:'',                  sign:'',                            accs:'',                              amt:0.00,   zoneFee:15.00, missingNote:'Post recovered — trip charge only'},
 ];
 
 function toggleSettings(){
@@ -418,7 +443,7 @@ function setInvoiceState(state){
       <hr class="sub-divider">
       <div class="sub-row"><span class="sub-label">Total invoiced</span><span class="sub-val">$1,485.24</span></div>
       <div class="total-row" style="background:#991B1B"><span class="total-label">Balance due</span><span class="total-val">$1,485.24</span></div>
-      <div style="text-align:right;font-size:11px;color:#991B1B;font-weight:500;margin-top:6px">⚠ Invoice was due Jul 31, 2026 — now past due</div>`;
+      <div style="text-align:right;font-size:11px;color:#991B1B;font-weight:500;margin-top:6px">⚠ This invoice is past due</div>`;
   } else {
     rows.innerHTML = `
       <div class="sub-row"><span class="sub-label">Subtotal (22 orders)</span><span class="sub-val">$1,398.00</span></div>
@@ -428,12 +453,13 @@ function setInvoiceState(state){
       <div class="sub-row"><span class="sub-label" style="color:#059669;font-weight:500">✓ Payment received — Jul 18, 2026</span><span class="sub-val" style="color:#059669;font-weight:600">−$750.00</span></div>
       <hr class="sub-divider">
       <div class="total-row" style="background:#991B1B"><span class="total-label">Balance due</span><span class="total-val">$735.24</span></div>
-      <div style="text-align:right;font-size:11px;color:#991B1B;font-weight:500;margin-top:6px">⚠ Invoice was due Jul 31, 2026 — now past due</div>`;
+      <div style="text-align:right;font-size:11px;color:#991B1B;font-weight:500;margin-top:6px">⚠ This invoice is past due</div>`;
   }
 }
 
 // Init
-const typeClass = {UP:'chip-up',DOWN:'chip-down',Service:'chip-service',Delivery:'chip-delivery'};
+// Init
+const typeClass = {UP:'chip-up',DOWN:'chip-down',Service:'chip-service',Delivery:'chip-delivery','Missing Post':'chip-missing'};
 
 document.getElementById('line-items').innerHTML = ORDERS.map(o=>`
   <tr>
@@ -442,9 +468,12 @@ document.getElementById('line-items').innerHTML = ORDERS.map(o=>`
       <div class="td-addr">${o.addr}</div>
       <div class="td-addr-sub">${o.city}</div>
       ${o.zoneFee>0?`<div style="font-size:11px;color:#6B7280;margin-top:3px;padding-left:8px;border-left:2px solid #E5E7EB">+ Zone fee &nbsp;<span style="color:#1A1A1A;font-weight:500">$${o.zoneFee.toFixed(2)}</span></div>`:''}
+      ${o.missingNote?`<div style="font-size:11px;color:#059669;font-style:italic;margin-top:3px">${o.missingNote}</div>`:''}
     </td>
     <td class="td-type"><span class="type-chip ${typeClass[o.type]||'chip-up'}">${o.type}</span></td>
     <td class="td-agent">${o.agent}</td>
+    <td class="td-agent" style="font-size:11px;color:#555">${[o.post,o.sign].filter(Boolean).join(' · ')}</td>
+    <td class="td-agent" style="font-size:11px;color:#6B7280">${o.accs||'—'}</td>
     <td class="td-amt"><strong>$${(o.amt+o.zoneFee).toFixed(2)}</strong></td>
   </tr>`).join('');
 
