@@ -214,25 +214,14 @@ html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-s
             </div>
           </div>
 
-          <!-- Step 2: Order type -->
+          <!-- Step 2: Job Items -->
           <div class="form-card">
-            <div class="form-title">2 · Order type</div>
-            <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">Order type</div>
-                <select class="form-select" id="order-type">
-                  <option value="">— Select order type —</option>
-                  <option>Comm UP</option>
-                  <option>Comm TD</option>
-                  <option>Repair</option>
-                  <option>Misc</option>
-                  <option>Flag installation</option>
-                  <option>Vinyl decal (RTA)</option>
-                  <option>Custom post</option>
-                  <option>Delivery</option>
-                </select>
-              </div>
-            </div>
+            <div class="form-title">2 · Job items</div>
+            <div style="font-size:12px;color:#8E8E93;margin-bottom:12px">Add one or more tasks for this stop. Each item has its own order type, notes, and installer pay.</div>
+            <div id="job-items-list"></div>
+            <button onclick="addJobItem()" style="width:100%;padding:9px;border-radius:9px;border:1.5px dashed #C7C7CC;background:#fff;font-size:13px;color:#555;cursor:pointer;margin-top:8px;font-family:system-ui">
+              + Add another item
+            </button>
           </div>
 
           <!-- Step 3: Scheduling -->
@@ -257,12 +246,6 @@ html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-s
               <div id="cal-days" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:0 6px 10px;gap:2px"></div>
             </div>
             <div id="cal-selected-label" style="font-size:12px;color:#185FA5;font-weight:600;margin-top:10px"></div>
-          </div>
-
-          <!-- Step 4: Notes -->
-          <div class="form-card">
-            <div class="form-title">4 · Notes <span style="font-weight:400;color:#999;font-size:11px">optional</span></div>
-            <textarea class="form-textarea" id="job-notes" placeholder="Access instructions, contact on site, special requirements..."></textarea>
           </div>
 
           <!-- SUBMIT -->
@@ -417,12 +400,35 @@ function pickDate(y,m,d){
 }
 
 const SIGNS_IN_FIELD = [
-  {id:1, customerId:1, customerName:'PICOR Commercial Real Estate', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Comm UP', date:'Mar 12, 2026', installer:'Juan Rodriguez', notes:'Sign mounted on east wall facing parking lot. Hardware in storage unit B.', photo:true},
-  {id:2, customerId:1, customerName:'PICOR Commercial Real Estate', addr:'7703 N Oracle Rd, Tucson AZ 85704', type:'Flag installation', date:'Apr 2, 2026', installer:'Tom Kowalski', notes:'30ft flag pole. Contact Karen on site before arrival at 520-555-1234.', photo:true},
-  {id:3, customerId:2, customerName:'CBRE Group', addr:'3300 N Campbell Ave, Tucson AZ 85719', type:'Comm UP', date:'Feb 28, 2026', installer:'Maria Santos', notes:'', photo:true},
-  {id:4, customerId:4, customerName:'Cadden Community Management', addr:'5500 E Speedway Blvd, Tucson AZ 85712', type:'Custom post', date:'Apr 15, 2026', installer:'Devon Williams', notes:'HOA entry sign. Use rear access gate code 7732.', photo:false},
-  {id:5, customerId:5, customerName:'KB Home', addr:'9200 E Tanque Verde Rd, Tucson AZ 85749', type:'Comm UP', date:'Mar 30, 2026', installer:'Juan Rodriguez', notes:'Model home directional sign. Do not remove until further notice.', photo:true},
+  {id:1, customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Comm UP', date:'Mar 12, 2026', installer:'Juan Rodriguez', notes:'Sign mounted on east wall facing parking lot. Hardware in storage unit B.', photos:['📷','📷','📷']},
+  {id:2, customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'7703 N Oracle Rd, Tucson AZ 85704', type:'Flag installation', date:'Apr 2, 2026', installer:'Tom Kowalski', notes:'30ft flag pole. Contact Karen on site before arrival at 520-555-1234.', photos:['📷','📷','📷','📷','📷']},
+  {id:3, customerId:2, customerName:'CBRE Group', email:'info@cbre.com', addr:'3300 N Campbell Ave, Tucson AZ 85719', type:'Comm UP', date:'Feb 28, 2026', installer:'Maria Santos', notes:'', photos:['📷','📷']},
+  {id:4, customerId:4, customerName:'Cadden Community Management', email:'info@cadden.com', addr:'5500 E Speedway Blvd, Tucson AZ 85712', type:'Custom post', date:'Apr 15, 2026', installer:'Devon Williams', notes:'HOA entry sign. Use rear access gate code 7732.', photos:[]},
+  {id:5, customerId:5, customerName:'KB Home', email:'contact@kbhome.com', addr:'9200 E Tanque Verde Rd, Tucson AZ 85749', type:'Comm UP', date:'Mar 30, 2026', installer:'Juan Rodriguez', notes:'Model home directional sign. Do not remove until further notice.', photos:['📷','📷','📷','📷']},
 ];
+
+// Track selected photos per sign
+const selectedPhotos = {};
+
+function togglePhoto(signId, photoIdx){
+  if(!selectedPhotos[signId]) selectedPhotos[signId] = new Set();
+  if(selectedPhotos[signId].has(photoIdx)){
+    selectedPhotos[signId].delete(photoIdx);
+  } else {
+    selectedPhotos[signId].add(photoIdx);
+  }
+  renderSignsInField();
+}
+
+function sendPhotoEmail(signId){
+  const s = SIGNS_IN_FIELD.find(x=>x.id===signId);
+  const selected = selectedPhotos[signId];
+  if(!selected || selected.size===0){ toast('Please select at least one photo first'); return; }
+  const count = selected.size;
+  const subject = encodeURIComponent(`Sign Up Sign Services — Photos for ${s.addr}`);
+  const body = encodeURIComponent(`Please find attached ${count} photo${count>1?'s':''} of your sign installation at:\n\n${s.addr}\n\nThank you,\nSign Up Sign Services\nwww.signuptucson.com`);
+  window.location.href = `mailto:${s.email}?subject=${subject}&body=${body}`;
+}
 
 function renderSignsInField(){
   const custFilter = document.getElementById('signs-customer-filter')?.value || '';
@@ -434,7 +440,10 @@ function renderSignsInField(){
   document.getElementById('signs-count').textContent = list.length + ' active';
   document.getElementById('signs-in-field-list').innerHTML = list.length === 0
     ? `<div style="padding:20px;text-align:center;font-size:12px;color:#999">No signs in field for this customer</div>`
-    : list.map(s=>`
+    : list.map(s=>{
+    const selSet = selectedPhotos[s.id] || new Set();
+    const selCount = selSet.size;
+    return`
     <div style="padding:16px;border-bottom:0.5px solid rgba(0,0,0,.08)">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
         <div>
@@ -448,16 +457,30 @@ function renderSignsInField(){
       </div>
       ${!custFilter?`<div style="font-size:12px;color:#777;margin-bottom:6px"><span style="font-weight:500;color:#555">Customer:</span> ${s.customerName}</div>`:''}
       ${s.notes?`<div style="background:#FFF9EC;border-radius:7px;padding:8px 10px;font-size:12px;color:#555;margin-bottom:10px;line-height:1.6">${s.notes}</div>`:''}
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-        ${s.photo
-          ?`<div style="width:70px;height:52px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer" onclick="alert('View photo for ${s.addr}')">📷</div>`
-          :`<div style="font-size:11px;color:#C7C7CC;font-style:italic">No photo on file</div>`}
-      </div>
+
+      ${s.photos.length>0?`
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;font-weight:600;color:#555;margin-bottom:6px">Photos — click to select for email (${selCount} selected)</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${s.photos.map((p,i)=>{
+            const isSel = selSet.has(i);
+            return `<div onclick="togglePhoto(${s.id},${i})" style="width:64px;height:52px;border-radius:8px;background:${isSel?'#185FA5':'#EAF3DE'};display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;border:2px solid ${isSel?'#185FA5':'transparent'};position:relative;transition:all .12s">
+              ${p}
+              ${isSel?`<div style="position:absolute;top:3px;right:3px;width:14px;height:14px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#185FA5">✓</div>`:''}
+            </div>`;
+          }).join('')}
+        </div>
+        <button onclick="sendPhotoEmail(${s.id})" style="margin-top:10px;width:100%;padding:8px;border-radius:8px;border:0.5px solid #185FA5;background:${selCount>0?'#185FA5':'#fff'};color:${selCount>0?'#fff':'#185FA5'};font-size:12px;font-weight:600;cursor:pointer">
+          ✉ ${selCount>0?`Email ${selCount} photo${selCount>1?'s':''} to customer`:'Select photos to email'}
+        </button>
+      </div>`
+      :`<div style="font-size:11px;color:#C7C7CC;font-style:italic;margin-bottom:10px">No photos on file</div>`}
+
       <div style="display:flex;gap:8px">
         <button onclick="requestCommRepair(${s.id})" style="flex:1;padding:8px 0;border-radius:8px;border:0.5px solid #BA7517;background:#FAEEDA;color:#633806;font-size:12px;font-weight:600;cursor:pointer">🔧 Repair</button>
         <button onclick="scheduleCommRemoval(${s.id})" style="flex:1;padding:8px 0;border-radius:8px;border:0.5px solid #888780;background:#F1EFE8;color:#5F5E5A;font-size:12px;font-weight:600;cursor:pointer">⬇ Remove</button>
       </div>
-    </div>`).join('');
+    </div>`;}).join('');
 }
 
 function requestCommRepair(id){
@@ -473,6 +496,65 @@ function scheduleCommRemoval(id){
     toast('⬇ Removal scheduled for '+s.addr);
   }
 }
+
+// ── JOB ITEMS ─────────────────────────────────────────────────────
+let jobItems = [];
+let jobItemId = 0;
+
+const ORDER_TYPE_OPTIONS = ['Comm UP','Comm TD','Repair','Misc','Flag installation','Vinyl decal (RTA)','Custom post','Delivery','Banner','Window lettering','Sandwich board','Directional sign'];
+
+function addJobItem(){
+  jobItems.push({id: ++jobItemId, type:'', notes:'', pay:6.00});
+  renderJobItems();
+}
+
+function removeJobItem(id){
+  jobItems = jobItems.filter(i=>i.id!==id);
+  renderJobItems();
+}
+
+function renderJobItems(){
+  const el = document.getElementById('job-items-list');
+  if(jobItems.length===0){
+    el.innerHTML = `<div style="font-size:12px;color:#C7C7CC;text-align:center;padding:10px 0">No items added yet — click below to add your first item</div>`;
+    return;
+  }
+  el.innerHTML = jobItems.map((item,idx)=>`
+    <div style="border:0.5px solid rgba(0,0,0,.12);border-radius:10px;padding:14px;margin-bottom:10px;background:#fafaf9">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:600;color:#555">Item ${idx+1}</div>
+        ${jobItems.length>1?`<button onclick="removeJobItem(${item.id})" style="background:none;border:none;font-size:12px;color:#C7C7CC;cursor:pointer;padding:2px 6px">✕ Remove</button>`:''}
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-end">
+        <div style="flex:1">
+          <div class="form-label" style="margin-bottom:4px">Order type</div>
+          <select class="form-select" onchange="updateJobItem(${item.id},'type',this.value)">
+            <option value="">— Select type —</option>
+            ${ORDER_TYPE_OPTIONS.map(t=>`<option ${item.type===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div style="flex:0 0 120px">
+          <div class="form-label" style="margin-bottom:4px">Installer pay</div>
+          <div class="pay-row">
+            <span class="pay-prefix">$</span>
+            <input class="pay-input" type="number" value="${item.pay.toFixed(2)}" step="0.50" min="0" onchange="updateJobItem(${item.id},'pay',parseFloat(this.value)||0)">
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="form-label" style="margin-bottom:4px">Notes <span style="font-weight:400;color:#999">optional</span></div>
+        <textarea class="form-textarea" placeholder="Specific instructions for this task..." onchange="updateJobItem(${item.id},'notes',this.value)" style="min-height:60px">${item.notes}</textarea>
+      </div>
+    </div>`).join('');
+}
+
+function updateJobItem(id, field, value){
+  const item = jobItems.find(i=>i.id===id);
+  if(item) item[field] = value;
+}
+
+// Init first job item
+addJobItem();
 
 function togglePin(id){
   const c = CUSTOMERS.find(x=>x.id===id);
@@ -491,6 +573,7 @@ function selectCustomer(id) {
   document.getElementById('selected-customer-name').textContent = selectedCustomer.name;
   renderRecentOrders(id);
   renderSignsInField();
+  renderCalendar();
 }
 
 function renderTypeGrid() {
@@ -521,19 +604,18 @@ function renderRecentOrders(customerId) {
 
 function submitOrder() {
   if (!selectedCustomer) { toast('Please select a customer first.'); return; }
-  const orderType = document.getElementById('order-type').value;
-  if (!orderType) { toast('Please select an order type.'); return; }
   const addr = document.getElementById('job-address').value.trim();
   if (!addr) { toast('Please enter a job address.'); return; }
-  const schedType = document.querySelector('input[name="sched-type"]:checked').value;
+  if (jobItems.length === 0 || !jobItems.some(i=>i.type)) { toast('Please add at least one order type.'); return; }
+  const itemSummary = jobItems.filter(i=>i.type).map(i=>i.type).join(', ');
+  const schedType = document.querySelector('input[name="sched-type"]:checked')?.value || 'next';
   const schedMsg = schedType==='next' ? 'scheduled for tomorrow' : selectedFutureDate ? 'held until '+selectedFutureDate.toLocaleDateString() : 'held until selected date';
-  toast('✓ Order submitted for ' + selectedCustomer.name + ' — ' + orderType + ' · ' + schedMsg);
-  // Reset form
-  document.getElementById('order-type').value='';
+  toast('✓ Order submitted for ' + selectedCustomer.name + ' — ' + itemSummary + ' · ' + schedMsg);
+  // Reset
   document.getElementById('job-address').value='';
-  document.getElementById('job-notes').value='';
-  document.querySelector('input[name="sched-type"][value="next"]').checked=true;
-  toggleSchedType('next');
+  jobItems = [];
+  jobItemId = 0;
+  addJobItem();
 }
 
 function openAddCustomer() {
