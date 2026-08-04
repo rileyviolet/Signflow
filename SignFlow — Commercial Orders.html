@@ -297,6 +297,10 @@ html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-s
     <div id="type-manager-list" style="margin-bottom:12px;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;overflow:hidden;max-height:300px;overflow-y:auto"></div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <input class="form-input" type="text" id="new-type-input" placeholder="New order type..." style="flex:1">
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+        <span style="font-size:12px;color:#555">$</span>
+        <input class="form-input" type="number" id="new-type-pay" value="6.00" step="0.50" min="0" style="width:70px" placeholder="Pay">
+      </div>
       <button class="btn btn-primary" onclick="addOrderType()">Add</button>
     </div>
     <div class="modal-btns">
@@ -317,13 +321,15 @@ const CUSTOMERS = [
 ];
 
 let ORDER_TYPES = [
-  {id:1, label:'Flag installation',        icon:'🚩'},
-  {id:2, label:'Commercial sign install',  icon:'⬆'},
-  {id:3, label:'Commercial sign removal',  icon:'⬇'},
-  {id:4, label:'Vinyl decal (RTA)',         icon:'🖼'},
-  {id:5, label:'Custom post',              icon:'📦'},
-  {id:6, label:'Service / Repair',         icon:'🔧'},
-  {id:7, label:'Delivery',                 icon:'🚚'},
+  {id:1, label:'Flag installation',        icon:'🚩', pay:25.00},
+  {id:2, label:'Commercial sign install',  icon:'⬆',  pay:6.00},
+  {id:3, label:'Commercial sign removal',  icon:'⬇',  pay:6.00},
+  {id:4, label:'Vinyl decal (RTA)',         icon:'🖼',  pay:15.00},
+  {id:5, label:'Custom post',              icon:'📦', pay:20.00},
+  {id:6, label:'Service / Repair',         icon:'🔧', pay:10.00},
+  {id:7, label:'Delivery',                 icon:'🚚', pay:8.00},
+  {id:8, label:'Banner',                   icon:'🏳',  pay:15.00},
+  {id:9, label:'Window lettering',         icon:'✏️',  pay:10.00},
 ];
 
 const RECENT_ORDERS = {
@@ -528,7 +534,17 @@ function scheduleCommRemoval(id){
 let jobItems = [];
 let jobItemId = 0;
 
-const ORDER_TYPE_OPTIONS = ['Comm UP','Comm TD','Repair','Misc','Flag installation','Vinyl decal (RTA)','Custom post','Delivery','Banner','Window lettering','Sandwich board','Directional sign'];
+function getOrderTypeOptions(){ return ORDER_TYPES.map(t=>t.label); }
+
+function selectJobItemType(id, value){
+  const item = jobItems.find(i=>i.id===id);
+  if(!item) return;
+  item.type = value;
+  // Auto-fill preset pay
+  const preset = ORDER_TYPES.find(t=>t.label===value);
+  if(preset) item.pay = preset.pay;
+  renderJobItems();
+}
 
 function addJobItem(){
   jobItems.push({id: ++jobItemId, type:'', notes:'', pay:6.00, mapFiles:[]});
@@ -555,9 +571,9 @@ function renderJobItems(){
       <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-end">
         <div style="flex:1">
           <div class="form-label" style="margin-bottom:4px">Order type</div>
-          <select class="form-select" onchange="updateJobItem(${item.id},'type',this.value)">
+          <select class="form-select" onchange="selectJobItemType(${item.id}, this.value)">
             <option value="">— Select type —</option>
-            ${ORDER_TYPE_OPTIONS.map(t=>`<option ${item.type===t?'selected':''}>${t}</option>`).join('')}
+            ${getOrderTypeOptions().map(t=>`<option ${item.type===t?'selected':''}>${t}</option>`).join('')}
           </select>
         </div>
         <div style="flex:0 0 120px">
@@ -724,10 +740,22 @@ function closeTypeManager() {
 
 function renderTypeManager() {
   document.getElementById('type-manager-list').innerHTML = ORDER_TYPES.map(t => `
-    <div class="type-manager-item">
-      <span>${t.icon} ${t.label}</span>
-      <button class="del-btn" onclick="deleteOrderType(${t.id})">Remove</button>
+    <div class="type-manager-item" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:0.5px solid rgba(0,0,0,.06)">
+      <span style="flex:1;font-size:13px">${t.icon} ${t.label}</span>
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+        <span style="font-size:11px;color:#999">Pay:</span>
+        <span style="font-size:11px;color:#555">$</span>
+        <input type="number" value="${t.pay.toFixed(2)}" step="0.50" min="0"
+          onchange="updateOrderTypePay(${t.id}, parseFloat(this.value)||0)"
+          style="width:60px;padding:3px 6px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:12px;font-family:system-ui;outline:none;text-align:right">
+      </div>
+      <button class="del-btn" onclick="deleteOrderType(${t.id})" style="margin-left:4px">Remove</button>
     </div>`).join('');
+}
+
+function updateOrderTypePay(id, pay){
+  const t = ORDER_TYPES.find(x=>x.id===id);
+  if(t) t.pay = pay;
 }
 
 function deleteOrderType(id) {
@@ -737,10 +765,12 @@ function deleteOrderType(id) {
 
 function addOrderType() {
   const val = document.getElementById('new-type-input').value.trim();
+  const pay = parseFloat(document.getElementById('new-type-pay').value) || 6.00;
   if (!val) return;
   const newId = Math.max(...ORDER_TYPES.map(t => t.id)) + 1;
-  ORDER_TYPES.push({id: newId, label: val, icon: '📋'});
+  ORDER_TYPES.push({id: newId, label: val, icon: '📋', pay});
   document.getElementById('new-type-input').value = '';
+  document.getElementById('new-type-pay').value = '6.00';
   renderTypeManager();
 }
 
