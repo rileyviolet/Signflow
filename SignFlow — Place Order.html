@@ -12,11 +12,11 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
 .page-sub{font-size:12px;color:#999;margin-bottom:20px}
 
 .section{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;margin-bottom:16px;overflow:hidden}
-.section-label{font-size:10px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.08em;padding:14px 18px 0}
-.section-title{font-size:14px;font-weight:500;padding:4px 18px 14px;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.section-label{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.1em;padding:16px 18px 0}
+.section-title{font-size:18px;font-weight:700;text-transform:uppercase;padding:6px 18px 14px;border-bottom:0.5px solid rgba(0,0,0,.08);letter-spacing:.02em}
 .section-body{padding:16px 18px}
 
-.form-label{font-size:11px;font-weight:500;color:#555;display:block;margin-bottom:5px}
+.form-label{font-size:14px;font-weight:500;color:#555;display:block;margin-bottom:5px}
 .form-input{width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;background:#fff;color:#111}
 .form-input:focus{outline:none;box-shadow:0 0 0 2px #B5D4F4}
 .form-textarea{width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;background:#fff;color:#111;resize:vertical;min-height:68px;font-family:system-ui}
@@ -36,8 +36,8 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
 .ot-card:hover{border-color:rgba(0,0,0,.25);background:#fafaf9}
 .ot-card.selected{border-color:#185FA5;background:#E6F1FB}
 .ot-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ot-label{font-size:13px;font-weight:500;margin-bottom:1px}
-.ot-sub{font-size:11px;color:#999;line-height:1.3}
+.ot-label{font-size:15px;font-weight:600;margin-bottom:1px}
+.ot-sub{font-size:12px;color:#999;line-height:1.3}
 .ot-card.selected .ot-sub{color:#185FA5}
 
 .date-row{display:flex;gap:8px;margin-bottom:4px}
@@ -122,7 +122,11 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
   <div class="page-title">Place an order</div>
   <div class="page-sub">Fill out the form below — all sections stay open so you can review and edit before submitting.</div>
 
-  <div id="order-form">
+  <div style="background:#1A1A1A;color:#fff;padding:8px 18px;font-size:11px;display:flex;align-items:center;gap:12px;border-radius:0 0 10px 10px;margin-bottom:8px">
+    <span style="opacity:.6">Prototype demo — billing type:</span>
+    <button onclick="state.billing='invoice';updateSummary()" style="padding:3px 12px;border-radius:6px;border:none;background:#185FA5;color:#fff;font-size:11px;cursor:pointer;font-family:system-ui">Invoice</button>
+    <button onclick="state.billing='card';updateSummary()" style="padding:3px 12px;border-radius:6px;border:none;background:#16A322;color:#fff;font-size:11px;cursor:pointer;font-family:system-ui">Pay Now</button>
+  </div>
 
     <!-- ORDER TYPE & TIMING -->
     <div class="section">
@@ -135,14 +139,6 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
             <div class="ot-card selected" id="ot-install" onclick="selectOT('install')">
               <div class="ot-icon" style="background:#E6F1FB"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="2" x2="11" y2="20" stroke="#185FA5" stroke-width="1.7" stroke-linecap="round"/><line x1="7" y1="2" x2="15" y2="2" stroke="#185FA5" stroke-width="1.7" stroke-linecap="round"/><rect x="3" y="6" width="16" height="9" rx="1.5" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.4"/></svg></div>
               <div><div class="ot-label">Installation</div><div class="ot-sub">Install sign at a property</div></div>
-            </div>
-            <div class="ot-card" id="ot-remove" onclick="selectOT('remove')">
-              <div class="ot-icon" style="background:#FAEEDA"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><line x1="11" y1="2" x2="11" y2="20" stroke="#BA7517" stroke-width="1.7" stroke-linecap="round"/><rect x="3" y="6" width="16" height="9" rx="1.5" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.4"/><line x1="7" y1="9" x2="15" y2="12" stroke="#BA7517" stroke-width="1.4" stroke-linecap="round"/><line x1="15" y1="9" x2="7" y2="12" stroke="#BA7517" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-              <div><div class="ot-label">Removal</div><div class="ot-sub">Remove sign from a property</div></div>
-            </div>
-            <div class="ot-card" id="ot-service" onclick="selectOT('service')">
-              <div class="ot-icon" style="background:#EAF3DE"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="7.5" stroke="#3B6D11" stroke-width="1.4"/><path d="M11 7.5v4" stroke="#3B6D11" stroke-width="1.7" stroke-linecap="round"/><circle cx="11" cy="14.5" r="1" fill="#3B6D11"/></svg></div>
-              <div><div class="ot-label">Service call</div><div class="ot-sub">Sign down or needs attention</div></div>
             </div>
             <div class="ot-card" id="ot-delivery" onclick="selectOT('delivery')">
               <div class="ot-icon" style="background:#E1F5EE"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="7" width="13" height="10" rx="1.5" stroke="#0F6E56" stroke-width="1.4"/><path d="M14 9.5h3l3 4v4h-6V9.5z" stroke="#0F6E56" stroke-width="1.4" stroke-linejoin="round"/><circle cx="5" cy="18" r="1.8" stroke="#0F6E56" stroke-width="1.2"/><circle cx="18" cy="18" r="1.8" stroke="#0F6E56" stroke-width="1.2"/></svg></div>
@@ -193,7 +189,7 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
           <div class="form-group"><label class="form-label">City</label><input class="form-input" id="addr-city" value="Tucson"></div>
           <div class="form-group"><label class="form-label">Zip code</label><input class="form-input" id="addr-zip" placeholder="85718"></div>
         </div>
-        <div class="form-group"><label class="form-label">Access instructions <span style="font-weight:400;color:#999">(optional)</span></label><input class="form-input" id="addr-access" placeholder="Gate code, where to park, etc."></div>
+        
         <div class="map-box">
           <svg class="map-grid" viewBox="0 0 400 130" preserveAspectRatio="none"><defs><pattern id="g" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="currentColor" stroke-width="0.5"/></pattern></defs><rect width="400" height="130" fill="url(#g)"/><rect x="0" y="48" width="400" height="6" fill="currentColor" opacity=".06"/><rect x="90" y="0" width="5" height="130" fill="currentColor" opacity=".05"/><rect x="235" y="0" width="7" height="130" fill="currentColor" opacity=".06"/></svg>
           <div style="position:relative;z-index:1;text-align:center">
@@ -210,7 +206,7 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
       <div class="section-label">Step 3</div>
       <div class="section-title">Select post type</div>
       <div class="section-body">
-        <div class="post-grid" id="post-grid"></div>
+        <div id="post-grid"></div>
       </div>
     </div>
 
@@ -219,21 +215,13 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
       <div class="section-label">Step 4</div>
       <div class="section-title">Sign panel</div>
       <div class="section-body">
-        <div class="form-label" style="margin-bottom:8px">How is the sign being handled?</div>
-        <div class="sign-hang-opts">
-          <div class="hang-card" id="hang-own" onclick="selectHang('own')">
-            <div class="hang-icon" style="background:#EAF3DE"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="#27500A" stroke-width="1.2"/><path d="M2.5 18c0-3 3.358-5.5 7.5-5.5s7.5 2.5 7.5 5.5" stroke="#27500A" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-            <div><div class="hang-label">I'll hang my own sign</div><div class="hang-sub">Agent installs the panel</div></div>
+        <div class="form-label" style="margin-bottom:8px">Select your sign</div>
+        <div id="sign-grid"></div>
+        <div style="margin-top:8px">
+          <div onclick="selectHang('own')" id="hang-own" style="display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:8px;border:1.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;margin-bottom:5px">
+            <div style="width:18px;height:18px;border-radius:50%;border:2px solid #C7C7CC;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0" id="hang-own-radio"></div>
+            <span style="font-size:14px;color:#111">Install Post Only — I will hang my sign</span>
           </div>
-          <div class="hang-card" id="hang-leave" onclick="selectHang('leave')">
-            <div class="hang-icon" style="background:#FAEEDA"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="11" rx="1.5" stroke="#854F0B" stroke-width="1.2"/><path d="M6.5 6V5a3.5 3.5 0 017 0v1" stroke="#854F0B" stroke-width="1.2"/><path d="M10 10v3" stroke="#854F0B" stroke-width="1.4" stroke-linecap="round"/></svg></div>
-            <div><div class="hang-label">Leave sign at property</div><div class="hang-sub">Agent handles panel later</div></div>
-          </div>
-        </div>
-        <div class="divider-or"><span>or select from your sign library</span></div>
-        <div class="sign-grid" id="sign-grid"></div>
-        <div style="margin-top:10px;padding:8px 12px;background:#f5f5f3;border-radius:8px;font-size:12px;color:#555">
-          Don't see your sign? <a href="#" style="color:#185FA5" onclick="alert('Contact your admin to add it.')">Contact your admin</a>
         </div>
       </div>
     </div>
@@ -251,7 +239,7 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
               <div>
                 <div class="form-label" style="margin-bottom:1px">🔒 Gate code required?</div>
-                <div style="font-size:11px;color:#999">Is there a gate the installer needs access through?</div>
+                <div style="font-size:13px;color:#777">Is there a gate the installer needs access through?</div>
               </div>
               <div style="display:flex;gap:6px">
                 <button type="button" id="gate-yes" onclick="toggleGate(true)" style="padding:5px 16px;border-radius:8px;border:0.5px solid rgba(0,0,0,.2);background:#fff;font-size:12px;font-weight:500;cursor:pointer">Yes</button>
@@ -259,7 +247,7 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
               </div>
             </div>
             <div id="gate-code-box" style="display:none;margin-top:10px">
-              <input class="form-input" id="gate-code" placeholder="Enter gate code..." style="width:100%;padding:8px 12px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none">
+              <input class="form-input" id="gate-code" placeholder="Enter gate code..." style="width:100%;padding:10px 14px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:15px;font-family:system-ui;outline:none">
             </div>
           </div>
 
@@ -290,8 +278,7 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
           <!-- Installer Notes -->
           <div>
             <label class="form-label">Installer notes <span style="font-weight:400;color:#999">(optional)</span></label>
-            <div style="font-size:11px;color:#999;margin-bottom:5px">Sign placement instructions only — where should the sign go?</div>
-            <textarea class="form-textarea" id="notes" placeholder="e.g. Place sign on north side of driveway, hard to find — look for red mailbox, call before arrival..."></textarea>
+            <textarea class="form-textarea" id="notes" placeholder="e.g. Place sign on north side of driveway, hard to find — look for red mailbox, call before arrival..." style="font-size:15px;min-height:100px"></textarea>
           </div>
 
         </div>
@@ -331,31 +318,32 @@ body{font-family:system-ui,sans-serif;font-size:14px;color:#111;background:#f5f5
     <!-- PAYMENT -->
     <div class="section">
       <div class="section-label" id="payment-step-label">Step 6</div>
-      <div class="section-title">Payment</div>
-      <div class="section-body">
-        <div class="billing-opts">
-          <div class="billing-opt selected" id="bo-card" onclick="selectBilling('card')">
-            <div class="billing-radio on" id="br-card"></div>
-            <div><div style="font-size:13px;font-weight:500">Charge card on file</div><div style="font-size:11px;color:#999">Visa ···· 4242 — charged on submission</div></div>
-          </div>
-          <div class="billing-opt" id="bo-invoice" onclick="selectBilling('invoice')">
-            <div class="billing-radio" id="br-invoice"></div>
-            <div><div style="font-size:13px;font-weight:500">Invoice me</div><div style="font-size:11px;color:#999">Added to your monthly invoice</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ORDER SUMMARY + SUBMIT -->
-    <div class="section">
-      <div class="section-label">Summary</div>
-      <div class="section-title">Order summary</div>
+      <div class="section-title">Review & Submit</div>
       <div class="section-body">
         <div class="order-summary" id="order-summary">
           <div style="font-size:12px;color:#999">Fill in the form above to see your order summary.</div>
         </div>
-        <div class="submit-section" style="display:block">
-          <button class="btn btn-primary" onclick="submitOrder()" style="width:100%;padding:16px;font-size:17px;font-weight:700;border-radius:12px;letter-spacing:.01em">Submit Order →</button>
+        <div class="submit-section" style="display:block;margin-top:16px">
+          <!-- Invoice billing — just submit -->
+          <div id="submit-invoice" style="display:none">
+            <div style="background:#F5F5F3;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:14px;color:#555">Billed to your office invoice</span>
+              <span style="font-size:20px;font-weight:700;color:#111" id="invoice-total">$0.00</span>
+            </div>
+            <button class="btn btn-primary" onclick="submitOrder()" style="width:100%;padding:16px;font-size:17px;font-weight:700;border-radius:12px">Submit Order →</button>
+          </div>
+          <!-- Pay Now billing — pay now button -->
+          <div id="submit-paynow" style="display:none">
+            <div style="background:#F5F5F3;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:14px;color:#555">Due now</span>
+              <span style="font-size:20px;font-weight:700;color:#111" id="paynow-total">$0.00</span>
+            </div>
+            <button class="btn btn-primary" onclick="submitOrder()" style="width:100%;padding:16px;font-size:17px;font-weight:700;border-radius:12px;background:#16A322;border-color:#16A322">Pay Now & Submit →</button>
+          </div>
+          <!-- Default before billing type known -->
+          <div id="submit-default">
+            <button class="btn btn-primary" onclick="submitOrder()" style="width:100%;padding:16px;font-size:17px;font-weight:700;border-radius:12px">Submit Order →</button>
+          </div>
           <div class="submit-note" style="text-align:center;margin-top:8px">You can scroll up to edit any section before submitting.</div>
         </div>
       </div>
@@ -385,16 +373,9 @@ const ORDER_TYPES={
 };
 const HANG_LABELS={'own':'I\'ll hang my own sign','leave':'Leave sign at property'};
 const POSTS=[
-  {id:1, name:'White Post',         price:42,color:'#e8e8e8',stroke:'#bbb'},
-  {id:2, name:'Black Post',         price:49,color:'#333',   stroke:'#222'},
-  {id:3, name:'Brown Post',         price:49,color:'#8B5E3C',stroke:'#6B4423'},
-  {id:4, name:'Red Post',           price:49,color:'#C0392B',stroke:'#922B21'},
-  {id:5, name:'Blue Post',          price:49,color:'#2471A3',stroke:'#1A5276'},
-  {id:6, name:'Teal Sign Post',     price:68,color:'#148F77',stroke:'#0E6655'},
-  {id:7, name:'H-Post',             price:55,color:'#666',   stroke:'#444'},
-  {id:8, name:'Black Post — Luxury',price:46,color:'#222',   stroke:'#000'},
-  {id:9, name:'No Post — Gate/Wall',price:38,color:'#aaa',   stroke:'#888'},
-  {id:10,name:'Custom Subdivision', price:75,color:'#7D3C98',stroke:'#6C3483'},
+  {id:1, name:'White Post',         price:42, color:'#e8e8e8', stroke:'#bbb'},
+  {id:2, name:'Black Post',         price:49, color:'#333',    stroke:'#222'},
+  {id:3, name:'Custom Subdivision', price:75, color:'#7D3C98', stroke:'#6C3483'},
 ];
 const SIGNS=[
   {id:1,name:'Angela Tennison 18x24',size:'18x24'},
@@ -416,7 +397,7 @@ const ACCESSORIES=[
 let state={
   orderType:'install',dateMode:'asap',
   postId:null,hangMode:null,signId:null,serviceSignId:null,
-  accessories:[],photoConfirm:true,notes:'',billing:'card'
+  accessories:[],photoConfirm:true,notes:'',billing:'invoice'
 };
 
 function fmtMoney(n){return'$'+n.toFixed(2)}
@@ -516,51 +497,99 @@ function updateMap(){
 
 function renderPosts(){
   document.getElementById('post-grid').innerHTML=POSTS.map(p=>`
-    <div class="post-card${state.postId===p.id?' selected':''}" onclick="selectPost(${p.id})">
-      <div class="post-img">
-        <svg width="32" height="46" viewBox="0 0 32 46" fill="none">
-          <line x1="16" y1="3" x2="16" y2="44" stroke="${p.stroke}" stroke-width="3.5" stroke-linecap="round"/>
-          <line x1="11" y1="3" x2="21" y2="3" stroke="${p.stroke}" stroke-width="2.5" stroke-linecap="round"/>
-          <rect x="3" y="10" width="26" height="16" rx="2" fill="${p.color}" opacity=".3" stroke="${p.stroke}" stroke-width="1.3"/>
-        </svg>
+    <div style="position:relative" class="post-row-wrap">
+      <div onclick="selectPost(${p.id})" onmouseenter="showPostTooltip(${p.id})" onmouseleave="hidePostTooltip()" style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-radius:8px;border:1.5px solid ${state.postId===p.id?'#185FA5':'rgba(0,0,0,.1)'};background:${state.postId===p.id?'#E6F1FB':'#fff'};cursor:pointer;margin-bottom:5px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:18px;height:18px;border-radius:50%;border:2px solid ${state.postId===p.id?'#185FA5':'#C7C7CC'};background:${state.postId===p.id?'#185FA5':'#fff'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            ${state.postId===p.id?'<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>':''}
+          </div>
+          <span style="font-size:14px;font-weight:${state.postId===p.id?'600':'400'};color:${state.postId===p.id?'#185FA5':'#111'}">${p.name}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:13px;color:${state.postId===p.id?'#185FA5':'#888'};font-weight:500">${fmtMoney(p.price)}</span>
+        </div>
       </div>
-      <div class="post-body">
-        <div class="post-name">${p.name}</div>
-        <div class="post-price">${fmtMoney(p.price)}</div>
+      <div id="post-tooltip-${p.id}" style="display:none;position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:999;text-align:center;min-width:100px">
+        <svg width="48" height="70" viewBox="0 0 48 70" fill="none">
+          <line x1="24" y1="4" x2="24" y2="66" stroke="${p.stroke}" stroke-width="5" stroke-linecap="round"/>
+          <line x1="16" y1="4" x2="32" y2="4" stroke="${p.stroke}" stroke-width="3.5" stroke-linecap="round"/>
+          <rect x="4" y="14" width="40" height="24" rx="3" fill="${p.color}" opacity=".4" stroke="${p.stroke}" stroke-width="1.5"/>
+          <text x="24" y="31" text-anchor="middle" font-size="7" fill="${p.stroke}" font-family="system-ui" font-weight="600">SIGN</text>
+        </svg>
+        <div style="font-size:11px;font-weight:600;color:#333;margin-top:6px">${p.name}</div>
+        <div style="font-size:11px;color:#888">${fmtMoney(p.price)}</div>
       </div>
     </div>`).join('');
+}
+
+function showPostTooltip(id){
+  document.querySelectorAll('[id^="post-tooltip-"]').forEach(el=>el.style.display='none');
+  const tip = document.getElementById('post-tooltip-'+id);
+  if(tip) tip.style.display='block';
+}
+function hidePostTooltip(){
+  document.querySelectorAll('[id^="post-tooltip-"]').forEach(el=>el.style.display='none');
 }
 
 function selectPost(id){state.postId=id;renderPosts();updateSummary();}
 
 function selectHang(mode){
-  state.hangMode=state.hangMode===mode?null:mode;
-  if(state.hangMode) state.signId=null;
-  document.getElementById('hang-own').classList.toggle('selected',state.hangMode==='own');
-  document.getElementById('hang-leave').classList.toggle('selected',state.hangMode==='leave');
-  renderSigns();updateSummary();
+  state.hangMode = state.hangMode===mode ? null : mode;
+  if(state.hangMode) state.signId = null;
+  renderSigns(); updateSummary();
 }
 
 function renderSigns(){
   document.getElementById('sign-grid').innerHTML=SIGNS.map(s=>`
-    <div class="sign-card${state.signId===s.id?' selected':''}" onclick="selectSign(${s.id})">
-      <div class="sign-img">
-        <div style="text-align:center;padding:8px">
-          <svg width="38" height="28" viewBox="0 0 38 28" fill="none"><rect x="1" y="1" width="36" height="20" rx="2" stroke="#B5D4F4" stroke-width="1.2" fill="#E6F1FB"/><path d="M4 17l7-5 6 4 6-5 11 6" stroke="#B5D4F4" stroke-width="1.1" stroke-linecap="round"/><circle cx="11" cy="9" r="2.5" stroke="#B5D4F4" stroke-width="1.1"/></svg>
-          <div style="font-size:9px;color:#999;margin-top:2px">${s.size}</div>
+    <div style="position:relative">
+      <div onclick="selectSign(${s.id})" onmouseenter="showSignTooltip(${s.id})" onmouseleave="hideSignTooltip()" style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-radius:8px;border:1.5px solid ${state.signId===s.id?'#185FA5':'rgba(0,0,0,.1)'};background:${state.signId===s.id?'#E6F1FB':'#fff'};cursor:pointer;margin-bottom:5px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:18px;height:18px;border-radius:50%;border:2px solid ${state.signId===s.id?'#185FA5':'#C7C7CC'};background:${state.signId===s.id?'#185FA5':'#fff'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            ${state.signId===s.id?'<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>':''}
+          </div>
+          <span style="font-size:14px;font-weight:${state.signId===s.id?'600':'400'};color:${state.signId===s.id?'#185FA5':'#111'}">${s.name}</span>
         </div>
+        <span style="font-size:12px;color:#999">${s.size}</span>
       </div>
-      <div class="sign-body">
-        <div class="sign-name">${s.name}</div>
-        <div class="sign-size">${s.size}</div>
+      <div id="sign-tooltip-${s.id}" style="display:none;position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:999;text-align:center;min-width:120px">
+        <svg width="80" height="60" viewBox="0 0 80 60" fill="none">
+          <rect x="1" y="1" width="78" height="44" rx="3" stroke="#B5D4F4" stroke-width="1.5" fill="#E6F1FB"/>
+          <path d="M8 35l15-11 13 9 13-11 23 13" stroke="#B5D4F4" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="23" cy="20" r="5" stroke="#B5D4F4" stroke-width="1.3"/>
+          <text x="40" y="55" text-anchor="middle" font-size="9" fill="#999" font-family="system-ui">${s.size}</text>
+        </svg>
+        <div style="font-size:11px;font-weight:600;color:#333;margin-top:4px">${s.name}</div>
       </div>
     </div>`).join('');
+
+  // Update post-only radio button style
+  const ownRadio = document.getElementById('hang-own-radio');
+  const ownRow = document.getElementById('hang-own');
+  if(ownRadio && ownRow){
+    const sel = state.hangMode==='own';
+    ownRow.style.border = sel?'1.5px solid #185FA5':'1.5px solid rgba(0,0,0,.1)';
+    ownRow.style.background = sel?'#E6F1FB':'#fff';
+    ownRadio.style.border = sel?'2px solid #185FA5':'2px solid #C7C7CC';
+    ownRadio.style.background = sel?'#185FA5':'#fff';
+    ownRadio.innerHTML = sel?'<div style="width:7px;height:7px;border-radius:50%;background:#fff"></div>':'';
+    ownRow.querySelector('span').style.color = sel?'#185FA5':'#111';
+    ownRow.querySelector('span').style.fontWeight = sel?'600':'400';
+  }
+}
+
+function showSignTooltip(id){
+  document.querySelectorAll('[id^="sign-tooltip-"]').forEach(el=>el.style.display='none');
+  const tip = document.getElementById('sign-tooltip-'+id);
+  if(tip) tip.style.display='block';
+}
+function hideSignTooltip(){
+  document.querySelectorAll('[id^="sign-tooltip-"]').forEach(el=>el.style.display='none');
 }
 
 function selectSign(id){
-  state.signId=state.signId===id?null:id;
-  if(state.signId){state.hangMode=null;document.getElementById('hang-own').classList.remove('selected');document.getElementById('hang-leave').classList.remove('selected');}
-  renderSigns();updateSummary();
+  state.signId = state.signId===id ? null : id;
+  if(state.signId) state.hangMode = null;
+  renderSigns(); updateSummary();
 }
 
 function renderServiceSignGrid(){
@@ -636,16 +665,22 @@ function updateSummary(){
     <div class="sum-row"><span class="sum-label">Order type</span><span class="sum-val"><span class="badge" style="background:${ot.bg};color:${ot.color}">${ot.label}</span></span></div>
     <div class="sum-row"><span class="sum-label">Timing</span><span class="sum-val">${dateStr}</span></div>
     ${addr?`<div class="sum-row"><span class="sum-label">Property</span><span class="sum-val" style="font-size:12px">${addr}</span></div>`:''}
-    ${isService&&issueText?`<div class="sum-row"><span class="sum-label">Issue</span><span class="sum-val" style="font-size:11px;max-width:280px;color:#633806">${issueText}</span></div>`:''}
-    ${isService&&serviceSign?`<div class="sum-row"><span class="sum-label">Sign (if replacement needed)</span><span class="sum-val" style="font-size:11px">${serviceSign.name}</span></div>`:''}
     ${isInstall&&post?`<div class="sum-row"><span class="sum-label">Post type</span><span class="sum-val">${post.name} · ${fmtMoney(post.price)}</span></div>`:''}
     ${isInstall&&signLine?`<div class="sum-row"><span class="sum-label">Sign panel</span><span class="sum-val" style="font-size:12px">${signLine}</span></div>`:''}
     ${accs.map(a=>`<div class="sum-row"><span class="sum-label">${a.name}</span><span class="sum-val">+${fmtMoney(a.price)}</span></div>`).join('')}
-    <div class="sum-row"><span class="sum-label">Payment</span><span class="sum-val">${state.billing==='card'?'Card on file':'Invoice'}</span></div>
     <hr class="sum-divider">
     <div class="sum-total"><span>Total</span><span>${fmtMoney(total)}</span></div>`;
 
   document.getElementById('order-summary').innerHTML=rows;
+
+  // Show correct button based on billing type set by admin
+  const isInvoice = state.billing==='invoice';
+  const isPayNow = state.billing==='card';
+  document.getElementById('submit-invoice').style.display = isInvoice?'block':'none';
+  document.getElementById('submit-paynow').style.display = isPayNow?'block':'none';
+  document.getElementById('submit-default').style.display = (!isInvoice&&!isPayNow)?'block':'none';
+  if(isInvoice) document.getElementById('invoice-total').textContent=fmtMoney(total);
+  if(isPayNow) document.getElementById('paynow-total').textContent=fmtMoney(total);
 }
 
 function submitOrder(){
