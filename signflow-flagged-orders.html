@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flagged Orders - SignFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',Helvetica,Arial,sans-serif;font-size:14px;color:#111827;background:#f4f6fb}
+.app{display:flex;height:100vh}
+.sidebar{width:260px;background:#1b2f5e;color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.logo{padding:20px 20px 12px}
+.logo-name{font-size:22px;font-weight:700}
+.logo-sub{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-top:2px}
+.nav-list{padding:8px 10px 24px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;color:rgba(255,255,255,.88);font-weight:500;margin-bottom:2px;user-select:none;cursor:default}
+.nav-item.clickable,.nav-item.expandable{cursor:pointer}
+.nav-item.clickable:hover,.nav-item.expandable:hover{background:rgba(255,255,255,.08)}
+.nav-item.active{background:rgba(255,255,255,.16);color:#fff}
+.nav-item .material-icons{font-size:20px}
+.nav-label{flex:1}
+.nav-badge{background:#e5484d;color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 7px;min-width:20px;text-align:center}
+.nav-item .chev{font-size:18px;opacity:.6;transition:transform .2s}
+.nav-item.open .chev{transform:rotate(180deg)}
+.sub{display:none;margin:0 0 4px 18px}
+.sub.open{display:block}
+.sub-link{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;color:rgba(255,255,255,.72);font-size:13px}
+.sub-link .material-icons{font-size:18px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;height:60px;display:flex;align-items:center;flex-shrink:0}
+.topbar h1{font-size:18px;font-weight:600}
+.topbar .count{color:#4b5563;font-weight:400;font-size:13px;margin-left:8px}
+.content{flex:1;overflow-y:auto;padding:20px 24px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,240px));gap:12px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid #e5e7eb;border-left:4px solid #f59e0b;border-radius:10px;padding:14px 16px}
+.stat.green{border-left-color:#22a05a}
+.stat-num{font-size:26px;font-weight:700}
+.stat-label{font-size:12.5px;color:#374151;margin-top:2px;font-weight:500}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.search{flex:1;min-width:240px;max-width:360px;padding:9px 12px;border:1.5px solid #111827;border-radius:8px;font:inherit}
+select,input[type=date]{padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;background:#fff;color:#111827}
+.table-wrap{background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:11px 12px;border-bottom:1px solid #e5e7eb;background:#fafbfd;white-space:nowrap;font-weight:700}
+td{padding:12px;border-bottom:1px solid #f0f2f6;vertical-align:top}
+tr:last-child td{border-bottom:none}
+.company{font-weight:600}
+.agent-name{font-weight:600}
+.agent-email{font-size:12.5px;color:#1d4ed8;text-decoration:none;display:block;margin-top:2px}
+.agent-email:hover{text-decoration:underline}
+.reason-link{color:#b42318;font-weight:600;cursor:pointer;text-decoration:underline}
+.tag-commercial{display:inline-block;background:#ede9fe;color:#5b21b6;font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;margin-bottom:4px}
+.trip-total{font-weight:700}
+.trip-break{font-size:12px;color:#374151;margin-top:1px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.badge.pending{background:#fff4d6;color:#8a5a00}
+.badge.returned,.badge.completed{background:#e3f6e8;color:#1b6b34}
+.badge.closed{background:#eceff3;color:#374151}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn{padding:7px 12px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#111827;font:inherit;font-weight:600;font-size:12.5px;cursor:pointer}
+.btn:hover{background:#f4f6fb}
+.btn.primary{background:#185FA5;border-color:#185FA5;color:#fff}
+.btn.primary:hover{background:#134d86}
+.btn.danger{border-color:#e5484d;color:#b42318}
+.note-line{font-size:13px}
+.empty{padding:28px;text-align:center;font-weight:500}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:100}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;padding:22px 24px;width:560px;max-width:92vw;max-height:88vh;overflow-y:auto}
+.modal h2{font-size:17px;font-weight:700;margin-bottom:4px}
+.modal .sub-t{font-size:13px;color:#374151;margin-bottom:14px;line-height:1.45}
+.row{display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-bottom:1px solid #f0f2f6;font-size:13.5px}
+.row span:first-child{color:#374151}
+.row span:last-child{font-weight:600;text-align:right}
+label.fl{display:block;font-size:12.5px;font-weight:700;margin:12px 0 4px}
+textarea,input[type=text]{width:100%;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit;color:#111827}
+textarea{min-height:90px;resize:vertical}
+.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end;flex-wrap:wrap}
+.note{padding:8px 10px;background:#f6f8fc;border-radius:8px;margin-top:6px;font-size:13px}
+.note b{display:block;font-size:12px;color:#374151;font-weight:600;margin-bottom:2px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 18px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:200}
+.toast.show{opacity:1}
+@media(max-width:900px){.sidebar{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Admin Portal</div></div>
+    <div class="nav-list" id="navList"></div>
+  </div>
+  <div class="main">
+    <div class="topbar"><h1 id="pageTitle">Flagged Orders</h1></div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+<div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const NAV=[
+  {label:'Dashboard',icon:'dashboard',view:'dashboard'},
+  {label:'Peg Board',icon:'view_kanban',children:[['Peg Board','view_kanban'],['Manual Orders Assignment','assignment_ind'],['Scheduler Calendar','event']]},
+  {label:'Commercial Orders',icon:'business_center',children:[['Add Commercial Order','add_business'],['Commercial Order List','list_alt']]},
+  {label:'Flagged Orders',icon:'flag',view:'flagged',badge:true},
+  {label:'Installer View',icon:'smartphone',view:'installer'},
+  {label:'Signs',icon:'signpost'},{label:'Offices',icon:'business'},{label:'Agents',icon:'groups'},
+  {label:'Installers',icon:'engineering'},{label:'Posts',icon:'article'},{label:'Accessories',icon:'build'},{label:'Post Menu',icon:'menu'},
+  {label:'Zone',icon:'map',children:[['Zone Polygon Editor','hexagon'],['Pricing Tiers','sell'],['Address Resolution','my_location'],['Trip Fee Settings','payments']]},
+  {label:'Payments',icon:'monetization_on',children:[['Invoices','request_quote'],['Monthly Batch','forward_to_inbox'],['Payment History','work_history'],['AutoPay Payments','payments'],['Sales Tax Report','percent']]},
+  {label:'Installer Pay',icon:'engineering',children:[['Pay Rate Configuration','payments'],['Current Period Earnings','query_stats'],['Adjustment Requests','fact_check']]},
+  {label:'Renewal Orders',icon:'autorenew'}
+];
+let view='flagged'; const openMenus=new Set(); let currentId=null;
+const stops=[
+  {id:1,order:'ORD-2026-00002',address:'4003 East Speedway Boulevard, Tucson, 85712',company:'Long Realty- RC',agent:'Angela Tennison',email:'angela.tennison@example.com',installer:'John Doe',reason:'No gate code provided',failedDate:'Oct 6, 2026',failedISO:'2026-10-06',flat:15,zone:0,status:'On Hold',commercial:false,type:'Install',sign:'Long Realty 18x24 Panel',post:'Standard Post',instr:'',notes:[{by:'John Doe (Installer)',at:'Oct 6, 2026 · 10:42 AM',text:'Gate is locked and there was no code on the order. Called the agent, no answer.'}]},
+  {id:2,order:'ORD-2026-00005',address:'7703 North Oracle Road, Tucson, 85704',company:'Long Realty- RC',agent:'Marcus Webb',email:'marcus.webb@example.com',installer:'Tony Moon',reason:'Dog in yard, could not reach the post location',failedDate:'Oct 5, 2026',failedISO:'2026-10-05',flat:15,zone:10,status:'On Hold',commercial:false,type:'Install',sign:'Long Realty 18x24 Panel',post:'Standard Post',instr:'',notes:[{by:'Tony Moon (Installer)',at:'Oct 5, 2026 · 2:15 PM',text:'Large dog loose in the front yard. Homeowner not home.'}]},
+  {id:3,order:'ORD-2026-00007',address:'1550 South Kolb Road, Tucson, 85710',company:'Desert Sky Dental',agent:'Priya Patel',email:'priya.patel@example.com',installer:'Chris Jensen',reason:'Wrong address on the order',failedDate:'Oct 4, 2026',failedISO:'2026-10-04',flat:15,zone:0,status:'On Hold',commercial:true,type:'Commercial Install',sign:'Desert Sky Dental 24x36 Panel',post:'Double Post',instr:'',notes:[{by:'Chris Jensen (Installer)',at:'Oct 4, 2026 · 9:05 AM',text:'Address points to a vacant lot. Suite is on the next block.'}]}
+];
+const orders=[
+  {order:'ORD-2026-00012',company:'Long Realty- RC',agent:'Angela Tennison',address:'2200 East Fort Lowell Road, Tucson, 85719',type:'Install',status:'Pending',notes:[]},
+  {order:'ORD-2026-00010',company:'Long Realty- RC',agent:'Marcus Webb',address:'9200 East Tanque Verde Road, Tucson, 85749',type:'Removal',status:'Pending',notes:[]},
+  {order:'ORD-2026-00008',company:'Long Realty- RC',agent:'Angela Tennison',address:'6800 East Resort View Place, Tucson, 85750',type:'Install',status:'Completed',notes:[]},
+  {order:'ORD-2026-00006',company:'Sign Up Sign Services',agent:'Dana Hill',address:'3300 North Campbell Avenue, Tucson, 85719',type:'Service Call',status:'Completed',notes:[]}
+];
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function money(n){return '$'+n.toFixed(2)}
+function val(id){const el=document.getElementById(id);return el?el.value:''}
+function pendingCount(){return stops.filter(s=>s.status==='On Hold').length}
+function renderNav(){
+  const pending=pendingCount();
+  document.getElementById('navList').innerHTML=NAV.map((it,i)=>{
+    if(it.children){const open=openMenus.has(i);
+      return '<div class="nav-item expandable '+(open?'open':'')+'" onclick="toggleMenu('+i+')"><span class="material-icons">'+it.icon+'</span><span class="nav-label">'+it.label+'</span><span class="material-icons chev">expand_more</span></div>'+
+        '<div class="sub '+(open?'open':'')+'">'+it.children.map(c=>'<div class="sub-link"><span class="material-icons">'+c[1]+'</span>'+c[0]+'</div>').join('')+'</div>';}
+    const active=it.view&&it.view===view;
+    return '<div class="nav-item '+(it.view?'clickable':'')+' '+(active?'active':'')+'" '+(it.view?'onclick="go(\''+it.view+'\')"':'')+'><span class="material-icons">'+it.icon+'</span><span class="nav-label">'+it.label+'</span>'+(it.badge&&pending?'<span class="nav-badge">'+pending+'</span>':'')+'</div>';
+  }).join('');
+}
+function toggleMenu(i){openMenus.has(i)?openMenus.delete(i):openMenus.add(i);renderNav()}
+function go(v){view=v;renderNav();renderView()}
+function renderView(){view==='flagged'?renderFlagged():view==='installer'?renderInstaller():renderDashboard()}
+function renderFlagged(){
+  const companies=[...new Set(stops.map(s=>s.company))];
+  const installers=[...new Set(stops.map(s=>s.installer))];
+  document.getElementById('pageTitle').innerHTML='Flagged Orders <span class="count" id="pageCount"></span>';
+  document.getElementById('content').innerHTML=
+   '<div class="toolbar">'+
+     '<input class="search" id="fSearch" placeholder="Search address, company, agent, installer…" oninput="updateFlagged()" autocomplete="off">'+
+     '<select id="fCompany" onchange="updateFlagged()"><option value="">All Companies</option>'+companies.map(c=>'<option>'+esc(c)+'</option>').join('')+'</select>'+
+     '<select id="fInstaller" onchange="updateFlagged()"><option value="">All Installers</option>'+installers.map(c=>'<option>'+esc(c)+'</option>').join('')+'</select>'+
+   '</div>'+
+   '<div class="table-wrap"><table><thead><tr><th>Failure Reason / Failed Date</th><th>Company / Agent</th><th>Property Address</th><th>Assigned Installer</th></tr></thead><tbody id="flaggedBody"></tbody></table></div>';
+  updateFlagged();
+}
+function filteredStops(){
+  const q=val('fSearch').toLowerCase(), co=val('fCompany'), ins=val('fInstaller');
+  return stops.filter(s=>{
+    if(s.status!=='On Hold')return false;
+    if(co&&s.company!==co)return false; if(ins&&s.installer!==ins)return false;
+    if(q&&![s.address,s.company,s.agent,s.installer,s.email,s.order].join(' ').toLowerCase().includes(q))return false;
+    return true;});
+}
+function statusBadge(s){
+  if(s==='Released')return '<span class="badge returned">Released</span>';
+  if(s==='Closed Unserviceable')return '<span class="badge closed">Closed Unserviceable</span>';
+  return '<span class="badge pending">On Hold</span>';
+}
+function updateFlagged(){
+  const list=filteredStops();
+  document.getElementById('pageCount').textContent=list.length+' stop'+(list.length!==1?'s':'');
+  document.getElementById('flaggedBody').innerHTML=list.map(s=>{
+    const pending=s.status==='On Hold';
+    return '<tr>'+
+      '<td style="max-width:230px"><a class="reason-link" onclick="openReturn('+s.id+')">🚩 '+esc(s.reason)+'</a><div style="margin-top:4px;font-size:15px;font-weight:700;color:#111827">'+esc(s.failedDate)+'</div></td>'+
+      '<td>'+(s.commercial?'<span class="tag-commercial">Commercial Order</span><br>':'')+'<div class="company">'+esc(s.company)+'</div><div class="agent-name" style="font-weight:500;margin-top:2px">'+esc(s.agent)+'</div><a class="agent-email" href="mailto:'+esc(s.email)+'">'+esc(s.email)+'</a></td>'+
+      '<td style="white-space:nowrap">'+esc(s.address)+'</td><td>'+esc(s.installer)+'</td>'+
+      '</tr>';
+  }).join('')||'<tr><td colspan="4" class="empty">No flagged orders match.</td></tr>';
+  renderNav();
+}
+function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('overlay').classList.add('show')}
+function closeModal(){document.getElementById('overlay').classList.remove('show')}
+document.getElementById('overlay').addEventListener('click',function(e){if(e.target.id==='overlay')closeModal()});
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},3200)}
+function notesHtml(notes){return notes.length?notes.map(n=>'<div class="note"><b>'+esc(n.by)+' · '+esc(n.at)+'</b>'+esc(n.text)+'</div>').join(''):'<div class="note">No notes yet.</div>'}
+function nowStamp(){return new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}
+function openReturn(id){
+  const s=stops.find(x=>x.id===id); if(!s)return; currentId=id;
+  openModal('<h2>Open Order '+esc(s.order)+'</h2><div class="sub-t">This order is on hold. Fix the problem below, then release the hold to send it back to the Dashboard and PegBoard.</div>'+
+    '<div class="row"><span>Company</span><span>'+esc(s.company)+'</span></div>'+
+    '<div class="row"><span>Agent</span><span>'+esc(s.agent)+' · <a class="agent-email" style="display:inline" href="mailto:'+esc(s.email)+'">'+esc(s.email)+'</a></span></div>'+
+    '<div class="row"><span>Failure Reason</span><span style="color:#b42318">'+esc(s.reason)+'</span></div>'+
+    '<label class="fl">Property Address</label><input type="text" id="retAddress" value="'+esc(s.address)+'">'+
+    '<label class="fl">Order Type</label><select id="retType" style="width:100%"><option'+(s.type==='Install'?' selected':'')+'>Install</option><option'+(s.type==='Commercial Install'?' selected':'')+'>Commercial Install</option><option>Removal</option><option>Service Call</option></select>'+
+    '<label class="fl">Sign Panel</label><input type="text" id="retSign" value="'+esc(s.sign)+'">'+
+    '<label class="fl">Post</label><input type="text" id="retPost" value="'+esc(s.post)+'">'+
+    '<label class="fl">Special Instructions (gate code, access, etc.)</label><textarea id="retInstr" style="min-height:60px">'+esc(s.instr)+'</textarea>'+
+    '<label class="fl">Previous Notes</label>'+notesHtml(s.notes)+
+    '<label class="fl">Add Note</label><textarea id="retNotes" placeholder="What was corrected?"></textarea>'+
+    '<div class="modal-actions"><a class="btn" style="text-decoration:none" href="mailto:'+esc(s.email)+'?subject='+encodeURIComponent('Action needed: '+s.address)+'&body='+encodeURIComponent('Hi '+s.agent.split(' ')[0]+',\n\nWe were not able to complete the stop at '+s.address+'.\nReason: '+s.reason+'\n\nPlease reply with the details so we can get it rescheduled.\n\nThank you,\nSign Up Sign Services')+'">Email Agent</a><button class="btn primary" onclick="submitReturn()">Save &amp; Release Hold</button><button class="btn" onclick="closeModal()">Cancel</button></div>');
+}
+function submitReturn(){
+  const s=stops.find(x=>x.id===currentId); if(!s)return;
+  const changes=[];
+  const addr=val('retAddress').trim()||s.address;
+  if(addr!==s.address){changes.push('Address changed from "'+s.address+'" to "'+addr+'"');s.address=addr;}
+  const type=val('retType'); if(type!==s.type){changes.push('Order type changed to '+type);s.type=type;}
+  const sign=val('retSign').trim(); if(sign&&sign!==s.sign){changes.push('Sign panel changed to '+sign);s.sign=sign;}
+  const post=val('retPost').trim(); if(post&&post!==s.post){changes.push('Post changed to '+post);s.post=post;}
+  const instr=val('retInstr').trim(); if(instr!==s.instr){changes.push('Special instructions updated');s.instr=instr;}
+  const typed=val('retNotes').trim();
+  const text=[typed].concat(changes).filter(Boolean).join('. ')||'Corrected and returned for assignment.';
+  s.notes.push({by:'Admin',at:nowStamp(),text:text}); s.status='Released';
+  orders.unshift({order:s.order,company:s.company,agent:s.agent,address:s.address,type:s.type,status:'Pending',notes:s.notes.slice()});
+  closeModal(); updateFlagged(); showToast('Hold released. Order is back on the Dashboard and PegBoard as Pending');
+}
+function renderInstaller(){
+  document.getElementById('pageTitle').textContent='Installer View - Pending Orders';
+  const list=orders.filter(o=>o.status==='Pending');
+  document.getElementById('content').innerHTML=list.map(o=>
+    '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 16px;margin-bottom:12px;max-width:640px">'+
+    '<div style="display:flex;justify-content:space-between;gap:12px"><b>'+esc(o.address)+'</b><span class="badge pending">Pending</span></div>'+
+    '<div class="trip-break" style="margin-top:2px">'+esc(o.order)+' · '+esc(o.type)+' · '+esc(o.company)+'</div>'+
+    '<label class="fl">Notes</label>'+notesHtml(o.notes)+'</div>').join('')||'<div class="empty">No pending orders.</div>';
+}
+function renderDashboard(){
+  document.getElementById('pageTitle').textContent='Dashboard';
+  document.getElementById('content').innerHTML=
+   '<div class="toolbar"><input class="search" id="dSearch" placeholder="Search address, company, agent…" oninput="updateDashboard()" autocomplete="off">'+
+   '<select id="dType" onchange="updateDashboard()"><option value="all">All Order Types</option><option value="pending">Pending Orders</option><option value="completed">Completed Orders</option><option value="all">All Orders</option></select></div>'+
+   '<div class="table-wrap"><table><thead><tr><th>Order #</th><th>Company / Agent</th><th>Property Address</th><th>Type</th><th>Notes</th><th>Status</th></tr></thead><tbody id="dashBody"></tbody></table></div>';
+  updateDashboard();
+}
+function updateDashboard(){
+  const q=val('dSearch').toLowerCase(), t=val('dType');
+  const list=orders.filter(o=>{
+    if(t==='pending'&&o.status!=='Pending')return false; if(t==='completed'&&o.status!=='Completed')return false;
+    if(q&&![o.address,o.company,o.agent,o.order].join(' ').toLowerCase().includes(q))return false; return true;});
+  document.getElementById('dashBody').innerHTML=list.map(o=>{
+    const last=o.notes[o.notes.length-1];
+    return '<tr><td style="white-space:nowrap;font-weight:600">'+esc(o.order)+'</td><td class="company">'+esc(o.company)+'</td><td>'+esc(o.agent)+'</td><td>'+esc(o.address)+'</td><td>'+esc(o.type)+'</td>'+
+      '<td style="max-width:260px">'+(last?'<div class="note-line">'+esc(last.text)+'</div><div class="trip-break">'+o.notes.length+' note'+(o.notes.length!==1?'s':'')+'</div>':'—')+'</td>'+
+      '<td><span class="badge '+(o.status==='Completed'?'completed':'pending')+'">'+o.status+'</span></td></tr>';
+  }).join('')||'<tr><td colspan="7" class="empty">No orders match.</td></tr>';
+}
+renderNav(); renderView();
+</script>
+</body>
+</html>
