@@ -6,252 +6,284 @@
 <title>SignFlow — Commercial Orders</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-size:14px;color:#111}
-.app{display:flex;height:100vh}
+html{overflow-y:scroll;scrollbar-width:auto;scrollbar-color:#185FA5 #E6F1FB}
+::-webkit-scrollbar{width:16px;height:16px}
+::-webkit-scrollbar-track{background:#E6F1FB}
+::-webkit-scrollbar-thumb{background:#185FA5;border-radius:8px;border:3px solid #E6F1FB}
+html,body{min-height:100%;background:#fff;font-family:system-ui,sans-serif;font-size:18px;color:#111}
+.app{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar{width:200px;min-width:200px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sidebar{width:250px;min-width:250px;background:#fff;border-right:0.5px solid rgba(0,0,0,.1);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
 .logo{padding:13px 15px 11px;border-bottom:0.5px solid rgba(0,0,0,.1)}
-.logo-name{font-size:15px;font-weight:500}
-.logo-sub{font-size:10px;color:#999}
-.nav-label{font-size:10px;font-weight:500;color:#999;letter-spacing:.08em;text-transform:uppercase;padding:9px 15px 4px}
-.nav-item{display:flex;align-items:center;gap:8px;padding:7px 15px;font-size:13px;color:#555;cursor:pointer;border-left:2px solid transparent}
-.nav-item:hover{background:#f5f5f5}
+.logo-name{font-size:20px;font-weight:500}
+.logo-sub{font-size:13px;color:#111}
+.nav-label{font-size:13px;font-weight:500;color:#111;letter-spacing:.08em;text-transform:uppercase;padding:9px 15px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 15px;font-size:17px;color:#111;cursor:pointer;border-left:2px solid transparent}
+.nav-item:hover{background:#EEF4FB}
 .nav-item.active{color:#185FA5;background:#E6F1FB;border-left-color:#185FA5}
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* MAIN */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.topbar{background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1);padding:0 18px;height:50px;min-height:50px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.page-title{font-size:15px;font-weight:600;flex:1}
-.btn{padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111;font-weight:500}
-.btn:hover{background:#f5f5f5}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid #D9DEE3;padding:0 14px;height:46px;min-height:46px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.page-title{white-space:nowrap;font-size:17px;font-weight:600;flex:1}
+.btn{padding:5px 12px;border-radius:7px;font-size:14px;cursor:pointer;border:0.5px solid rgba(0,0,0,.2);background:#fff;color:#111;font-weight:500}
+.btn:hover{background:#EEF4FB}
 .btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
 .btn-primary:hover{background:#0C447C}
 
-.content{flex:1;overflow-y:auto;padding:18px;display:flex;gap:16px}
+.content{flex:1;padding:14px;display:flex;flex-direction:column;align-items:center;gap:14px;background:#fff;padding-bottom:60px}
+.content > *, .left-panel > *{width:100%;max-width:900px;box-sizing:border-box}
 
 /* LEFT PANEL — Customer List */
-.left-panel{width:380px;min-width:380px;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
-.panel-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;overflow:hidden}
-.panel-header{padding:12px 14px;border-bottom:0.5px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between}
-.panel-title{font-size:13px;font-weight:600}
-.search-input{width:100%;padding:8px 12px;border:none;border-bottom:0.5px solid rgba(0,0,0,.08);font-size:13px;font-family:system-ui;outline:none;background:#fafaf9}
-.customer-item{padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+
+.left-panel{display:contents}
+.panel-card{flex-shrink:0;background:#fff;border:1px solid #D9DEE3;border-radius:12px;overflow:hidden}
+.panel-header{padding:7px 12px;border-bottom:0.5px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:15px;font-weight:600}
+.search-input{display:block;width:calc(100% - 24px);margin:10px 12px;padding:10px 16px;border:1px solid #B9C0C8;border-radius:8px;font-size:17px;font-weight:500;color:#111;font-family:system-ui;outline:none;background:#fff}
+.search-input::placeholder,#signs-search::placeholder,.form-input::placeholder,.form-textarea::placeholder{color:#444}
+.customer-item{padding:7px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);cursor:pointer;display:flex;align-items:center;justify-content:space-between}
 .customer-item:last-child{border-bottom:none}
-.customer-item:hover{background:#f5f5f5}
+.customer-item:hover{background:#EEF4FB}
 .customer-item.selected{background:#E6F1FB;border-left:2px solid #185FA5}
-.customer-name{font-size:13px;font-weight:500}
-.customer-orders{font-size:11px;color:#999}
-.badge-commercial{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;background:#F3EDFF;color:#5B2D8E}
+.customer-name{font-size:17px;font-weight:500}
+.customer-orders{font-size:16px;font-weight:600;color:#111;min-width:28px;text-align:right}
+.badge-commercial{display:inline-block;padding:2px 7px;border-radius:8px;font-size:13px;font-weight:700;background:#F3EDFF;color:#5B2D8E}
 
 /* RIGHT PANEL — Order Form */
-.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
-.form-card{background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px 18px}
-.form-title{font-size:13px;font-weight:600;margin-bottom:12px;color:#185FA5}
-.form-row{display:flex;gap:12px;margin-bottom:12px}
+
+.right-panel{order:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.form-card{background:#fff;border:1px solid #D9DEE3;border-radius:8px;padding:9px 14px}
+.form-title{letter-spacing:.01em;font-size:15px;font-weight:700;margin-bottom:6px;color:#185FA5}
+.form-row{display:flex;gap:10px;margin-bottom:8px}
 .form-row:last-child{margin-bottom:0}
-.form-group{display:flex;flex-direction:column;gap:4px;flex:1}
-.form-label{font-size:11px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.04em}
-.form-input{padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none;background:#fff}
+.form-group{display:flex;flex-direction:column;gap:2px;flex:1}
+.form-label{font-size:12px;font-weight:600;color:#111;text-transform:uppercase;letter-spacing:.04em}
+.form-input{min-width:0;width:100%;padding:5px 9px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:14px;font-family:system-ui;outline:none;background:#fff}
 .form-input:focus{border-color:#185FA5}
-.form-select{padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none;background:#fff;cursor:pointer}
-.form-textarea{padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:13px;font-family:system-ui;outline:none;resize:vertical;min-height:70px;background:#fff}
+.form-select{padding:5px 9px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:14px;font-family:system-ui;outline:none;background:#fff;cursor:pointer}
+.form-textarea{width:100%;box-sizing:border-box;padding:5px 9px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:14px;font-family:system-ui;outline:none;resize:vertical;min-height:44px;background:#fff}
 .form-textarea:focus{border-color:#185FA5}
 
+#order-form{display:flex;flex-direction:column;gap:8px;border:2px solid #185FA5;border-radius:10px;padding:0 10px 10px;background:#fff}
+#order-form-header{margin:0 -10px 2px;padding:7px 12px;background:#185FA5;color:#fff;font-size:15px;font-weight:600;border-radius:7px 7px 0 0;letter-spacing:.01em}
 /* ORDER TYPE BUTTONS */
 .type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:4px}
-.type-btn{padding:10px 12px;border-radius:10px;border:1.5px solid rgba(0,0,0,.12);background:#fff;font-size:12px;font-weight:600;cursor:pointer;text-align:left;transition:all .15s}
+.type-btn{padding:10px 12px;border-radius:10px;border:1.5px solid rgba(0,0,0,.12);background:#fff;font-size:16px;font-weight:600;cursor:pointer;text-align:left;transition:all .15s}
 .type-btn:hover{border-color:#185FA5;background:#E6F1FB;color:#185FA5}
 .type-btn.selected{border-color:#185FA5;background:#185FA5;color:#fff}
-.type-btn .type-icon{font-size:16px;display:block;margin-bottom:4px}
+.type-btn .type-icon{font-size:21px;display:block;margin-bottom:4px}
 
 /* PAY FIELD */
 .pay-row{display:flex;align-items:center;gap:8px}
-.pay-prefix{font-size:16px;font-weight:700;color:#555}
-.pay-input{width:100px;padding:8px 10px;border:0.5px solid rgba(0,0,0,.2);border-radius:8px;font-size:16px;font-weight:700;color:#185FA5;font-family:system-ui;outline:none;text-align:center}
+.pay-prefix{font-size:16px;font-weight:700;color:#111}
+.pay-input{width:90px;padding:4px 8px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:16px;font-weight:700;color:#185FA5;font-family:system-ui;outline:none;text-align:center}
 .pay-input:focus{border-color:#185FA5}
-.pay-note{font-size:11px;color:#999;margin-top:4px}
+.pay-note{font-size:14px;color:#111;margin-top:4px}
 
 /* NO EMAIL BANNER */
-.no-email-banner{background:#FFF9EC;border:0.5px solid #F0D080;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:12px;color:#856404}
+.no-email-banner{background:#FFF9EC;border:0.5px solid #F0D080;border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:6px;font-size:13px;color:#856404}
 
 /* ORDER TYPES MANAGER */
-.type-manager-item{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:13px}
+.type-manager-item{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:17px}
 .type-manager-item:last-child{border-bottom:none}
-.del-btn{padding:2px 8px;border-radius:6px;border:0.5px solid rgba(220,50,50,.3);background:#fff;color:#C0392B;font-size:11px;cursor:pointer}
+.del-btn{padding:2px 8px;border-radius:6px;border:0.5px solid rgba(220,50,50,.3);background:#fff;color:#C0392B;font-size:14px;cursor:pointer}
 
 /* RECENT ORDERS */
-.order-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:13px}
+.order-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:17px}
 .order-row:last-child{border-bottom:none}
-.order-date{font-size:11px;color:#999;width:50px;flex-shrink:0}
-.order-type-tag{padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;background:#F3EDFF;color:#5B2D8E;white-space:nowrap}
-.order-pay{font-size:13px;font-weight:600;color:#185FA5;margin-left:auto;white-space:nowrap}
+.order-date{font-size:14px;color:#111;width:50px;flex-shrink:0}
+.order-type-tag{padding:2px 7px;border-radius:8px;font-size:13px;font-weight:700;background:#F3EDFF;color:#5B2D8E;white-space:nowrap}
+.order-pay{font-size:17px;font-weight:600;color:#185FA5;margin-left:auto;white-space:nowrap}
 
 /* MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
 .modal{background:#fff;border-radius:14px;padding:20px;width:380px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,.2)}
-.modal-title{font-size:15px;font-weight:600;margin-bottom:14px}
+.modal-title{font-size:20px;font-weight:600;margin-bottom:14px}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 
 /* TOAST */
-#toast{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:9px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#toast{display:none;position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:9px 20px;border-radius:10px;font-size:17px;font-weight:500;z-index:9999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#order-form.locked > :not(#cust-header){opacity:.35;pointer-events:none;user-select:none}
+.cp-row{display:flex;align-items:center;gap:8px;padding:5px 12px;font-size:14px;font-weight:500;cursor:pointer;color:#000}
+.cp-row:hover,.cp-row.cp-active{background:#EEF4FB}
+.cp-head{padding:6px 14px;font-size:13px;font-weight:700;background:#fff;color:#111;letter-spacing:.04em}
+input:focus,select:focus,textarea:focus{border-color:#185FA5 !important;box-shadow:0 0 0 3px rgba(24,95,165,.14)}
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="logo"><div class="logo-name">SignFlow</div><div class="logo-sub">Commercial Orders</div></div>
-    <div class="nav-label">Navigation</div>
-    <div class="nav-item"><div class="dot" style="background:#185FA5"></div>Dashboard</div>
-    <div class="nav-item"><div class="dot" style="background:#185FA5"></div>Order History</div>
-    <div class="nav-item"><div class="dot" style="background:#BA7517"></div>Installer Order Map</div>
-    <div class="nav-item"><div class="dot" style="background:#639922"></div>Invoicing</div>
-    <div class="nav-item active">
-      <div class="dot" style="background:#5B2D8E"></div>Commercial Orders
-    </div>
-  </div>
-
   <!-- MAIN -->
   <div class="main">
-    <div class="topbar">
-      <div class="page-title">Commercial Orders</div>
-      <span class="badge-commercial" style="padding:4px 10px;font-size:11px">Admin only · No email notifications</span>
-      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-        <button class="btn" onclick="alert('Opens agent/office order form')" style="border-color:#7F77DD;color:#7F77DD">+ Agent / Office order</button>
-        <button class="btn btn-primary" onclick="alert('You are here — commercial order form')">+ Commercial order</button>
-        <button class="btn" onclick="openTypeManager()">Manage order types</button>
-        <button class="btn" onclick="openAddCustomer()">+ Add customer</button>
+    <div class="topbar" style="justify-content:center">
+      <div style="display:flex;gap:8px;align-items:center;justify-content:center">
+        <button class="btn btn-primary" onclick="openManageOffices()">Search Offices</button>
+        <button class="btn btn-primary" onclick="openAddOffice()">+ Add New Office</button>
+        <button class="btn btn-primary" onclick="openTypeManager()">Manage Order Types</button>
       </div>
     </div>
 
     <div class="content">
+    <div id="search-strip" style="order:2;width:100%;max-width:900px;box-sizing:border-box;background:#fff;padding:0;display:flex;gap:8px;align-items:center;flex-shrink:0">
+      <span style="font-size:13px;font-weight:600;color:#111;white-space:nowrap">Search</span>
+      <select id="search-mode" onchange="onSearchMode()" style="padding:6px 10px;border:1px solid #B9C0C8;border-radius:8px;font-size:14px;font-weight:500;font-family:system-ui;background:#fff;color:#111;cursor:pointer;outline:none">
+        <option value="address">By Address</option>
+        <option value="customer">By Customer Name</option>
+        <option value="date">By Date / Range</option>
+      </select>
+      <input id="signs-search" oninput="renderSignsInField()" style="flex:1;max-width:520px;padding:6px 12px;border:1px solid #B9C0C8;border-radius:8px;font-size:14px;font-weight:500;color:#111;font-family:system-ui;outline:none;background:#fff">
+      <div id="date-search" style="display:none;position:relative;flex:1;max-width:520px">
+        <span onclick="toggleRangeCal()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;cursor:pointer">📅</span>
+        <input id="date-range-input" readonly onclick="toggleRangeCal()" style="width:100%;box-sizing:border-box;padding:6px 12px 6px 34px;border:1px solid #B9C0C8;border-radius:8px;font-size:14px;font-weight:500;color:#111;font-family:system-ui;outline:none;background:#fff;cursor:pointer">
+        <div id="range-cal" onclick="event.stopPropagation()" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:#fff;border:1px solid #185FA5;border-radius:10px;padding:10px;width:250px;box-shadow:0 6px 18px rgba(0,0,0,.15)"></div>
+      </div>
+      <button class="btn" onclick="clearSignSearch()" style="border-radius:8px;border:1px solid #B9C0C8;font-size:13px;padding:6px 12px">Clear</button>
+    </div>
 
-      <!-- LEFT — Customer List -->
+
+      
+      <div id="view-orders-panel" style="scroll-margin-top:58px;display:none;order:3;width:100%;max-width:900px;box-sizing:border-box;border:2px solid #185FA5;border-radius:10px;overflow:hidden;background:#fff">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 12px;background:#185FA5;color:#fff">
+      <div id="vo-title" style="font-size:14px;font-weight:600">Orders</div>
+      <div style="display:flex;gap:8px"><button class="btn" onclick="voNewOrder()" style="background:#fff;color:#185FA5;border:1px solid #fff;font-weight:600;padding:4px 12px">+ New Order</button><button class="btn" onclick="closeViewOrders()" style="background:#fff;color:#185FA5;border:1px solid #fff;font-weight:600;padding:4px 12px">Close</button></div>
+    </div>
+    <div style="padding:10px 12px 12px">
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+      <input id="vo-search" oninput="renderViewOrders()" style="flex:1;min-width:220px;padding:6px 12px;border:1px solid #B9C0C8;border-radius:8px;font-size:14px;font-family:system-ui;outline:none">
+      <select id="vo-status" onchange="renderViewOrders()" style="padding:6px 10px;border:1px solid #B9C0C8;border-radius:8px;font-size:14px;font-family:system-ui;background:#fff">
+        <option value="">All Statuses</option><option>Pending</option><option>Scheduled</option><option>Completed Up</option><option>Completed Down</option><option>Service Call Completed</option><option>On Hold</option><option>Cancelled</option>
+      </select>
+      <span style="font-size:14px;font-weight:600">From</span>
+      <input id="vo-from" type="date" onchange="renderViewOrders()" style="padding:5px 8px;border:1px solid #B9C0C8;border-radius:8px;font-size:14px;font-family:system-ui">
+      <span style="font-size:14px;font-weight:600">To</span>
+      <input id="vo-to" type="date" onchange="renderViewOrders()" style="padding:5px 8px;border:1px solid #B9C0C8;border-radius:8px;font-size:14px;font-family:system-ui">
+    </div>
+    <div style="max-height:420px;overflow:auto;border:1px solid #C5CBD2">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;color:#111">
+        <thead><tr style="background:#fff;text-align:left;position:sticky;top:0">
+          <th style="padding:7px 12px">Date / Time</th><th style="padding:7px 12px">Address</th><th style="padding:7px 12px">Order Type</th><th style="padding:7px 12px">Installer</th><th style="padding:7px 12px">Status</th><th style="padding:7px 12px;text-align:right">Pay</th><th style="padding:7px 12px"></th>
+        </tr></thead>
+        <tbody id="vo-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:8px"><span id="vo-count" style="font-size:14px;font-weight:600"></span></div>
+    </div>
+      </div>
+      <!-- LEFT — Signs In Field -->
       <div class="left-panel">
-        <div class="panel-card">
-          <div class="panel-header">
-            <div class="panel-title">Commercial customers</div>
-            <span style="font-size:11px;color:#999" id="cust-count">0 customers</span>
-          </div>
-          <input class="search-input" placeholder="Search customers..." oninput="filterCustomers(this.value)">
-          <div id="customer-list" style="max-height:200px;overflow-y:auto"></div>
-        </div>
-
+        <div id="cust-info" style="order:0"></div>
         <!-- Commercial Signs In Field -->
-        <div class="panel-card" id="signs-in-field-card">
-          <div class="panel-header">
-            <div class="panel-title">Signs in field</div>
-            <span style="font-size:11px;color:#999" id="signs-count">0 active</span>
+        <div class="panel-card" id="signs-in-field-card" style="order:4;margin-top:0;border:none;border-radius:0;overflow:visible">
+          <div class="panel-header" onclick="toggleSigns()" style="cursor:pointer;background:#185FA5;color:#fff;border-bottom:none">
+            <div class="panel-title"><span id="signs-arrow" style="display:inline-block;width:18px;font-size:13px">▼</span>Signs In Field</div>
+            <span style="font-size:14px;color:#fff;font-weight:600" id="signs-count">0 active</span>
           </div>
-          <select id="signs-customer-filter" onchange="renderSignsInField()" style="width:100%;padding:7px 12px;border:none;border-bottom:0.5px solid rgba(0,0,0,.1);font-size:12px;font-family:system-ui;outline:none;background:#fafaf9;color:#555">
-            <option value="">All commercial customers</option>
-            <option value="1">PICOR Commercial Real Estate</option>
-            <option value="2">CBRE Group</option>
-            <option value="3">VOLK Company</option>
-            <option value="4">Cadden Community Management</option>
-            <option value="5">KB Home</option>
-          </select>
-          <input id="signs-search" oninput="renderSignsInField()" placeholder="Search by address..." style="width:100%;padding:8px 12px;border:none;border-bottom:0.5px solid rgba(0,0,0,.1);font-size:12px;font-family:system-ui;outline:none;background:#fff">
-          <div id="signs-in-field-list" style="max-height:400px;overflow-y:auto"></div>
-        </div>
-
-        <!-- Recent orders for selected customer -->
-        <div class="panel-card" id="recent-orders-card" style="display:none">
-          <div class="panel-header">
-            <div class="panel-title">Recent orders</div>
+          <div id="signs-sort-bar" style="display:grid;grid-template-columns:14px minmax(0,1.25fr) minmax(0,1.4fr) 98px 50px;gap:10px;align-items:center;padding:5px 12px;background:#E6F1FB;border-bottom:1px solid #185FA5;font-size:13px;font-weight:700;color:#185FA5">
+            <span></span>
+            <span class="sort-h" onclick="setSignSort('company')" style="cursor:pointer;user-select:none">Company <span id="sort-ind-company"></span></span>
+            <span class="sort-h" onclick="setSignSort('addr')" style="cursor:pointer;user-select:none">Address <span id="sort-ind-addr"></span></span>
+            <span class="sort-h" onclick="setSignSort('date')" style="cursor:pointer;user-select:none">Date / Time <span id="sort-ind-date"></span></span>
+            <span></span>
           </div>
-          <div id="recent-orders-list"></div>
+          <div id="signs-in-field-list" style="display:block;height:calc(100vh - 270px);min-height:300px;overflow-y:scroll;border-right:1px solid #BBD3EA"></div>
         </div>
       </div>
 
       <!-- RIGHT — Order Form -->
       <div class="right-panel">
 
-        <div class="form-card" id="no-customer-state">
-          <div style="padding:40px;text-align:center;color:#999">
-            <div style="font-size:36px;margin-bottom:12px">🏢</div>
-            <div style="font-size:15px;font-weight:600;color:#555;margin-bottom:8px">Create a commercial order</div>
-            <div style="font-size:13px;line-height:1.7;max-width:280px;margin:0 auto">
+        <div class="form-card" id="no-customer-state" style="display:none">
+          <div style="padding:40px;text-align:center;color:#111">
+            <div style="font-size:47px;margin-bottom:12px">🏢</div>
+            <div style="font-size:20px;font-weight:600;color:#111;margin-bottom:8px">Create a commercial order</div>
+            <div style="font-size:17px;line-height:1.7;max-width:280px;margin:0 auto">
               1. Select a customer from the list on the left<br>
               2. Choose an order type<br>
               3. Enter the job address<br>
               4. Set installer pay and assign an installer<br>
               5. Hit <strong>Submit order</strong>
             </div>
-            <div style="margin-top:16px;padding:10px 14px;background:#FFF9EC;border-radius:8px;font-size:12px;color:#856404;display:inline-block">
-              🔕 No email notifications are sent for commercial orders
-            </div>
           </div>
         </div>
 
           <!-- Order form -->
-          <div style="display:none" id="order-form">
+<div id="order-form"><div id="order-form-header">Commercial Orders</div>
 
-          <!-- Customer header -->
-          <div class="form-card" style="display:flex;align-items:center;gap:12px;padding:12px 18px">
-            <div style="width:36px;height:36px;border-radius:10px;background:#F3EDFF;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🏢</div>
-            <div>
-              <div style="font-size:15px;font-weight:700" id="selected-customer-name">—</div>
-              <div style="font-size:11px;color:#999">Commercial account · No email notifications · Billing via QuickBooks</div>
+          <!-- Customer header / picker -->
+          <div class="form-card" id="cust-header" style="display:flex;align-items:center;gap:10px;padding:7px 14px;position:relative;z-index:20">
+            <div style="flex:1;max-width:520px;position:relative">
+              <button id="cust-picker-btn" onclick="toggleCustPicker()" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 10px;border:1px solid #B9C0C8;border-radius:8px;background:#fff;font-family:system-ui;font-size:14px;font-weight:600;color:#111;cursor:pointer;text-align:left">
+                <span id="selected-customer-name">Select Office</span><span style="font-size:15px">▼</span>
+              </button>
+              <div id="cust-picker-menu" style="display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #B9C0C8;border-top:none;border-radius:0 0 8px 8px;box-shadow:0 8px 20px rgba(0,0,0,.18)">
+                <input id="cust-picker-filter" oninput="cpIdx=0;renderCustPicker()" onkeydown="cpKey(event)" style="width:100%;box-sizing:border-box;padding:10px 14px;border:none;border-bottom:1px solid #DDE1E6;border-radius:0;font-size:17px;font-family:system-ui;outline:none">
+                <div id="cust-picker-list" style="max-height:340px;overflow:auto"></div>
+              </div>
             </div>
-            <div class="no-email-banner" style="margin-left:auto">
-              <span>🔕</span> No notifications will be sent
+            <button id="hdr-view-orders" class="btn btn-primary" style="display:none" onclick="openViewOrders(selectedCustomer.id)">View Orders</button>
+            <div id="selected-customer-sub" style="font-size:13px;color:#111"></div>
+          </div>
+
+          <div id="edit-banner" style="display:none;align-items:center;justify-content:space-between;gap:12px;padding:7px 14px;background:#FFF3CD;border:1.5px solid #111;font-size:14px;font-weight:700;color:#111">
+            <span id="edit-banner-text"></span>
+            <button class="btn" onclick="cancelEditMode()" style="border-radius:0;border:1.5px solid #111">Stop Editing</button>
+          </div>
+
+          <!-- Step 1 + 1.1: Address and Scheduling -->
+          <div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap">
+          <!-- Step 1: Address -->
+          <div class="form-card" style="flex:1;min-width:0">
+            <div class="form-title">Address</div>
+            <div class="form-row">
+              <div class="form-group">
+                <input class="form-input" type="text" id="job-address">
+              </div>
             </div>
           </div>
 
-          <!-- Step 1: Address -->
-          <div class="form-card">
-            <div class="form-title">1 · Job address</div>
-            <div class="form-row">
-              <div class="form-group">
-                <div class="form-label">Street address</div>
-                <input class="form-input" type="text" id="job-address" placeholder="Enter full job address">
+          <!-- Step 1.1: Scheduling -->
+          <div class="form-card" style="flex:0 0 auto">
+            <div class="form-title">Scheduling</div>
+            <div id="cal-wrap" style="border:0.5px solid rgba(0,0,0,.15);border-radius:10px;overflow:hidden;width:230px;user-select:none">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:3px 8px;background:#fff;border-bottom:0.5px solid rgba(0,0,0,.1)">
+                <button onclick="changeMonth(-1)" style="background:none;border:none;cursor:pointer;font-size:16px;color:#111;padding:0 5px">‹</button>
+                <div id="cal-month-label" style="font-size:12px;font-weight:600"></div>
+                <button onclick="changeMonth(1)" style="background:none;border:none;cursor:pointer;font-size:16px;color:#111;padding:0 5px">›</button>
               </div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:3px 4px 1px">
+                <div style="font-size:11px;font-weight:600;color:#111">M</div>
+                <div style="font-size:11px;font-weight:600;color:#111">T</div>
+                <div style="font-size:11px;font-weight:600;color:#111">W</div>
+                <div style="font-size:11px;font-weight:600;color:#111">T</div>
+                <div style="font-size:11px;font-weight:600;color:#111">F</div>
+                <div style="font-size:11px;font-weight:600;color:#111">S</div>
+                <div style="font-size:11px;font-weight:600;color:#C0392B">S</div>
+              </div>
+              <div id="cal-days" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:0 4px 4px;gap:1px"></div>
             </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px"><button id="not-before-btn" onclick="toggleNotBefore()" style="padding:3px 10px;border-radius:7px;border:1.5px solid #185FA5;background:#fff;color:#185FA5;font-size:13px;font-weight:700;cursor:pointer;font-family:system-ui">Not Before</button></div>
+            <div id="cal-selected-label" style="font-size:14px;color:#185FA5;font-weight:600;margin-top:4px"></div>
+          </div>
+
           </div>
 
           <!-- Step 2: Job Items -->
           <div class="form-card">
-            <div class="form-title">2 · Job items</div>
-            <div style="font-size:12px;color:#8E8E93;margin-bottom:12px">Add one or more tasks for this stop. Each item has its own order type, notes, and installer pay.</div>
+            <div class="form-title">Order Type</div>
             <div id="job-items-list"></div>
-            <button onclick="addJobItem()" style="width:100%;padding:9px;border-radius:9px;border:1.5px dashed #C7C7CC;background:#fff;font-size:13px;color:#555;cursor:pointer;margin-top:8px;font-family:system-ui">
-              + Add another item
+            <button onclick="addJobItem()" style="width:100%;padding:5px;border-radius:7px;border:1.5px dashed #185FA5;background:#fff;font-size:15px;font-weight:700;color:#185FA5;cursor:pointer;margin-top:4px;font-family:system-ui">
+              + Add Another Item
             </button>
           </div>
 
-          <!-- Step 3: Scheduling -->
-          <div class="form-card">
-            <div class="form-title">3 · Scheduling</div>
-            <div style="font-size:12px;color:#8E8E93;margin-bottom:10px">Defaults to tomorrow — pick a future date if needed.</div>
-            <div style="border:0.5px solid rgba(0,0,0,.15);border-radius:10px;overflow:hidden;width:200px;user-select:none">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:#f5f5f3;border-bottom:0.5px solid rgba(0,0,0,.1)">
-                <button onclick="changeMonth(-1)" style="background:none;border:none;cursor:pointer;font-size:15px;color:#555;padding:1px 5px">‹</button>
-                <div id="cal-month-label" style="font-size:11px;font-weight:600"></div>
-                <button onclick="changeMonth(1)" style="background:none;border:none;cursor:pointer;font-size:15px;color:#555;padding:1px 5px">›</button>
-              </div>
-              <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:5px 4px 2px">
-                <div style="font-size:9px;font-weight:600;color:#999">M</div>
-                <div style="font-size:9px;font-weight:600;color:#999">T</div>
-                <div style="font-size:9px;font-weight:600;color:#999">W</div>
-                <div style="font-size:9px;font-weight:600;color:#999">T</div>
-                <div style="font-size:9px;font-weight:600;color:#999">F</div>
-                <div style="font-size:9px;font-weight:600;color:#999">S</div>
-                <div style="font-size:9px;font-weight:600;color:#C0392B">S</div>
-              </div>
-              <div id="cal-days" style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:0 4px 7px;gap:1px"></div>
-            </div>
-            <div id="cal-selected-label" style="font-size:11px;color:#185FA5;font-weight:600;margin-top:8px"></div>
-          </div>
-
           <!-- SUBMIT -->
-          <div class="form-card" style="padding:16px 18px">
-            <button onclick="submitOrder()" style="width:100%;padding:16px;border-radius:12px;border:none;background:#185FA5;color:#fff;font-size:17px;font-weight:700;cursor:pointer;letter-spacing:.01em">
-              Submit Commercial Order →
+          <div style="padding:0">
+            <button id="submit-btn" onclick="submitOrder()" style="width:auto;padding:7px 22px;border-radius:7px;border:none;background:#185FA5;color:#fff;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:.01em">
+              <span id="submit-label">Submit Commercial Order →</span>
             </button>
           </div>
 
@@ -265,8 +297,8 @@ html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-s
 <div class="modal-bg" id="order-confirm-modal">
   <div class="modal" style="width:480px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:16px">✓</div>
-      <div class="modal-title" style="margin:0">Orders submitted</div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:21px">✓</div>
+      <div class="modal-title" style="margin:0">Orders Submitted</div>
     </div>
     <div id="order-confirm-body"></div>
     <div class="modal-btns" style="margin-top:16px">
@@ -275,17 +307,95 @@ html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-s
   </div>
 </div>
 
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-bg" id="confirm-modal" style="z-index:200">
+  <div class="modal" style="width:380px">
+    <div id="confirm-text" style="font-size:16px;font-weight:600;color:#111;line-height:1.4;margin-bottom:16px"></div>
+    <div class="modal-btns"><button class="btn" onclick="closeConfirm()">Cancel</button><button class="btn btn-primary" id="confirm-yes">Yes, Continue</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="order-detail-modal">
+  <div class="modal" style="width:620px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
+      <div class="modal-title" id="od-title" style="margin:0"></div>
+      <span id="od-status" style="font-size:15px;font-weight:700"></span>
+    </div>
+    <div id="od-body" style="border:1.5px solid #111"></div>
+    <div id="od-cancel-panel" style="display:none;margin-top:12px;padding:14px 16px;border:1.5px solid #C0392B;background:#FDF1EF">
+      <div style="font-size:17px;font-weight:700;color:#C0392B;margin-bottom:6px">Cancel This Order?</div>
+      <div id="od-cancel-note" style="font-size:15px;color:#111;margin-bottom:8px"></div>
+      <textarea id="od-cancel-reason" class="form-textarea" style="min-height:60px;font-size:16px"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button class="btn" onclick="document.getElementById('od-cancel-panel').style.display='none'">Keep Order</button>
+        <button class="btn" id="od-cancel-confirm" style="background:#C0392B;color:#fff;border-color:#C0392B">Confirm Cancel</button>
+      </div>
+    </div>
+    <div class="modal-btns" style="justify-content:space-between">
+      <button class="btn" onclick="backToOrders()">← Back To Orders</button>
+      <span style="display:flex;gap:8px"><button class="btn" id="od-cancel" style="background:#C0392B;color:#fff;border-color:#C0392B">Cancel Order</button><button class="btn btn-primary" id="od-remove" style="font-size:15px;padding:6px 16px"><span style="font-size:19px;vertical-align:-2px">⬇</span> Remove</button><button class="btn btn-primary" id="od-edit">Edit Order</button><button class="btn" onclick="closeOrderDetail()">Close</button></span>
+    </div>
+  </div>
+</div>
+
+
+<!-- MANAGE OFFICES MODAL -->
+<div class="modal-bg" id="manage-offices-modal">
+  <div class="modal" style="width:760px">
+    <div class="modal-title">Search Offices</div>
+    <input id="manage-offices-search" oninput="renderManageOffices()" style="width:100%;box-sizing:border-box;padding:10px 14px;margin-bottom:10px;border:1px solid #B9C0C8;border-radius:8px;font-size:17px;font-weight:500;font-family:system-ui;outline:none">
+    <div id="manage-offices-list" style="max-height:420px;overflow-y:auto;border:1px solid #C5CBD2"></div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" onclick="closeManageOffices();openAddOffice()">+ Add Office</button>
+      <button class="btn" onclick="closeManageOffices()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD OFFICE MODAL -->
+<div class="modal-bg" id="add-office-modal">
+  <div class="modal" style="width:460px">
+    <div class="modal-title" id="office-modal-title">Add Office</div>
+    <div class="form-group" style="margin-bottom:12px">
+      <div class="form-label">Office name</div>
+      <input class="form-input" type="text" id="new-office-name">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <div class="form-label">Contact name</div>
+        <input class="form-input" type="text" id="new-office-contact">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Phone</div>
+        <input class="form-input" type="text" id="new-office-phone">
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <div class="form-label">Email</div>
+      <input class="form-input" type="text" id="new-office-email">
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <div class="form-label">CC Emails</div>
+      <input class="form-input" type="text" id="new-office-cc">
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeAddOffice()">Cancel</button>
+      <button class="btn btn-primary" id="office-save-btn" onclick="saveOffice()">Add Office</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADD CUSTOMER MODAL -->
 <div class="modal-bg" id="add-customer-modal">
   <div class="modal">
-    <div class="modal-title">Add commercial customer</div>
+    <div class="modal-title">Add Commercial Customer</div>
     <div class="form-group" style="margin-bottom:12px">
       <div class="form-label">Company name</div>
-      <input class="form-input" type="text" id="new-customer-name" placeholder="e.g. Tucson Medical Center">
+      <input class="form-input" type="text" id="new-customer-name">
     </div>
     <div class="modal-btns">
       <button class="btn" onclick="closeAddCustomer()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCustomer()">Add customer</button>
+      <button class="btn btn-primary" onclick="saveCustomer()">Add Customer</button>
     </div>
   </div>
 </div>
@@ -293,13 +403,13 @@ html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-s
 <!-- ORDER TYPES MANAGER MODAL -->
 <div class="modal-bg" id="type-manager-modal">
   <div class="modal" style="width:420px">
-    <div class="modal-title">Manage commercial order types</div>
+    <div class="modal-title">Manage Commercial Order Types</div>
     <div id="type-manager-list" style="margin-bottom:12px;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;overflow:hidden;max-height:300px;overflow-y:auto"></div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
-      <input class="form-input" type="text" id="new-type-input" placeholder="New order type..." style="flex:1">
+      <input class="form-input" type="text" id="new-type-input" style="flex:1">
       <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-        <span style="font-size:12px;color:#555">$</span>
-        <input class="form-input" type="number" id="new-type-pay" value="6.00" step="0.50" min="0" style="width:70px" placeholder="Pay">
+        <span style="font-size:16px;color:#111">$</span>
+        <input class="form-input" type="number" id="new-type-pay" value="6.00" step="0.50" min="0" style="width:70px">
       </div>
       <button class="btn btn-primary" onclick="addOrderType()">Add</button>
     </div>
@@ -313,46 +423,47 @@ html,body{height:100%;background:#f5f5f3;font-family:system-ui,sans-serif;font-s
 
 <script>
 const CUSTOMERS = [
-  {id:1, name:'PICOR Commercial Real Estate', orders:22, pinned:true},
-  {id:2, name:'CBRE Group',                   orders:14, pinned:false},
-  {id:3, name:'VOLK Company',                 orders:8,  pinned:false},
-  {id:4, name:'Cadden Community Management',  orders:11, pinned:true},
-  {id:5, name:'KB Home',                      orders:6,  pinned:false},
+  {id:1, name:'PICOR Commercial Real Estate', orders:22, pinned:true,  contact:'Karen Whitfield', email:'contact@picor.com',  phone:'520-555-0142', billing:'QuickBooks invoice, net 30'},
+  {id:2, name:'CBRE Group',                   orders:14, pinned:false, contact:'Daniel Ortiz',    email:'info@cbre.com',      phone:'520-555-0178', billing:'QuickBooks invoice, net 30'},
+  {id:3, name:'VOLK Company',                 orders:8,  pinned:false, contact:'Rachel Nguyen',   email:'office@volkco.com',  phone:'520-555-0116', billing:'QuickBooks invoice, net 15'},
+  {id:4, name:'Cadden Community Management',  orders:11, pinned:true,  contact:'Susan Parker',    email:'info@cadden.com',    phone:'520-555-0163', billing:'QuickBooks invoice, net 30'},
+  {id:5, name:'KB Home',                      orders:6,  pinned:false, contact:'Mark Delgado',    email:'contact@kbhome.com', phone:'520-555-0191', billing:'QuickBooks invoice, net 30'},
 ];
 
 let ORDER_TYPES = [
-  {id:1, label:'Flag installation',        icon:'🚩', pay:25.00},
-  {id:2, label:'Commercial sign install',  icon:'⬆',  pay:6.00},
-  {id:3, label:'Commercial sign removal',  icon:'⬇',  pay:6.00},
-  {id:4, label:'Vinyl decal (RTA)',         icon:'🖼',  pay:15.00},
-  {id:5, label:'Custom post',              icon:'📦', pay:20.00},
+  {id:2, label:'Commercial Sign Install',  icon:'⬆',  pay:6.00},
+  {id:3, label:'Commercial Sign Removal',  icon:'⬇',  pay:6.00},
   {id:6, label:'Service / Repair',         icon:'🔧', pay:10.00},
-  {id:7, label:'Delivery',                 icon:'🚚', pay:8.00},
+  {id:1, label:'Flag Installation',        icon:'🚩', pay:25.00},
+  {id:5, label:'Custom Post',              icon:'📦', pay:20.00},
+  {id:4, label:'Vinyl Decal (RTA)',         icon:'🖼',  pay:15.00},
   {id:8, label:'Banner',                   icon:'🏳',  pay:15.00},
-  {id:9, label:'Window lettering',         icon:'✏️',  pay:10.00},
+  {id:9, label:'Window Lettering',         icon:'✏️',  pay:10.00},
+  {id:7, label:'Delivery',                 icon:'🚚', pay:8.00},
 ];
+const DEFAULT_ORDER_TYPE='Commercial Sign Install';
 
 const RECENT_ORDERS = {
   1:[
-    {date:'May 2', type:'Flag installation',       pay:25},
-    {date:'Apr 28',type:'Commercial sign install', pay:50},
+    {date:'May 2', type:'Flag Installation',       pay:25},
+    {date:'Apr 28',type:'Commercial Sign Install', pay:50},
     {date:'Apr 15',type:'Service / Repair',        pay:30},
   ],
   2:[
-    {date:'Apr 30',type:'Commercial sign install', pay:50},
-    {date:'Apr 12',type:'Vinyl decal (RTA)',        pay:20},
+    {date:'Apr 30',type:'Commercial Sign Install', pay:50},
+    {date:'Apr 12',type:'Vinyl Decal (RTA)',        pay:20},
   ],
   3:[
-    {date:'May 1', type:'Custom post',             pay:75},
-    {date:'Apr 22',type:'Flag installation',       pay:25},
+    {date:'May 1', type:'Custom Post',             pay:75},
+    {date:'Apr 22',type:'Flag Installation',       pay:25},
   ],
   4:[
-    {date:'Apr 20',type:'Commercial sign install', pay:50},
-    {date:'Apr 5', type:'Commercial sign removal', pay:35},
+    {date:'Apr 20',type:'Commercial Sign Install', pay:50},
+    {date:'Apr 5', type:'Commercial Sign Removal', pay:35},
   ],
   5:[
-    {date:'May 3', type:'Custom post',             pay:75},
-    {date:'Apr 18',type:'Flag installation',       pay:25},
+    {date:'May 3', type:'Custom Post',             pay:75},
+    {date:'Apr 18',type:'Flag Installation',       pay:25},
   ],
 };
 
@@ -367,25 +478,18 @@ function renderCustomers(filter) {
       if(!a.pinned && b.pinned) return 1;
       return b.orders - a.orders;
     });
+  const _cl=document.getElementById('customer-list'); if(!_cl){ if(document.getElementById('cust-picker-menu').style.display!=='none') renderCustPicker(); return; }
   document.getElementById('cust-count').textContent = CUSTOMERS.length + ' customers';
-  document.getElementById('customer-list').innerHTML = list.map(c => `
+  _cl.innerHTML = list.map(c => `
     <div class="customer-item${selectedCustomer?.id===c.id?' selected':''}" onclick="selectCustomer(${c.id})">
-      <div>
-        <div class="customer-name">
-          ${c.pinned?'<span style="color:#BA7517;font-size:11px;margin-right:4px">📌</span>':''}${c.name}
-        </div>
-        <div class="customer-orders">${c.orders} orders</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <button onclick="event.stopPropagation();togglePin(${c.id})" title="${c.pinned?'Unpin':'Pin to top'}" style="background:none;border:none;cursor:pointer;font-size:13px;color:${c.pinned?'#BA7517':'#C7C7CC'};padding:2px">${c.pinned?'📌':'📍'}</button>
-        <span style="color:#C7C7CC;font-size:16px">›</span>
-      </div>
+      <button onclick="event.stopPropagation();togglePin(${c.id})" title="${c.pinned?'Unpin':'Pin to top'}" style="background:none;border:none;cursor:pointer;font-size:18px;line-height:1;color:${c.pinned?'#BA7517':'#777'};padding:0 10px 0 0">${c.pinned?'\u2605':'\u2606'}</button>
+      <div class="customer-name" style="flex:1;min-width:0">${c.name}</div>
     </div>`).join('');
 }
 
 let calDate = new Date();
-let selectedFutureDate = new Date(); 
-selectedFutureDate.setDate(selectedFutureDate.getDate()+1); // default tomorrow
+let selectedFutureDate = new Date();
+let notBefore = false; // default is always today
 
 function renderCalendar(){
   const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -399,14 +503,16 @@ function renderCalendar(){
   for(let i=0;i<startDow;i++) html+=`<div></div>`;
   for(let d=1;d<=daysInMonth;d++){
     const thisDate=new Date(calDate.getFullYear(),calDate.getMonth(),d);
-    const isPast=thisDate<=today;
+    const isPast=thisDate<=today || !notBefore;
     const isSel=selectedFutureDate&&thisDate.toDateString()===selectedFutureDate.toDateString();
     const isSun=thisDate.getDay()===0;
-    html+=`<div onclick="${isPast?'':'pickDate('+calDate.getFullYear()+','+(calDate.getMonth()+1)+','+d+')'}" style="padding:4px 0;font-size:11px;border-radius:5px;cursor:${isPast?'default':'pointer'};color:${isPast?'#C7C7CC':isSel?'#fff':isSun?'#C0392B':'#111'};background:${isSel?'#185FA5':'transparent'};font-weight:${isSel?'700':'400'}">${d}</div>`;
+    html+=`<div onclick="${isPast?'':'pickDate('+calDate.getFullYear()+','+(calDate.getMonth()+1)+','+d+')'}" style="padding:2px 0;font-size:12px;border-radius:4px;cursor:${isPast?'default':'pointer'};color:${isPast?'#888':isSel?'#fff':isSun?'#C0392B':'#111'};background:${isSel?'#185FA5':'transparent'};font-weight:${isSel?'700':'400'}">${d}</div>`;
   }
   document.getElementById('cal-days').innerHTML=html;
+  const cw=document.getElementById('cal-wrap'); if(cw) cw.style.opacity=notBefore?'1':'.55';
+  const nb=document.getElementById('not-before-btn'); if(nb){ nb.style.background=notBefore?'#185FA5':'#fff'; nb.style.color=notBefore?'#fff':'#185FA5'; }
   const opts={weekday:'long',month:'long',day:'numeric',year:'numeric'};
-  document.getElementById('cal-selected-label').textContent='📅 '+selectedFutureDate.toLocaleDateString('en-US',opts);
+  document.getElementById('cal-selected-label').textContent='📅 '+(notBefore?'Not Before · ':(selectedFutureDate.toDateString()===new Date().toDateString()?'Today · ':''))+selectedFutureDate.toLocaleDateString('en-US',opts);
 }
 
 function changeMonth(dir){
@@ -414,21 +520,40 @@ function changeMonth(dir){
   renderCalendar();
 }
 
+function toggleNotBefore(){
+  notBefore=!notBefore;
+  if(!notBefore){ selectedFutureDate=new Date(); calDate=new Date(); }
+  renderCalendar();
+}
 function pickDate(y,m,d){
   selectedFutureDate=new Date(y,m-1,d);
   renderCalendar();
 }
 
 const SIGNS_IN_FIELD = [
-  {id:1,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Comm UP',          date:'Mar 12, 2026', installer:'Juan Rodriguez',  notes:'Sign mounted on east wall facing parking lot.', photos:['📷','📷','📷']},
-  {id:6,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Banner',            date:'Apr 5, 2026',  installer:'Tom Kowalski',    notes:'30ft banner across front entrance.',            photos:['📷','📷']},
-  {id:7,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Window lettering',  date:'Apr 10, 2026', installer:'Devon Williams',   notes:'Suite 200 front door decal.',                   photos:['📷']},
-  {id:8,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Directional sign',  date:'Apr 15, 2026', installer:'Maria Santos',     notes:'Parking lot directional near entry gate.',      photos:['📷','📷']},
-  {id:2,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'7703 N Oracle Rd, Tucson AZ 85704',  type:'Flag installation', date:'Apr 2, 2026',  installer:'Tom Kowalski',    notes:'30ft flag pole. Contact Karen at 520-555-1234.',photos:['📷','📷','📷','📷','📷']},
-  {id:3,  customerId:2, customerName:'CBRE Group',                   email:'info@cbre.com',     addr:'3300 N Campbell Ave, Tucson AZ 85719',type:'Comm UP',          date:'Feb 28, 2026', installer:'Maria Santos',     notes:'',                                              photos:['📷','📷']},
-  {id:4,  customerId:4, customerName:'Cadden Community Management',  email:'info@cadden.com',   addr:'5500 E Speedway Blvd, Tucson AZ 85712',type:'Custom post',     date:'Apr 15, 2026', installer:'Devon Williams',   notes:'HOA entry sign. Gate code 7732.',               photos:[]},
-  {id:5,  customerId:5, customerName:'KB Home',                      email:'contact@kbhome.com',addr:'9200 E Tanque Verde Rd, Tucson AZ 85749',type:'Comm UP',       date:'Mar 30, 2026', installer:'Juan Rodriguez',   notes:'Model home directional. Do not remove.',        photos:['📷','📷','📷','📷']},
+  {id:1,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Comm UP',          date:'Mar 12, 2026', time:'9:15 AM', installer:'Juan Rodriguez',  notes:'Sign mounted on east wall facing parking lot.', photos:['📷','📷','📷']},
+  {id:6,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Banner',            date:'Apr 5, 2026', time:'1:40 PM',  installer:'Tom Kowalski',    notes:'30ft banner across front entrance.',            photos:['📷','📷']},
+  {id:7,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Window Lettering',  date:'Apr 10, 2026', time:'11:05 AM', installer:'Devon Williams',   notes:'Suite 200 front door decal.',                   photos:['📷']},
+  {id:8,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'4821 E Sunrise Dr, Tucson AZ 85718', type:'Directional Sign',  date:'Apr 15, 2026', time:'3:20 PM', installer:'Maria Santos',     notes:'Parking lot directional near entry gate.',      photos:['📷','📷']},
+  {id:2,  customerId:1, customerName:'PICOR Commercial Real Estate', email:'contact@picor.com', addr:'7703 N Oracle Rd, Tucson AZ 85704',  type:'Flag Installation', date:'Apr 2, 2026', time:'8:30 AM',  installer:'Tom Kowalski',    notes:'30ft flag pole. Contact Karen at 520-555-1234.',photos:['📷','📷','📷','📷','📷']},
+  {id:3,  customerId:2, customerName:'CBRE Group',                   email:'info@cbre.com',     addr:'3300 N Campbell Ave, Tucson AZ 85719',type:'Comm UP',          date:'Feb 28, 2026', time:'2:10 PM', installer:'Maria Santos',     notes:'',                                              photos:['📷','📷']},
+  {id:4,  customerId:4, customerName:'Cadden Community Management',  email:'info@cadden.com',   addr:'5500 E Speedway Blvd, Tucson AZ 85712',type:'Custom Post',     date:'Apr 15, 2026', time:'10:45 AM', installer:'Devon Williams',   notes:'HOA entry sign. Gate code 7732.',               photos:[]},
+  {id:5,  customerId:5, customerName:'KB Home',                      email:'contact@kbhome.com',addr:'9200 E Tanque Verde Rd, Tucson AZ 85749',type:'Comm UP',       date:'Mar 30, 2026', time:'4:05 PM', installer:'Juan Rodriguez',   notes:'Model home directional. Do not remove.',        photos:['📷','📷','📷','📷']},
 ];
+(function(){
+  const cust=[{id:1,n:'PICOR Commercial Real Estate',e:'contact@picor.com'},{id:2,n:'CBRE Group',e:'info@cbre.com'},{id:4,n:'Cadden Community Management',e:'info@cadden.com'},{id:5,n:'KB Home',e:'contact@kbhome.com'},{id:3,n:'VOLK Company',e:'office@volkco.com'}];
+  const streets=['N Oracle Rd','E Speedway Blvd','N Campbell Ave','E Grant Rd','N Swan Rd','E Broadway Blvd','S Kolb Rd','N Stone Ave','E Tanque Verde Rd','W Ina Rd','N La Cholla Blvd','E 22nd St'];
+  const types=['Comm UP','Banner','Window Lettering','Directional Sign','Flag Installation','Custom Post'];
+  const inst=['Juan Rodriguez','Tom Kowalski','Devon Williams','Maria Santos'];
+  const months=['Jan','Feb','Mar','Apr'];
+  const times=['8:30 AM','9:15 AM','10:45 AM','11:05 AM','1:40 PM','2:10 PM','3:20 PM','4:05 PM'];
+  let id=100;
+  for(let k=0;k<72;k++){
+    const c=cust[k%cust.length];
+    SIGNS_IN_FIELD.push({id:id++,customerId:c.id,customerName:c.n,email:c.e,addr:(1000+((k*337)%8800))+' '+streets[(k*5)%streets.length]+', Tucson AZ 857'+String(10+(k*7)%40),type:types[k%types.length],date:months[(k*3)%4]+' '+(1+(k*11)%28)+', 2026',time:times[k%times.length],installer:inst[k%inst.length],notes:k%3?'':'See photos for placement.',photos:Array(k%4).fill('📷')});
+  }
+})();
+
 
 // Track selected photos per sign
 const selectedPhotos = {};
@@ -450,84 +575,202 @@ function sendPhotoEmail(signId){
   window.location.href = `mailto:${s.email}?subject=${subject}&body=${body}`;
 }
 
+const openPhotoPanels = new Set();
+const openAddrs = new Set();
+function togglePhotoPanel(id){
+  if(openPhotoPanels.has(id)) openPhotoPanels.delete(id); else openPhotoPanels.add(id);
+  renderSignsInField();
+}
+function toggleAddr(addr){
+  if(openAddrs.has(addr)) openAddrs.delete(addr); else openAddrs.add(addr);
+  renderSignsInField();
+}
+function clearSignSearch(){
+  document.getElementById('signs-search').value='';
+  rangeStart=null; rangeEnd=null; updateRangeInput();
+  renderSignsInField();
+}
+let rangeStart=null, rangeEnd=null, calMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const fmtD=d=>MONTHS[d.getMonth()].slice(0,3)+' '+d.getDate()+', '+d.getFullYear();
+function onSearchMode(){
+  const dm=document.getElementById('search-mode').value==='date';
+  document.getElementById('signs-search').style.display=dm?'none':'';
+  document.getElementById('date-search').style.display=dm?'block':'none';
+  if(!dm) document.getElementById('range-cal').style.display='none';
+  renderSignsInField();
+  if(dm) toggleRangeCal();
+}
+function updateRangeInput(){
+  document.getElementById('date-range-input').value = rangeStart ? (rangeEnd&&+rangeEnd!==+rangeStart ? fmtD(rangeStart)+'  –  '+fmtD(rangeEnd) : fmtD(rangeStart)) : '';
+}
+function toggleRangeCal(){
+  const c=document.getElementById('range-cal');
+  if(c.style.display==='block'){c.style.display='none';return;}
+  if(rangeStart) calMonth=new Date(rangeStart.getFullYear(),rangeStart.getMonth(),1);
+  c.style.display='block'; renderRangeCal();
+}
+function calNav(n){ calMonth=new Date(calMonth.getFullYear(),calMonth.getMonth()+n,1); renderRangeCal(); }
+function pickRangeDay(t){
+  const d=new Date(t);
+  if(!rangeStart || rangeEnd){ rangeStart=d; rangeEnd=null; }
+  else if(d<rangeStart){ rangeEnd=rangeStart; rangeStart=d; }
+  else rangeEnd=d;
+  updateRangeInput(); renderRangeCal(); renderSignsInField();
+  if(rangeEnd) document.getElementById('range-cal').style.display='none';
+}
+function renderRangeCal(){
+  const y=calMonth.getFullYear(), m=calMonth.getMonth();
+  const first=(new Date(y,m,1).getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  const a=rangeStart?+rangeStart:null, b=rangeStart?+(rangeEnd||rangeStart):null;
+  let h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span onclick="calNav(-1)" style="cursor:pointer;padding:2px 8px;font-size:16px;color:#185FA5">‹</span><b style="font-size:13px">'+MONTHS[m]+' '+y+'</b><span onclick="calNav(1)" style="cursor:pointer;padding:2px 8px;font-size:16px;color:#185FA5">›</span></div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;gap:2px">'+['M','T','W','T','F','S','S'].map(x=>'<div style="font-weight:700;color:#111;padding:2px 0">'+x+'</div>').join('');
+  for(let i=0;i<first;i++) h+='<div></div>';
+  for(let d=1;d<=days;d++){
+    const t=+new Date(y,m,d), inR=a!==null&&t>=a&&t<=b, edge=t===a||t===b;
+    h+='<div onclick="pickRangeDay('+t+')" style="cursor:pointer;padding:5px 0;border-radius:6px;'+(edge?'background:#185FA5;color:#fff;font-weight:700':inR?'background:#E6F1FB;color:#185FA5;font-weight:600':'color:#111')+'">'+d+'</div>';
+  }
+  h+='</div><div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px"><span onclick="clearRange()" style="cursor:pointer;color:#185FA5;font-weight:600">Clear</span><span onclick="document.getElementById(\'range-cal\').style.display=\'none\'" style="cursor:pointer;color:#185FA5;font-weight:600">Done</span></div>';
+  document.getElementById('range-cal').innerHTML=h;
+}
+function clearRange(){ rangeStart=null; rangeEnd=null; updateRangeInput(); renderRangeCal(); renderSignsInField(); }
+document.addEventListener('click',e=>{ const w=document.getElementById('date-search'); if(w&&!w.contains(e.target)) document.getElementById('range-cal').style.display='none'; });
+
+function renderCustomerInfo(){
+  const el=document.getElementById('cust-info');
+  const search=document.getElementById('signs-search')?.value.toLowerCase().trim()||'';
+  const mode=document.getElementById('search-mode')?.value||'address';
+  if(mode!=='customer'||!search){ el.innerHTML=''; return; }
+  const matches=CUSTOMERS.filter(c=>c.name.toLowerCase().includes(search));
+  el.innerHTML=matches.map(c=>{
+    const signs=SIGNS_IN_FIELD.filter(x=>x.customerId===c.id).length;
+    const all=RECENT_ORDERS[c.id]||[];
+    const row=(label,val)=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid rgba(0,0,0,.12);font-size:15px;color:#111"><span>${label}</span><span style="font-weight:600;text-align:right">${val}</span></div>`;
+    return `<div class="panel-card" style="margin-bottom:12px;border:1.5px solid #111">
+      <div style="padding:12px 16px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="font-size:17px;font-weight:700;color:#111">${c.pinned?'<span style="color:#BA7517">★</span> ':''}${c.name} <span style="font-weight:500;font-size:14px">· All Orders (${all.length})</span></div>
+        <span style="display:flex;gap:8px"><button onclick="openViewOrders(${c.id})" style="padding:7px 12px;border-radius:8px;border:1px solid #185FA5;background:#185FA5;color:#fff;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap">View Orders</button><button onclick="selectCustomer(${c.id})" style="padding:7px 12px;border-radius:8px;border:1px solid #185FA5;background:#185FA5;color:#fff;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap">+ New Order</button></span>
+      </div>
+      <div style="padding:4px 16px 10px">
+        ${all.length?all.map(o=>`<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid rgba(0,0,0,.12);font-size:15px;color:#111"><span style="width:56px;font-weight:600">${o.date}</span><span style="flex:1">${o.type}</span><span style="font-weight:600">$${o.pay.toFixed(2)}</span></div>`).join(''):'<div style="padding:10px 0;font-size:15px;color:#111">No Orders Yet</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let signSort={key:'date',dir:'desc'};
+function setSignSort(k){
+  if(signSort.key===k) signSort.dir = signSort.dir==='asc'?'desc':'asc';
+  else signSort={key:k, dir:k==='date'?'desc':'asc'};
+  renderSignsInField();
+}
 function renderSignsInField(){
-  const custFilter = document.getElementById('signs-customer-filter')?.value || '';
-  const search = document.getElementById('signs-search')?.value.toLowerCase().trim() || '';
-  let list = custFilter
-    ? SIGNS_IN_FIELD.filter(s=>s.customerId===parseInt(custFilter))
-    : SIGNS_IN_FIELD;
-  if(search) list = list.filter(s=>s.addr.toLowerCase().includes(search));
+  renderCustomerInfo();
+  const mode = document.getElementById('search-mode')?.value || 'address';
+  let list = SIGNS_IN_FIELD;
+  let search = '';
+  if(mode==='date'){
+    if(rangeStart){
+      search='d';
+      const a=rangeStart.getTime(), b=(rangeEnd||rangeStart).getTime();
+      list = list.filter(s=>{const t=new Date(s.date).setHours(0,0,0,0);return t>=a&&t<=b;});
+    }
+  } else {
+    search = (document.getElementById('signs-search')?.value.toLowerCase().trim()) || '';
+    if(search) list = list.filter(s=>(mode==='customer'?s.customerName:s.addr).toLowerCase().includes(search));
+  }
+  if(search) setSigns(true);
   document.getElementById('signs-count').textContent = list.length + ' active';
 
   if(list.length===0){
-    document.getElementById('signs-in-field-list').innerHTML = `<div style="padding:20px;text-align:center;font-size:12px;color:#999">No signs in field for this customer</div>`;
+    document.getElementById('signs-in-field-list').innerHTML = `<div style="padding:20px;text-align:center;font-size:15px;color:#111">No signs found</div>`;
     return;
   }
 
-  // Group by address
+  list = list.slice().sort((a,b)=>(new Date(b.date+' '+b.time)-new Date(a.date+' '+a.time))||a.customerName.localeCompare(b.customerName)||a.addr.localeCompare(b.addr));
   const grouped = {};
   list.forEach(s=>{
     if(!grouped[s.addr]) grouped[s.addr] = [];
     grouped[s.addr].push(s);
   });
 
-  document.getElementById('signs-in-field-list').innerHTML = Object.entries(grouped).map(([addr, signs])=>`
-    <div style="border-bottom:0.5px solid rgba(0,0,0,.1)">
-      <!-- Address header -->
-      <div style="padding:12px 16px 8px;background:#F5F5F3;border-bottom:0.5px solid rgba(0,0,0,.06);display:flex;align-items:flex-start;justify-content:space-between">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:#111">${addr}</div>
-          ${!custFilter?`<div style="font-size:11px;color:#5B2D8E;margin-top:2px">${signs[0].customerName}</div>`:''}
-        </div>
-        <span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:12px;background:#E6F1FB;color:#185FA5;flex-shrink:0;margin-left:8px">${signs.length} sign${signs.length>1?'s':''}</span>
+  const btn = 'padding:4px 10px;border-radius:6px;border:1px solid #185FA5;background:#185FA5;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:system-ui';
+  const dt=x=>new Date(x.date+' '+x.time).getTime();
+  const groups=Object.entries(grouped).sort((A,B)=>{
+    const a=A[1], b=B[1]; let r;
+    if(signSort.key==='addr') r=A[0].localeCompare(B[0]);
+    else if(signSort.key==='company') r=a[0].customerName.localeCompare(b[0].customerName)||(dt(b[0])-dt(a[0]));
+    else r=dt(a[0])-dt(b[0]);
+    r = signSort.dir==='asc' ? r : -r;
+    return r || a[0].customerName.localeCompare(b[0].customerName) || A[0].localeCompare(B[0]);
+  });
+  ['addr','company','date'].forEach(k=>{ const el=document.getElementById('sort-ind-'+k); if(el) el.textContent = signSort.key===k ? (signSort.dir==='asc'?'▲':'▼') : ''; });
+  document.getElementById('signs-in-field-list').innerHTML = groups.map(([addr, signs])=>{
+    const isOpen = openAddrs.has(addr) || !!search;
+    const safeAddr = addr.replace(/'/g,"\\'");
+    return `
+    <div style="border-bottom:1px solid #BBD3EA">
+      <div onclick="toggleAddr('${safeAddr}')" style="padding:6px 12px;background:#fff;display:grid;grid-template-columns:14px minmax(0,1.25fr) minmax(0,1.4fr) 98px 50px;gap:10px;align-items:center;cursor:pointer">
+        <span style="font-size:13px;color:#111">${isOpen?'▾':'▸'}</span>
+        <div style="font-size:14px;font-weight:600;color:#C0392B;min-width:0">${signs[0].customerName}</div>
+        <div style="font-size:14px;font-weight:700;color:#111;min-width:0">${addr}</div>
+        <div style="font-size:12px;color:#000;line-height:1.25"><div style="font-weight:600;color:#000">${signs[0].date}</div><div style="color:#000">${signs[0].time}</div></div>
+        <span style="font-size:12px;font-weight:600;color:#111;white-space:nowrap;text-align:right">${signs.length} sign${signs.length>1?'s':''}</span>
       </div>
-
-      <!-- Individual signs -->
-      ${signs.map(s=>{
+      ${isOpen?signs.map(s=>{
         const selSet = selectedPhotos[s.id] || new Set();
         const selCount = selSet.size;
-        return`<div style="padding:12px 16px;border-bottom:0.5px solid rgba(0,0,0,.04)">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <span style="font-size:12px;font-weight:600;color:#5B2D8E">${s.type}</span>
-            <span style="font-size:11px;color:#555;font-weight:700">${s.date}</span>
+        const open = openPhotoPanels.has(s.id);
+        return `<div style="padding:7px 12px 8px 36px;border-top:1px solid rgba(0,0,0,.12)">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+            <span style="font-size:14px;font-weight:700;color:#111">${s.type}</span>
           </div>
-          ${s.notes?`<div style="background:#FFF9EC;border-radius:6px;padding:6px 10px;font-size:11px;color:#555;margin-bottom:8px;line-height:1.5">${s.notes}</div>`:''}
-          ${s.photos.length>0?`
-          <div style="margin-bottom:8px">
-            <div style="font-size:10px;font-weight:600;color:#888;margin-bottom:5px">PHOTOS — click to select for email${selCount>0?' ('+selCount+' selected)':''}</div>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">
+          <div style="margin-top:2px;font-size:13px;color:#111;line-height:1.4">
+            <div><span style="font-weight:600">Installed:</span> ${s.date} · ${s.time}</div>
+            <div><span style="font-weight:600">Installer:</span> ${s.installer}</div>
+          </div>
+          ${s.notes?`<div style="font-size:13px;color:#111;line-height:1.35;margin-top:2px">${s.notes}</div>`:''}
+          <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+            ${s.photos.length>0?`<button onclick="togglePhotoPanel(${s.id})" style="${btn}">📷 ${open?'Hide Photos':'Photos ('+s.photos.length+')'}</button>`:''}
+            <button onclick="requestCommRepair(${s.id})" style="${btn}">🔧 Repair</button>
+            <button onclick="scheduleRemovalForSign(${s.id})" style="${btn};padding:6px 14px;font-size:14px"><span style="font-size:18px;vertical-align:-2px">⬇</span> Remove</button>
+          </div>
+          ${open?`
+          <div style="margin-top:10px">
+            <div style="font-size:14px;color:#111;margin-bottom:6px">${selCount>0?selCount+' Selected':''}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
               ${s.photos.map((p,i)=>{
                 const isSel = selSet.has(i);
-                return `<div onclick="togglePhoto(${s.id},${i})" style="width:48px;height:38px;border-radius:7px;background:${isSel?'#185FA5':'#EAF3DE'};display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:2px solid ${isSel?'#185FA5':'transparent'};position:relative">
-                  ${p}${isSel?`<div style="position:absolute;top:2px;right:2px;width:12px;height:12px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#185FA5">✓</div>`:''}
-                </div>`;
+                return `<div onclick="togglePhoto(${s.id},${i})" style="width:56px;height:44px;border-radius:8px;background:${isSel?'#185FA5':'#EAF3DE'};display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:2px solid ${isSel?'#185FA5':'transparent'}">${p}</div>`;
               }).join('')}
             </div>
-            <button onclick="sendPhotoEmail(${s.id})" style="width:100%;padding:6px;border-radius:7px;border:0.5px solid #185FA5;background:${selCount>0?'#185FA5':'#fff'};color:${selCount>0?'#fff':'#185FA5'};font-size:11px;font-weight:600;cursor:pointer">
-              ✉ ${selCount>0?`Email ${selCount} photo${selCount>1?'s':''}`:'Select photos to email'}
-            </button>
-          </div>`:`<div style="font-size:11px;color:#C7C7CC;font-style:italic;margin-bottom:8px">No photos on file</div>`}
-          <div style="display:flex;gap:6px">
-            <button onclick="requestCommRepair(${s.id})" style="flex:1;padding:6px 0;border-radius:7px;border:0.5px solid #BA7517;background:#FAEEDA;color:#633806;font-size:11px;font-weight:600;cursor:pointer">🔧 Repair</button>
-            <button onclick="scheduleCommRemoval(${s.id})" style="flex:1;padding:6px 0;border-radius:7px;border:0.5px solid #888780;background:#F1EFE8;color:#5F5E5A;font-size:11px;font-weight:600;cursor:pointer">⬇ Remove</button>
-          </div>
+            <button onclick="sendPhotoEmail(${s.id})" style="width:100%;padding:8px;border-radius:8px;border:1px solid #185FA5;background:${selCount>0?'#185FA5':'#fff'};color:${selCount>0?'#fff':'#185FA5'};font-size:14px;font-weight:600;cursor:pointer">${selCount>0?`Email ${selCount} photo${selCount>1?'s':''}`:'Select Photos To Email'}</button>
+          </div>`:''}
         </div>`;
-      }).join('')}
-    </div>`).join('');
+      }).join(''):''}
+    </div>`;
+  }).join('');
+}
+
+function openOrderForSign(id, typeLabel, placeholder, msg){
+  const s=SIGNS_IN_FIELD.find(x=>x.id===id);
+  selectCustomer(s.customerId);
+  document.getElementById('job-address').value=s.addr;
+  const preset=ORDER_TYPES.find(t=>t.label===typeLabel);
+  jobItems=[]; jobItemId=0;
+  jobItems.push({id:++jobItemId, type:typeLabel, notes:s.type+' installed '+s.date+' '+s.time+': ', pay:preset?preset.pay:6, mapFiles:[], placeholder:placeholder});
+  renderJobItems();
+  const ta=document.querySelector('#job-items-list textarea');
+  if(ta){ ta.scrollIntoView({behavior:'smooth',block:'center'}); ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); }
+  toast(msg+' '+s.addr);
 }
 
 function requestCommRepair(id){
-  const s=SIGNS_IN_FIELD.find(x=>x.id===id);
-  toast('🔧 Repair order created for '+s.addr);
+  openOrderForSign(id,'Service / Repair','Describe what needs to be repaired...','Repair order opened for');
 }
 
 function scheduleCommRemoval(id){
-  const s=SIGNS_IN_FIELD.find(x=>x.id===id);
-  if(confirm('Schedule removal for:\n'+s.addr+'\n\nThis will create a removal order.')){
-    SIGNS_IN_FIELD.splice(SIGNS_IN_FIELD.indexOf(s),1);
-    renderSignsInField();
-    toast('⬇ Removal scheduled for '+s.addr);
-  }
+  openOrderForSign(id,'Commercial Sign Removal','Add notes for the removal...','Removal order opened for');
 }
 
 // ── JOB ITEMS ─────────────────────────────────────────────────────
@@ -547,7 +790,8 @@ function selectJobItemType(id, value){
 }
 
 function addJobItem(){
-  jobItems.push({id: ++jobItemId, type:'', notes:'', pay:6.00, mapFiles:[]});
+  const dp=ORDER_TYPES.find(t=>t.label===DEFAULT_ORDER_TYPE);
+  jobItems.push({id: ++jobItemId, type:dp?dp.label:'', notes:'', pay:dp?dp.pay:6.00, mapFiles:[]});
   renderJobItems();
 }
 
@@ -559,48 +803,46 @@ function removeJobItem(id){
 function renderJobItems(){
   const el = document.getElementById('job-items-list');
   if(jobItems.length===0){
-    el.innerHTML = `<div style="font-size:12px;color:#C7C7CC;text-align:center;padding:10px 0">No items added yet — click below to add your first item</div>`;
+    el.innerHTML = `<div style="font-size:16px;color:#111;text-align:center;padding:10px 0"></div>`;
     return;
   }
   el.innerHTML = jobItems.map((item,idx)=>`
-    <div style="border:0.5px solid rgba(0,0,0,.12);border-radius:10px;padding:14px;margin-bottom:10px;background:#fafaf9">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-size:12px;font-weight:600;color:#555">Item ${idx+1}</div>
-        ${jobItems.length>1?`<button onclick="removeJobItem(${item.id})" style="background:none;border:none;font-size:12px;color:#C7C7CC;cursor:pointer;padding:2px 6px">✕ Remove</button>`:''}
-      </div>
-      <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-end">
+    <div style="border:0.5px solid rgba(0,0,0,.12);border-radius:8px;padding:7px 10px;margin-bottom:6px;background:#fff">
+      <div style="display:flex;gap:10px;margin-bottom:6px;align-items:flex-end">
         <div style="flex:1">
-          <div class="form-label" style="margin-bottom:4px">Order type</div>
-          <select class="form-select" onchange="selectJobItemType(${item.id}, this.value)">
-            <option value="">— Select type —</option>
+          <select class="form-select" style="width:100%" onchange="selectJobItemType(${item.id}, this.value)">
+            <option value="">— Select Type —</option>
             ${getOrderTypeOptions().map(t=>`<option ${item.type===t?'selected':''}>${t}</option>`).join('')}
           </select>
         </div>
-        <div style="flex:0 0 120px">
-          <div class="form-label" style="margin-bottom:4px">Installer pay</div>
+        <div style="flex:0 0 auto">
+          <div class="form-label" style="margin-bottom:2px">Installer pay</div>
           <div class="pay-row">
             <span class="pay-prefix">$</span>
             <input class="pay-input" type="number" value="${item.pay.toFixed(2)}" step="0.50" min="0" onchange="updateJobItem(${item.id},'pay',parseFloat(this.value)||0)">
           </div>
         </div>
+        ${jobItems.length>1?`<button onclick="removeJobItem(${item.id})" style="background:none;border:none;font-size:13px;color:#C0392B;font-weight:600;cursor:pointer;padding:0 4px 7px">✕ Remove</button>`:''}
       </div>
-      <div style="margin-bottom:10px">
-        <div class="form-label" style="margin-bottom:4px">Notes <span style="font-weight:400;color:#999">optional</span></div>
-        <textarea class="form-textarea" placeholder="Specific instructions for this task..." onchange="updateJobItem(${item.id},'notes',this.value)" style="min-height:90px;font-size:13px">${item.notes}</textarea>
-      </div>
-      <div>
-        <div class="form-label" style="margin-bottom:4px">Maps / attachments <span style="font-weight:400;color:#999">optional — up to 4</span></div>
-        ${(item.mapFiles||[]).map((f,fi)=>`
-          <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#E6F1FB;border-radius:7px;margin-bottom:5px;font-size:12px">
-            <span>📎</span>
-            <span style="color:#185FA5;font-weight:500;flex:1">${f}</span>
-            <button onclick="removeJobItemMap(${item.id},${fi})" style="background:none;border:none;font-size:11px;color:#C7C7CC;cursor:pointer">✕</button>
-          </div>`).join('')}
-        ${(!item.mapFiles || item.mapFiles.length < 4)?`
-        <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px dashed #C7C7CC;border-radius:8px;cursor:pointer;font-size:12px;color:#555;background:#fff" onclick="document.getElementById('map-upload-${item.id}').click()">
-          📎 ${!item.mapFiles || item.mapFiles.length===0 ? 'Upload map or site plan' : 'Add another file ('+item.mapFiles.length+'/4)'}
-        </label>
-        <input type="file" id="map-upload-${item.id}" accept="image/*,.pdf" style="display:none" onchange="addJobItemMap(${item.id},this)">`:''}
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="min-width:0">
+          <div class="form-label" style="font-size:15px;font-weight:700;color:#185FA5;letter-spacing:.01em;text-transform:none;margin-bottom:3px">Notes</div>
+          <textarea class="form-textarea" onchange="updateJobItem(${item.id},'notes',this.value)" style="min-height:44px;font-size:14px">${item.notes}</textarea>
+        </div>
+        <div style="min-width:0">
+          <div class="form-label" style="font-size:15px;font-weight:700;color:#185FA5;letter-spacing:.01em;text-transform:none;margin-bottom:3px">Attach Maps <span style="font-weight:400;font-size:13px;color:#111">Up To 4</span></div>
+          ${(item.mapFiles||[]).map((f,fi)=>`
+            <div style="display:flex;align-items:center;gap:6px;padding:3px 8px;background:#E6F1FB;border-radius:6px;margin-bottom:3px;font-size:13px">
+              <span>📎</span>
+              <span style="color:#185FA5;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f}</span>
+              <button onclick="removeJobItemMap(${item.id},${fi})" style="background:none;border:none;font-size:12px;color:#C0392B;font-weight:600;cursor:pointer">✕</button>
+            </div>`).join('')}
+          ${(!item.mapFiles || item.mapFiles.length < 4)?`
+          <label style="display:flex;align-items:center;gap:6px;padding:5px 9px;border:1.5px dashed #888;border-radius:6px;cursor:pointer;font-size:13px;color:#111;background:#fff" onclick="document.getElementById('map-upload-${item.id}').click()">
+            📎 ${!item.mapFiles || item.mapFiles.length===0 ? 'Upload Map Or Site Plan' : 'Add another file ('+item.mapFiles.length+'/4)'}
+          </label>
+          <input type="file" id="map-upload-${item.id}" accept="image/*,.pdf" style="display:none" onchange="addJobItemMap(${item.id},this)">`:''}
+        </div>
       </div>
     </div>`).join('');
 }
@@ -635,23 +877,66 @@ function togglePin(id){
   const c = CUSTOMERS.find(x=>x.id===id);
   c.pinned = !c.pinned;
   renderCustomers();
+  if(document.getElementById('manage-offices-list')) renderManageOffices();
+  if(typeof renderCustPicker==='function'){ try{renderCustPicker();}catch(e){} }
   toast(c.pinned ? '📌 '+c.name+' pinned to top' : c.name+' unpinned');
 }
 
+
+function toggleCustPicker(){
+  const m=document.getElementById('cust-picker-menu');
+  const open=m.style.display==='none';
+  m.style.display=open?'block':'none';
+  if(open){ cpIdx=0; const f=document.getElementById('cust-picker-filter'); f.value=''; renderCustPicker(); f.focus(); }
+}
+let cpIdx=0, cpOrder=[];
+function cpKey(e){
+  if(e.key==='ArrowDown'){ e.preventDefault(); cpIdx=Math.min(cpIdx+1,cpOrder.length-1); renderCustPicker(); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); cpIdx=Math.max(cpIdx-1,0); renderCustPicker(); }
+  else if(e.key==='Enter'){ e.preventDefault(); if(cpOrder[cpIdx]) pickFromHeader(cpOrder[cpIdx].id); }
+  else if(e.key==='Escape'){ document.getElementById('cust-picker-menu').style.display='none'; }
+}
+function renderCustPicker(){
+  const q=document.getElementById('cust-picker-filter').value.toLowerCase();
+  const l=CUSTOMERS.filter(c=>!q||c.name.toLowerCase().includes(q));
+  const starred=l.filter(c=>c.pinned).sort((a,b)=>a.name.localeCompare(b.name));
+  const rest=l.filter(c=>!c.pinned).sort((a,b)=>a.name.localeCompare(b.name));
+  cpOrder=starred.concat(rest); if(cpIdx>=cpOrder.length) cpIdx=0;
+  const row=c=>`<div class="cp-row${cpOrder[cpIdx]===c?' cp-active':''}" onclick="pickFromHeader(${c.id})"><span title="${c.pinned?'Unstar':'Star'}" onclick="event.stopPropagation();togglePin(${c.id})" style="color:${c.pinned?'#BA7517':'#777'};font-size:14px;padding:0 2px">${c.pinned?'★':'☆'}</span>${c.name}</div>`;
+  document.getElementById('cust-picker-list').innerHTML=
+    (starred.length?'<div class="cp-head">★ Starred</div>'+starred.map(row).join(''):'')+
+    (rest.length?'<div class="cp-head">All Customers</div>'+rest.map(row).join(''):'')+
+    (!l.length?'<div class="cp-row">No Matches</div>':'');
+}
+function pickFromHeader(id){
+  document.getElementById('cust-picker-menu').style.display='none';
+  selectCustomer(id);
+}
+document.addEventListener('click',e=>{ const h=document.getElementById('cust-header'); if(h&&!h.contains(e.target)) document.getElementById('cust-picker-menu').style.display='none'; });
+function updateFormLock(){ document.getElementById('hdr-view-orders').style.display=selectedCustomer?'inline-block':'none'; }
+
+function setSigns(open){
+  document.getElementById('signs-in-field-list').style.display=open?'block':'none';
+  document.getElementById('signs-arrow').textContent=open?'▼':'▶';
+}
+function toggleSigns(){ setSigns(document.getElementById('signs-in-field-list').style.display==='none'); }
 function filterCustomers(val) { renderCustomers(val); }
 
 function selectCustomer(id) {
   selectedCustomer = CUSTOMERS.find(c => c.id === id);
   renderCustomers();
   document.getElementById('no-customer-state').style.display = 'none';
-  document.getElementById('order-form').style.display = 'block';
+  document.getElementById('order-form').style.display = 'flex';
   document.getElementById('selected-customer-name').textContent = selectedCustomer.name;
+  document.getElementById('selected-customer-sub').textContent = '';
+  updateFormLock();
   renderRecentOrders(id);
   renderSignsInField();
   renderCalendar();
 }
 
 function renderTypeGrid() {
+  if(!document.getElementById('type-grid')) return;
   document.getElementById('type-grid').innerHTML = ORDER_TYPES.map(t => `
     <button class="type-btn${selectedType?.id===t.id?' selected':''}" onclick="selectType(${t.id})">
       <span class="type-icon">${t.icon}</span>${t.label}
@@ -664,6 +949,7 @@ function selectType(id) {
 }
 
 function renderRecentOrders(customerId) {
+  return;
   const orders = RECENT_ORDERS[customerId] || [];
   const card = document.getElementById('recent-orders-card');
   const list = document.getElementById('recent-orders-list');
@@ -678,44 +964,308 @@ function renderRecentOrders(customerId) {
 }
 
 function submitOrder() {
-  if (!selectedCustomer) { toast('Please select a customer first.'); return; }
+  if (!selectedCustomer) { toast('Please select an office.'); return; }
   const addr = document.getElementById('job-address').value.trim();
   if (!addr) { toast('Please enter a job address.'); return; }
   const validItems = jobItems.filter(i=>i.type);
   if (validItems.length === 0) { toast('Please add at least one order type.'); return; }
-  const schedMsg = selectedFutureDate ? 'releases '+selectedFutureDate.toLocaleDateString() : 'scheduled for tomorrow';
+  if (editingOrderId) {
+    const o=ALL_ORDERS.find(x=>x.id===editingOrderId), it=validItems[0];
+    const wasScheduled=o.status==='Scheduled';
+    o.addr=addr; o.notes=it.notes||'';
+    if(removeMode){ o.removalType=it.type; o.removalPay=it.pay; } else { o.type=it.type; o.pay=it.pay; }
+    if (selectedFutureDate && !removeMode) o.date=selectedFutureDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const oid=o.id, rm=removeMode;
+    if(rm){ o.maps=(it.mapFiles||[]).length; doRemoveSign(o); }
+    resetOrderForm();
+    if(rm){ toast('⬇ Sign removed · Order #'+oNum(o.id)+' is now Completed Down'); openOrderDetail(oid); return; }
+    toast(wasScheduled ? '✓ Order updated · '+o.installer+' notified of changes' : '✓ Order updated');
+    openOrderDetail(oid);
+    return;
+  }
+  const linkId=removeLinkId; let linkedNum='';
+  const dStr=(selectedFutureDate||new Date()).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  validItems.forEach(it=>{
+    const nid=Math.max(...ALL_ORDERS.map(x=>x.id))+1;
+    const rec={id:nid,customerId:selectedCustomer.id,date:dStr,time:'9:00 AM',addr:addr,type:it.type,installer:'Unassigned',status:'Pending',pay:it.pay,notes:it.notes||'',photos:0};
+    if(linkId && !linkedNum && /removal/i.test(it.type)){
+      const up=ALL_ORDERS.find(x=>x.id===linkId);
+      if(up){ rec.linkedFrom=up.id; up.removalOrderId=nid; linkedNum=oNum(up.id); }
+    }
+    ALL_ORDERS.push(rec);
+  });
+  const schedMsg = notBefore ? 'not before '+selectedFutureDate.toLocaleDateString() : 'scheduled for today';
 
   // Show orders created confirmation
   const list = validItems.map((item,i)=>`
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid rgba(0,0,0,.06)">
-      <div style="width:22px;height:22px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#16A322;flex-shrink:0">${i+1}</div>
+      <div style="width:22px;height:22px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#16A322;flex-shrink:0">${i+1}</div>
       <div style="flex:1">
-        <div style="font-size:13px;font-weight:600">${item.type}</div>
-        <div style="font-size:11px;color:#999">${addr} · Installer pay $${item.pay.toFixed(2)}</div>
+        <div style="font-size:17px;font-weight:600">${item.type}</div>
+        <div style="font-size:14px;color:#111">${addr} · Installer pay $${item.pay.toFixed(2)}</div>
       </div>
-      <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:#EAF3DE;color:#16A322">Pending</span>
+      <span style="font-size:13px;font-weight:600;padding:2px 8px;border-radius:6px;background:#EAF3DE;color:#16A322">Pending</span>
     </div>`).join('');
 
   document.getElementById('order-confirm-body').innerHTML = `
-    <div style="font-size:13px;color:#555;margin-bottom:12px">
+    <div style="font-size:17px;color:#111;margin-bottom:12px">
       <strong>${validItems.length} order${validItems.length>1?'s':''}</strong> created for <strong>${selectedCustomer.name}</strong> at:<br>
       <span style="font-weight:600;color:#111">${addr}</span>
-      <span style="display:inline-block;margin-left:8px;font-size:11px;color:#185FA5">📅 ${schedMsg}</span>
+      <span style="display:inline-block;margin-left:8px;font-size:14px;color:#185FA5">📅 ${schedMsg}</span>
     </div>
     ${list}
-    <div style="margin-top:12px;font-size:11px;color:#999">Each order has been added to the peg board as a separate pin at this address.</div>`;
+    ${linkedNum?`<div style="margin-top:10px;font-size:14px;font-weight:600;color:#185FA5">⬇ Linked to Install Order #${linkedNum}</div>`:''}
+    <div style="margin-top:12px;font-size:14px;color:#111">Each order has been added to the peg board as a separate pin at this address.</div>`;
   document.getElementById('order-confirm-modal').classList.add('open');
 
-  // Reset
+  resetOrderForm();
+}
+
+function newBlankOrder(){ resetOrderForm(); document.querySelector('.content').scrollTo({top:0,behavior:'smooth'}); }
+function resetOrderForm(){
+  removeMode=false;
+  setEditMode(null);
+  removeLinkId=null;
+  selectedCustomer = null;
+  renderCustomers();
+  document.getElementById('selected-customer-name').textContent = 'Select Office';
+  document.getElementById('selected-customer-sub').textContent = '';
+  updateFormLock();
   document.getElementById('job-address').value='';
   jobItems = [];
   jobItemId = 0;
   addJobItem();
+  selectedFutureDate = new Date();
+  notBefore = false;
+  calDate = new Date();
+  renderCalendar();
 }
 
 function openAddCustomer() {
   document.getElementById('new-customer-name').value = '';
   document.getElementById('add-customer-modal').classList.add('open');
+}
+const OFFICES = [];
+let editingOfficeId=null;
+function openAddOffice(id) {
+  editingOfficeId = (typeof id==='number') ? id : null;
+  const c = editingOfficeId ? CUSTOMERS.find(x=>x.id===editingOfficeId) : null;
+  const v={name:c?c.name:'',contact:c?c.contact||'':'',phone:c?c.phone||'':'',email:c?c.email||'':'',cc:c?c.cc||'':''};
+  Object.keys(v).forEach(k=>document.getElementById('new-office-'+k).value=v[k]);
+  document.getElementById('office-modal-title').textContent = c?'Edit Office':'Add Office';
+  document.getElementById('office-save-btn').textContent = c?'Save Changes':'Add Office';
+  document.getElementById('add-office-modal').classList.add('open');
+  document.getElementById('new-office-name').focus();
+}
+function closeAddOffice() { document.getElementById('add-office-modal').classList.remove('open'); }
+function saveOffice() {
+  const name = document.getElementById('new-office-name').value.trim();
+  if (!name) { toast('Please enter an office name.'); return; }
+  const f={
+    name,
+    contact: document.getElementById('new-office-contact').value.trim(),
+    phone: document.getElementById('new-office-phone').value.trim(),
+    email: document.getElementById('new-office-email').value.trim(),
+    cc: document.getElementById('new-office-cc').value.trim()
+  };
+  if (editingOfficeId) {
+    Object.assign(CUSTOMERS.find(x=>x.id===editingOfficeId), f);
+    if (selectedCustomer && selectedCustomer.id===editingOfficeId) document.getElementById('selected-customer-name').textContent=name;
+    toast('✓ ' + name + ' updated');
+  } else {
+    CUSTOMERS.push(Object.assign({id: Math.max(0,...CUSTOMERS.map(c=>c.id))+1, orders:0, pinned:false}, f));
+    toast('✓ ' + name + ' office added');
+  }
+  closeAddOffice();
+  renderCustomers(); renderSignsInField();
+  if (document.getElementById('manage-offices-modal').classList.contains('open')) renderManageOffices();
+}
+
+/* ===== VIEW ORDERS (all orders by office) ===== */
+const INSTALLERS=['Juan Rodriguez','Tom Kowalski','Devon Williams','Maria Santos'];
+const VO_TIMES=['9:15 AM','1:40 PM','11:05 AM','3:20 PM','8:30 AM','2:10 PM'];
+const VO_FALLBACK_ADDR={1:'4821 E Sunrise Dr, Tucson AZ 85718',2:'3300 N Campbell Ave, Tucson AZ 85719',3:'6100 E Grant Rd, Tucson AZ 85712',4:'5500 E Speedway Blvd, Tucson AZ 85712',5:'9200 E Tanque Verde Rd, Tucson AZ 85749'};
+const ALL_ORDERS=[];
+(function(){
+  let n=0;
+  SIGNS_IN_FIELD.forEach(x=>ALL_ORDERS.push({id:++n,signId:x.id,customerId:x.customerId,date:x.date,time:x.time,addr:x.addr,type:x.type,installer:x.installer,status:'Completed',pay:6,notes:x.notes||'',photos:x.photos.length}));
+  Object.keys(RECENT_ORDERS).forEach(cid=>{
+    RECENT_ORDERS[cid].forEach((o,i)=>{
+      n++;
+      const addrs=[...new Set(SIGNS_IN_FIELD.filter(x=>x.customerId==cid).map(x=>x.addr))];
+      const status = n%5===0?'Scheduled':(n%7===3?'On Hold':(n%4===1?'Pending':'Completed'));
+      ALL_ORDERS.push({id:n,customerId:+cid,date:o.date+', 2026',time:VO_TIMES[n%VO_TIMES.length],addr:addrs.length?addrs[i%addrs.length]:VO_FALLBACK_ADDR[cid],type:(status==='Completed'&&n%3===0)?'Commercial Sign Removal':o.type,installer:INSTALLERS[n%INSTALLERS.length],status,pay:o.pay,notes:'Per office request. Call on arrival.',photos:n%3});
+    });
+  });
+})();
+const COL={'Completed Up':'#1E7B34','Completed Down':'#1E7B34','Service Call Completed':'#1E7B34',Scheduled:'#185FA5',Pending:'#B7791F','On Hold':'#C0392B',Cancelled:'#666'};
+function statusLabel(o){
+  if(o.status!=='Completed') return o.status;
+  if(o.removed) return 'Completed Down';
+  if(/removal/i.test(o.type)) return 'Completed Down';
+  if(/repair|service/i.test(o.type)) return 'Service Call Completed';
+  return 'Completed Up';
+}
+const oNum=id=>'SU-'+(1000+id);
+function activeRemoval(o){ const r=o.removalOrderId&&ALL_ORDERS.find(x=>x.id===o.removalOrderId); return (r&&r.status!=='Cancelled')?r:null; }
+function canRemoveSign(o){ const l=statusLabel(o); return (l==='Completed Up'||l==='Service Call Completed') && !o.removed; }
+let removeLinkId=null;
+function scheduleRemovalForSign(sid){ const o=ALL_ORDERS.find(x=>x.signId===sid); if(o) removeSignFromOrder(o.id); }
+let confirmCb=null;
+function askConfirm(msg,cb,yes){ document.getElementById('confirm-text').textContent=msg; document.getElementById('confirm-yes').textContent=yes||'Yes, Continue'; confirmCb=cb; document.getElementById('confirm-modal').classList.add('open'); }
+function closeConfirm(){ document.getElementById('confirm-modal').classList.remove('open'); confirmCb=null; }
+document.addEventListener('click',e=>{ if(e.target&&e.target.id==='confirm-yes'){ const f=confirmCb; closeConfirm(); if(f) f(); } });
+let removeMode=false;
+function removeSignFromOrder(oid){
+  const o=ALL_ORDERS.find(x=>x.id===oid); if(!o) return;
+  editOrder(oid);
+  removeMode=true;
+  if(jobItems[0]){ jobItems[0].type=''; jobItems[0].pay=0; renderJobItems(); }
+  selectedFutureDate=new Date(); calDate=new Date(); notBefore=false; renderCalendar();
+  const bn=document.getElementById('edit-banner'); bn.style.background='#F8D7DA'; bn.style.borderColor='#C0392B';
+  document.getElementById('edit-banner-text').textContent='⬇ Remove Sign · Order #'+oNum(o.id);
+  window.scrollTo({top:0,behavior:'smooth'}); document.documentElement.scrollTop=0;
+  document.getElementById('submit-label').textContent='⬇ Complete Removal →';
+}
+function doRemoveSign(o){
+  o.removed=true;
+  o.removedDate=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  if(o.signId){ const i=SIGNS_IN_FIELD.findIndex(x=>x.id===o.signId); if(i>-1) SIGNS_IN_FIELD.splice(i,1); }
+  renderSignsInField();
+  if(document.getElementById('view-orders-panel').style.display!=='none') renderViewOrders();
+}
+let voCustomerId=null;
+function openViewOrders(id){
+  voCustomerId=id;
+  const c=CUSTOMERS.find(x=>x.id===id);
+  document.getElementById('vo-title').textContent='All Orders — '+c.name;
+  ['search','from','to'].forEach(k=>document.getElementById('vo-'+k).value='');
+  document.getElementById('vo-status').value='';
+  closeManageOffices();
+  renderViewOrders();
+  const vp=document.getElementById('view-orders-panel'); vp.style.display='block'; vp.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeViewOrders(){ document.getElementById('view-orders-panel').style.display='none'; }
+function voNewOrder(){ const id=voCustomerId; closeViewOrders(); selectCustomer(id); }
+function renderViewOrders(){
+  const q=document.getElementById('vo-search').value.toLowerCase().trim();
+  const st=document.getElementById('vo-status').value;
+  const f=document.getElementById('vo-from').value, t=document.getElementById('vo-to').value;
+  const from=f?new Date(f+'T00:00:00'):null, to=t?new Date(t+'T23:59:59'):null;
+  const l=ALL_ORDERS.filter(o=>o.customerId===voCustomerId)
+    .filter(o=>!q||o.addr.toLowerCase().includes(q))
+    .filter(o=>!st||statusLabel(o)===st)
+    .filter(o=>{const d=new Date(o.date+' '+o.time);return (!from||d>=from)&&(!to||d<=to);})
+    .sort((a,b)=>new Date(b.date+' '+b.time)-new Date(a.date+' '+a.time));
+  const col=COL;
+  document.getElementById('vo-body').innerHTML=l.map(o=>`
+    <tr style="border-top:1px solid rgba(0,0,0,.15);${o.status==='Cancelled'?'opacity:.5;text-decoration:line-through':''}">
+      <td style="padding:7px 12px;white-space:nowrap"><div style="font-weight:600">${o.date}</div><div>${o.time}</div></td>
+      <td style="padding:7px 12px"><a href="#" onclick="event.preventDefault();openOrderDetail(${o.id})" style="color:#185FA5;font-weight:600;text-decoration:underline">${o.addr}</a></td>
+      <td style="padding:7px 12px">${o.type}</td>
+      <td style="padding:7px 12px">${o.installer}</td>
+      <td style="padding:7px 12px;font-weight:700;color:${col[statusLabel(o)]}">${statusLabel(o)}</td>
+      <td style="padding:7px 12px;text-align:right;font-weight:600">$${o.pay.toFixed(2)}</td>
+      <td style="padding:7px 12px;text-align:right;white-space:nowrap">${canRemoveSign(o)?`<button class="btn btn-primary" onclick="removeSignFromOrder(${o.id})" style="padding:6px 16px;font-size:15px"><span style="font-size:19px;vertical-align:-2px">⬇</span> Remove</button>`:(activeRemoval(o)?`<a href="#" onclick="event.preventDefault();openOrderDetail(${activeRemoval(o).id})" style="font-size:13px;font-weight:600;color:#185FA5;text-decoration:underline">⬇ #${oNum(activeRemoval(o).id)}</a>`:'')}</td>
+    </tr>`).join('')||'<tr><td colspan="7" style="padding:20px;text-align:center">No Orders Found</td></tr>';
+  document.getElementById('vo-count').textContent=l.length+' order'+(l.length===1?'':'s');
+}
+
+function openOrderDetail(oid){
+  const o=ALL_ORDERS.find(x=>x.id===oid); if(!o) return;
+  const c=CUSTOMERS.find(x=>x.id===o.customerId)||{};
+  const col=COL;
+  const row=(k,v)=>`<div style="display:flex;gap:14px;padding:10px 16px;border-top:1px solid rgba(0,0,0,.15);font-size:16px;color:#111"><span style="width:130px;font-weight:600;flex-shrink:0">${k}</span><span style="flex:1">${v}</span></div>`;
+  document.getElementById('od-title').textContent='Order #SU-'+(1000+o.id);
+  const st=document.getElementById('od-status'); st.textContent=statusLabel(o); st.style.color=col[statusLabel(o)];
+  document.getElementById('od-body').innerHTML=
+    '<div style="padding:12px 16px;font-size:18px;font-weight:700">'+o.addr+'</div>'+
+    row('Office','<span style="color:#C0392B;font-weight:600">'+(c.name||'')+'</span>')+
+    row('Contact',[c.contact,c.phone,c.email].filter(Boolean).join(' · '))+
+    row('Order Type',o.type)+
+    row('Date / Time',o.date+' · '+o.time)+
+    row('Installer',o.installer)+
+    row('Installer Pay','$'+o.pay.toFixed(2))+
+    row('Notes',o.notes||'—')+
+    (o.linkedFrom?row('Linked Install Order','<a href="#" onclick="event.preventDefault();openOrderDetail('+o.linkedFrom+')" style="color:#185FA5;font-weight:600;text-decoration:underline">#'+oNum(o.linkedFrom)+'</a>'):'')+
+    ((o.removalOrderId)?row('Removal Order','<a href="#" onclick="event.preventDefault();openOrderDetail('+o.removalOrderId+')" style="color:#185FA5;font-weight:600;text-decoration:underline">#'+oNum(o.removalOrderId)+'</a> · '+statusLabel(ALL_ORDERS.find(x=>x.id===o.removalOrderId)||{status:''})):'')+
+    (o.removed?row('⬇ Removed',o.removedDate+' · '+(o.removalType||'Removal')+(o.removalPay!=null?' · $'+o.removalPay.toFixed(2):'')+' · Installed '+o.date+' '+o.time):'')+
+    (o.status==='Cancelled'?row('Cancelled',(o.cancelled||'')+(o.cancelReason?' · '+o.cancelReason:'')):'')+
+    row('Photos',o.photos?Array(o.photos).fill('📷').join(' ')+' ('+o.photos+')':'None');
+  const pend=['Pending','Scheduled','On Hold'].includes(o.status);
+  document.getElementById('od-edit').style.display=pend?'inline-block':'none';
+  document.getElementById('od-cancel').style.display=pend?'inline-block':'none';
+  const rb=document.getElementById('od-remove'); rb.style.display=canRemoveSign(o)?'inline-block':'none'; rb.onclick=()=>removeSignFromOrder(oid);
+  document.getElementById('od-cancel-panel').style.display='none';
+  document.getElementById('od-cancel-reason').value='';
+  document.getElementById('od-edit').onclick=()=>{ closeOrderDetail(); editOrder(oid); };
+  document.getElementById('od-cancel').onclick=()=>{
+    document.getElementById('od-cancel-note').textContent = o.status==='Scheduled' ? 'This order is scheduled. '+o.installer+' will be notified.' : 'No installer notification is needed.';
+    document.getElementById('od-cancel-panel').style.display='block';
+    document.getElementById('od-cancel-reason').focus();
+  };
+  document.getElementById('od-cancel-confirm').onclick=()=>cancelOrder(oid);
+  document.getElementById('order-detail-modal').classList.add('open');
+}
+function cancelOrder(oid){
+  const o=ALL_ORDERS.find(x=>x.id===oid); if(!o) return;
+  const wasScheduled=o.status==='Scheduled';
+  o.status='Cancelled';
+  o.cancelReason=document.getElementById('od-cancel-reason').value.trim();
+  o.cancelled=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  toast(wasScheduled ? '✓ Order cancelled · '+o.installer+' notified' : '✓ Order cancelled');
+  openOrderDetail(oid);
+}
+function closeOrderDetail(){ document.getElementById('order-detail-modal').classList.remove('open'); }
+function backToOrders(){ closeOrderDetail(); }
+
+let editingOrderId=null;
+function setEditMode(o){
+  editingOrderId=o?o.id:null;
+  { const bn=document.getElementById('edit-banner'); bn.style.background='#FFF3CD'; bn.style.borderColor='#111'; }
+  document.getElementById('edit-banner').style.display=o?'flex':'none';
+  if(o) document.getElementById('edit-banner-text').textContent='Editing Order #SU-'+(1000+o.id)+' · '+o.status;
+  document.getElementById('submit-label').textContent=o?'Save Changes →':'Submit Commercial Order →';
+}
+function cancelEditMode(){ resetOrderForm(); }
+function editOrder(oid){
+  const o=ALL_ORDERS.find(x=>x.id===oid); if(!o) return;
+  closeViewOrders(); closeOrderDetail();
+  selectCustomer(o.customerId);
+  document.getElementById('job-address').value=o.addr;
+  const preset=ORDER_TYPES.find(t=>t.label===o.type);
+  jobItems=[]; jobItemId=0;
+  jobItems.push({id:++jobItemId,type:preset?o.type:'',notes:o.notes||'',pay:o.pay,mapFiles:[]});
+  renderJobItems();
+  const od=new Date(o.date); if(!isNaN(od)){ selectedFutureDate=od; calDate=new Date(od); notBefore=od>new Date(); renderCalendar(); }
+  setEditMode(o);
+  toast('Editing Order #SU-'+(1000+o.id));
+}
+
+function openManageOffices(){ document.getElementById('manage-offices-search').value=''; renderManageOffices(); document.getElementById('manage-offices-modal').classList.add('open'); }
+function closeManageOffices(){ document.getElementById('manage-offices-modal').classList.remove('open'); }
+function renderManageOffices(){
+  const q=document.getElementById('manage-offices-search').value.toLowerCase().trim();
+  const l=CUSTOMERS.filter(c=>!q||[c.name,c.contact,c.phone,c.email].join(' ').toLowerCase().includes(q)).sort((a,b)=>(!!b.pinned-!!a.pinned)||a.name.localeCompare(b.name));
+  document.getElementById('manage-offices-list').innerHTML = l.map(c=>`
+    <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-bottom:1px solid rgba(0,0,0,.2);font-size:15px;color:#111">
+      <span title="${c.pinned?'Unstar':'Star To Move To Top'}" onclick="togglePin(${c.id})" style="cursor:pointer;font-size:24px;line-height:1;color:${c.pinned?'#BA7517':'#777'}">${c.pinned?'\u2605':'\u2606'}</span>
+      <div style="flex:1;min-width:0"><div style="font-size:17px;font-weight:700">${c.name}</div>
+        <div>${[c.contact,c.phone,c.email].filter(Boolean).join(' · ')}</div></div>
+      <button class="btn btn-primary" onclick="openViewOrders(${c.id})">View Orders</button>
+      <button class="btn btn-primary" onclick="closeManageOffices();openAddOffice(${c.id})">Edit</button>
+      <button class="del-btn" onclick="deleteOffice(${c.id})">Remove</button>
+    </div>`).join('') || '<div style="padding:20px;text-align:center;font-size:15px">No Matches</div>';
+}
+function deleteOffice(id){
+  const c=CUSTOMERS.find(x=>x.id===id); if(!c) return;
+  askConfirm('Remove '+c.name+'?',()=>{ doDeleteOffice(id); },'Remove');
+}
+function doDeleteOffice(id){
+  const c=CUSTOMERS.find(x=>x.id===id); if(!c) return;
+  CUSTOMERS.splice(CUSTOMERS.indexOf(c),1);
+  if(selectedCustomer&&selectedCustomer.id===id) resetOrderForm();
+  renderCustomers(); renderSignsInField(); renderManageOffices();
 }
 function closeAddCustomer() { document.getElementById('add-customer-modal').classList.remove('open'); }
 
@@ -735,22 +1285,33 @@ function openTypeManager() {
 }
 function closeTypeManager() {
   document.getElementById('type-manager-modal').classList.remove('open');
-  renderTypeGrid();
+  renderJobItems();
 }
 
 function renderTypeManager() {
   document.getElementById('type-manager-list').innerHTML = ORDER_TYPES.map(t => `
     <div class="type-manager-item" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:0.5px solid rgba(0,0,0,.06)">
-      <span style="flex:1;font-size:13px">${t.icon} ${t.label}</span>
+      <span style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
+        <button onclick="moveOrderType(${t.id},-1)" title="Move Up" style="border:1px solid #B9C0C8;background:#fff;border-radius:4px;font-size:10px;line-height:1;padding:2px 6px;cursor:pointer">▲</button>
+        <button onclick="moveOrderType(${t.id},1)" title="Move Down" style="border:1px solid #B9C0C8;background:#fff;border-radius:4px;font-size:10px;line-height:1;padding:2px 6px;cursor:pointer">▼</button>
+      </span>
+      <span style="flex:1;font-size:17px">${t.icon} ${t.label}</span>
       <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-        <span style="font-size:11px;color:#999">Pay:</span>
-        <span style="font-size:11px;color:#555">$</span>
+        <span style="font-size:14px;color:#111">Pay:</span>
+        <span style="font-size:14px;color:#111">$</span>
         <input type="number" value="${t.pay.toFixed(2)}" step="0.50" min="0"
           onchange="updateOrderTypePay(${t.id}, parseFloat(this.value)||0)"
-          style="width:60px;padding:3px 6px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:12px;font-family:system-ui;outline:none;text-align:right">
+          style="width:60px;padding:3px 6px;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;font-size:16px;font-family:system-ui;outline:none;text-align:right">
       </div>
       <button class="del-btn" onclick="deleteOrderType(${t.id})" style="margin-left:4px">Remove</button>
     </div>`).join('');
+}
+
+function moveOrderType(id, dir){
+  const i=ORDER_TYPES.findIndex(t=>t.id===id), j=i+dir;
+  if(i<0||j<0||j>=ORDER_TYPES.length) return;
+  const t=ORDER_TYPES.splice(i,1)[0]; ORDER_TYPES.splice(j,0,t);
+  renderTypeManager(); renderJobItems();
 }
 
 function updateOrderTypePay(id, pay){
@@ -780,10 +1341,14 @@ function toast(msg) {
   clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 3000);
 }
 
+function setStick(){ const t=document.querySelector('.topbar'), b=document.getElementById('search-strip'); document.documentElement.style.setProperty('--stick',(t.offsetHeight+b.offsetHeight)+'px'); }
+window.addEventListener('resize',setStick);
 // Init
+setStick();
 renderCustomers();
 renderCalendar();
 renderSignsInField();
+updateFormLock();
 </script>
 </body>
 </html>
