@@ -640,7 +640,7 @@ function renderTmrw(){
 function dropTmrw(id){const i=TMRW.findIndex(x=>x.id===id);if(i<0)return;const p=TMRW.splice(i,1)[0];PEND.push(p);renderTmrw();renderPend(false);toast('Stop Returned To Pending');}
 function autoFill(){
   let ref=TMRW.length?TMRW[TMRW.length-1]:(STOPS[STOPS.length-1]);let n=0;
-  while(n<6&&PEND.length){PEND.sort((a,b)=>milesBetween(ref,a)-milesBetween(ref,b));const p=PEND.shift();TMRW.push(p);ref=p;n++;}
+  while(PEND.length){PEND.sort((a,b)=>milesBetween(ref,a)-milesBetween(ref,b));const p=PEND.shift();TMRW.push(p);ref=p;n++;}
   renderTmrw();renderPend(true);toast('✓ '+n+' Stops Added To '+NWD_LBL);
 }
 
