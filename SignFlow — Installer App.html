@@ -234,6 +234,12 @@ html,body{min-height:100%;background:#fff;font-family:system-ui,-apple-system,sa
 .psheet-save{flex:2;padding:14px;border-radius:14px;border:none;background:#185FA5;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
 
 
+.att-n{color:#185FA5;font-size:18px;font-weight:800;margin-left:4px;vertical-align:middle}
+.att-badge{display:inline-block;margin-left:10px;padding:2px 10px;border-radius:12px;background:#fff;border:2.5px solid #185FA5;font-size:22px;vertical-align:middle;line-height:1.2}
+.att-row{display:flex;align-items:center;gap:12px;padding:18px 14px;margin-bottom:8px;border:2.5px solid #185FA5;border-radius:12px;background:#fff;cursor:pointer}
+.att-ic{font-size:28px}
+.att-nm{flex:1;color:#185FA5;font-weight:800;font-size:20px}
+.att-by{color:#000;font-size:16px;font-weight:600}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -427,9 +433,11 @@ html,body{min-height:100%;background:#fff;font-family:system-ui,-apple-system,sa
 </div>
 
 <script>
+const ATT_IMG1='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNjAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI2MDAiIGhlaWdodD0iODAiIGZpbGw9IiMxODVGQTUiLz48dGV4dCB4PSI0MCIgeT0iNTIiIGZvbnQtc2l6ZT0iMzAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkdhdGUgQW5kIFlhcmQgTGF5b3V0PC90ZXh0Pjx0ZXh0IHg9IjQwIiB5PSIxNTAiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiMyMjIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VXNlIHRoZSBmcm9udCBnYXRlIG9ubHkuPC90ZXh0Pjx0ZXh0IHg9IjQwIiB5PSIxOTQiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiMyMjIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+RG9nIHN0YXlzIGluIHRoZSBiYWNrIHlhcmQuPC90ZXh0Pjx0ZXh0IHg9IjQwIiB5PSIyMzgiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiMyMjIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+U2lnbiBnb2VzIGxlZnQgb2YgdGhlIGRyaXZld2F5LDwvdGV4dD48dGV4dCB4PSI0MCIgeT0iMjgyIiBmb250LXNpemU9IjI2IiBmaWxsPSIjMjIyIiBmb250LWZhbWlseT0iQXJpYWwiPnNpeCBmZWV0IGZyb20gdGhlIGN1cmIuPC90ZXh0Pjx0ZXh0IHg9IjQwIiB5PSIzMjYiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiMyMjIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+PC90ZXh0Pjx0ZXh0IHg9IjQwIiB5PSIzNzAiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiMyMjIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+QWRkZWQgQnkgT2ZmaWNlPC90ZXh0Pjwvc3ZnPg==';
+const ATT_IMG2='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgNjAwIj48cmVjdCB3aWR0aD0iNjAwIiBoZWlnaHQ9IjYwMCIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI2MDAiIGhlaWdodD0iODAiIGZpbGw9IiMxODVGQTUiLz48dGV4dCB4PSI0MCIgeT0iNTIiIGZvbnQtc2l6ZT0iMzAiIGZpbGw9IiNmZmYiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPk9wZW4gSG91c2UgSW5zdHJ1Y3Rpb25zPC90ZXh0Pjx0ZXh0IHg9IjQwIiB5PSIxNTAiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiMyMjIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+UGxhY2UgdGhlIG9wZW4gaG91c2UgcmlkZXI8L3RleHQ+PHRleHQgeD0iNDAiIHk9IjE5NCIgZm9udC1zaXplPSIyNiIgZmlsbD0iIzIyMiIgZm9udC1mYW1pbHk9IkFyaWFsIj5iZWxvdyB0aGUgbWFpbiBzaWduLjwvdGV4dD48dGV4dCB4PSI0MCIgeT0iMjM4IiBmb250LXNpemU9IjI2IiBmaWxsPSIjMjIyIiBmb250LWZhbWlseT0iQXJpYWwiPkFnZW50IHdpbGwgYmUgYXQgdGhlIHByb3BlcnR5PC90ZXh0Pjx0ZXh0IHg9IjQwIiB5PSIyODIiIGZvbnQtc2l6ZT0iMjYiIGZpbGw9IiMyMjIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+U2F0dXJkYXkgYXQgOTowMCBBTS48L3RleHQ+PHRleHQgeD0iNDAiIHk9IjMyNiIgZm9udC1zaXplPSIyNiIgZmlsbD0iIzIyMiIgZm9udC1mYW1pbHk9IkFyaWFsIj48L3RleHQ+PHRleHQgeD0iNDAiIHk9IjM3MCIgZm9udC1zaXplPSIyNiIgZmlsbD0iIzIyMiIgZm9udC1mYW1pbHk9IkFyaWFsIj5BZGRlZCBCeSBBZ2VudDwvdGV4dD48L3N2Zz4=';
 const STOPS=[
   {id:1,lat:32.3112,lng:-110.887,addr:'4821 E Sunrise Dr',city:'Tucson AZ 85750',agent:'Angela Tennison',office:'Long Realty',type:'install',post:'White Post',sign:'Angela Tennison 18×24',accs:['Coming Soon Rider'],notes:'Gate code is 1234. Sign goes on left side of driveway.',done:true,photos:1},
-  {id:2,lat:32.3352,lng:-110.977,addr:'220 W Magee Rd',city:'Tucson AZ 85704',agent:'Sarah Johnson',office:'KW Tucson NW',type:'install',post:'Black Post',sign:'Sarah Johnson 18×24',accs:['3 Bedroom Rider','Open House Rider'],notes:'Park in driveway. Dog in yard — use front gate only.',done:false,photos:0},
+  {id:2,lat:32.3352,lng:-110.977,addr:'220 W Magee Rd',city:'Tucson AZ 85704',agent:'Sarah Johnson',office:'KW Tucson NW',type:'install',post:'Black Post',sign:'Sarah Johnson 18×24',accs:['3 Bedroom Rider','Open House Rider'],notes:'Park in driveway. Dog in yard — use front gate only.',atts:[{name:'Gate And Yard Layout',by:'Office',url:ATT_IMG1},{name:'Open House Instructions.pdf',by:'Agent',url:ATT_IMG2}],done:false,photos:0},
   {id:3,lat:32.3562,lng:-110.9832,addr:'7703 N Oracle Rd',city:'Tucson AZ 85704',agent:'Rex Morgan',office:'Coldwell Banker',type:'remove',post:null,sign:'Rex Morgan 24×36',accs:[],notes:'Call agent before arriving.',done:false,photos:0},
   {id:4,lat:32.2642,lng:-110.9445,addr:'3300 N Campbell Ave',city:'Tucson AZ 85719',agent:'Dana Hill',office:'Coldwell Banker',type:'install',post:'White Post',sign:'Dana Hill 18×24',accs:['Coming Soon Rider'],notes:'',done:false,photos:0},
   {id:5,lat:32.2362,lng:-110.833,addr:'5500 E Speedway Blvd',city:'Tucson AZ 85712',agent:'Linda Park',office:'RE/MAX Excalibur',type:'service',post:null,sign:'Linda Park 18×24',accs:[],notes:'Sign is leaning — needs straightening and new rider.',done:false,photos:0},
@@ -513,7 +521,7 @@ function renderStops(){
       <div class="stop-header" onclick="toggleStop(${s.id})">
         <div class="stop-num" style="background:${s.done?'#16A322':isCurrent?'#185FA5':'#C7C7CC'}">${s.done?'✓':(i+1)}</div>
         <div style="flex:1;min-width:0">
-          <div class="stop-addr">${s.addr}</div>
+          <div class="stop-addr">${s.addr}${(s.atts&&s.atts.length)?`<span class="att-badge"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M21.4 11.1l-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"/></svg><b class="att-n">${s.atts.length}</b></span>`:''}</div>
           <div class="stop-meta">${s.agent} · <span style="color:#C0392B;font-weight:600">${s.office}</span></div>
         </div>
         <div class="stop-right">
@@ -531,6 +539,7 @@ function renderStops(){
           ${s.missing?`<div class="detail-row"><span class="dk">Missing Post</span><span class="dv" style="color:#C0392B;font-weight:700">$${MISSING_POST_PRICE.toFixed(2)} Charge</span></div>`:''}
           <div class="detail-row"><span class="dk">Office</span><span class="dv" style="color:#C0392B;font-weight:600">${s.office}</span></div>
         </div>
+        ${(s.atts&&s.atts.length)?`<div class="detail-section"><div class="detail-title">Attachments</div>${s.atts.map((a,k)=>`<div class="att-row" onclick="openAtt(${s.id},${k})"><span class="att-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M21.4 11.1l-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"/></svg></span><span class="att-nm">${a.name}</span><span class="att-by">${a.by}</span></div>`).join('')}</div>`:''}
         ${s.notes?`<div class="detail-section"><div class="detail-title">Notes From Agent</div><div class="notes-box">${s.notes}</div>${'speechSynthesis' in window?`<button class="btn-speak${speakId===s.id?' on':''}" id="spk-${s.id}" onclick="speakNotes(${s.id})">${speakId===s.id?'■ Stop Reading':'🔊 Read Notes Aloud'}</button>`:''}</div>`:''}
         ${!s.done?`
           <button class="btn-nav" onclick="window.open('https://maps.google.com/?q='+encodeURIComponent('${s.addr}, Tucson AZ'),'_blank')">
@@ -781,6 +790,7 @@ function submitReschedule(){
 function openPullList(){document.getElementById('pull-panel').classList.add('open');}
 function closePullList(){document.getElementById('pull-panel').classList.remove('open');}
 
+function openAtt(id,k){const s=STOPS.find(x=>x.id===id);const a=s&&s.atts&&s.atts[k];if(!a)return;document.getElementById('sign-ov-img').src=a.url;document.getElementById('sign-ov').classList.add('open');}
 function showSign(el){document.getElementById('sign-ov-img').src=el.src;document.getElementById('sign-ov').classList.add('open');}
 function togglePull(el){
   el.classList.toggle('checked');
