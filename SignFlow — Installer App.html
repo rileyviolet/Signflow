@@ -294,11 +294,7 @@ html,body{min-height:100%;background:#fff;font-family:system-ui,-apple-system,sa
 </div>
 <div id="view-pay" style="display:none">
 <div class="period-bar"><div><div class="period-label">Current Period</div><div class="period-sub" id="period-dates">Apr 21 – May 4, 2026</div></div><div style="text-align:right"><div class="period-total" id="period-total">$0.00</div><div class="period-sub" id="period-stops">0 stops</div></div></div>
-<!-- DEADLINE BANNER -->
-<div style="margin:12px 12px 0;background:#fff;border:1.5px solid #185FA5;border-radius:12px;padding:9px 14px">
-  <div style="font-size:14px;font-weight:700;color:#185FA5">Submit To Kelly By Monday</div>
-  <div style="font-size:12px;color:#111;margin-top:1px">Payroll Deadline: Every Other Tuesday At 12:00pm</div>
-</div>
+<div id="pay-sum"></div>
 
 <!-- BASE RATES -->
 <div class="section-label">Completed Stops This Period</div>
@@ -858,6 +854,9 @@ function renderPay(){
   const t=total();
   document.getElementById('period-total').textContent='$'+t.toFixed(2);
   document.getElementById('period-stops').textContent=PAYSTOPS.length+' stop'+(PAYSTOPS.length!==1?'s':'');
+  const bs=PAYSTOPS.reduce((a,x)=>a+x.base,0),ad=t-bs;
+  const cell=(v,l,c)=>`<div style="flex:1;text-align:center"><div style="font-size:20px;font-weight:800;color:${c||'#000'}">${v}</div><div style="font-size:12px;color:#000;margin-top:1px">${l}</div></div>`;
+  document.getElementById('pay-sum').innerHTML=`<div style="display:flex;margin:10px 12px 0;padding:10px 4px;border:1.5px solid #185FA5;border-radius:12px;background:#fff">${cell(PAYSTOPS.length,'Completed Stops')}${cell('$'+bs.toFixed(2),'Earnings')}${cell('$'+t.toFixed(2),'Net Total','#185FA5')}</div>`;
 
   const wkHead=(l,r,w)=>{const t=PAYSTOPS.filter(x=>w(stopDay(x)));return `<div style="display:flex;justify-content:space-between;align-items:center;margin:12px 12px 4px;padding:7px 12px;border:1.5px solid #185FA5;border-radius:10px"><div><div style="font-size:14px;font-weight:700;color:#185FA5">${l}</div><div style="font-size:12px;color:#111">${r} · ${t.length} Stops</div></div><div style="font-size:16px;font-weight:700;color:#185FA5">$${t.reduce((a,x)=>a+x.pay,0).toFixed(2)}</div></div>`};
   const hdr={};PAYSTOPS.forEach(x=>{const k=stopDay(x)<=27?1:2;if(!hdr[k])hdr[k]=x.id;});
@@ -911,13 +910,14 @@ const PREV=[
  {id:1,title:'Apr 7 – Apr 20, 2026',paid:'Paid Apr 22, 2026',wl:['Apr 7 – Apr 13','Apr 14 – Apr 20'],stops:mkPrev(7,'Apr',[...rep('install',10),...rep('remove',5),...rep('service',2),...rep('delivery',1)].sort(()=>0),-1,201)},
  {id:2,title:'Mar 24 – Apr 6, 2026',paid:'Paid Apr 8, 2026',wl:['Mar 24 – Mar 30','Mar 31 – Apr 6'],stops:mkPrev(24,'Mar',[...rep('install',14),...rep('remove',6),'service','delivery'],3,301)}
 ];
+PREV[0].stops[3].commercial=true;PREV[0].stops[3].base=15;PREV[0].stops[3].pay=15;
 const prevOpen={};
 function findStop(id){return PAYSTOPS.find(x=>x.id===id)||PREV.flatMap(p=>p.stops).find(x=>x.id===id);}
 function renderPrev(){
   document.getElementById('prev-periods').innerHTML=PREV.map(p=>{
     const t=p.stops.reduce((a,x)=>a+x.pay,0);
     const wk=n=>{const l=p.stops.filter(x=>x.wk===n);return `<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0 4px;padding:7px 12px;border:1.5px solid #185FA5;border-radius:10px"><div><div style="font-size:14px;font-weight:700;color:#185FA5">Week ${n}</div><div style="font-size:12px;color:#111">${p.wl[n-1]} · ${l.length} Stops</div></div><div style="font-size:16px;font-weight:700;color:#185FA5">$${l.reduce((a,x)=>a+x.pay,0).toFixed(2)}</div></div>`+l.map(payRow).join('');};
-    return `<div class="period-card"><div class="period-card-header" onclick="togglePrev(${p.id})"><div><div class="period-card-title">${p.title}</div><div style="font-size:13px;color:#111;margin-top:2px">${p.stops.length} stops · $${t.toFixed(2)}</div></div><div class="period-card-right"><span class="status-badge status-paid">✓ Paid</span><span style="color:#185FA5;font-size:18px">›</span></div></div>
+    return `<div class="period-card"><div class="period-card-header" onclick="togglePrev(${p.id})"><div><div class="period-card-title">${p.title}</div><div style="font-size:13px;color:#111;margin-top:2px">${p.stops.length} stops · $${t.toFixed(2)} total${p.stops.some(x=>x.commercial)?` ($${p.stops.filter(x=>x.commercial).reduce((a,x)=>a+x.pay,0).toFixed(2)} commercial)`:''}</div></div><div class="period-card-right"><span class="status-badge status-paid">✓ Paid</span><span style="color:#185FA5;font-size:18px">›</span></div></div>
     <div class="period-card-body${prevOpen[p.id]?' open':''}" id="pp-${p.id}" style="padding:4px 0 10px">${wk(1)}${wk(2)}<div style="font-size:12px;color:#111;margin:8px 14px 0">${p.paid}</div></div></div>`;}).join('');
 }
 function togglePrev(id){prevOpen[id]=!prevOpen[id];document.getElementById('pp-'+id).classList.toggle('open',prevOpen[id]);}
