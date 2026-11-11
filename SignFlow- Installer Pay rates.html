@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SignFlow Installer Pay Rates</title>
+<style>
+:root{--navy:#1B3668;--blue:#185FA5;--ink:#111;--line:#D6E4F3;--red:#C0392B;--green:#1E8E4E}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:#fff;display:flex;min-height:100vh}
+.side{width:240px;background:var(--navy);color:#fff;padding:22px 0;flex-shrink:0}
+.side .logo{font-size:22px;font-weight:800;padding:0 22px}
+.side .sub{font-size:11px;letter-spacing:.08em;opacity:.8;padding:4px 22px 22px}
+.side a{display:block;padding:11px 22px;color:#fff;text-decoration:none;font-size:15px;opacity:.9}
+.side a.on{background:rgba(255,255,255,.16);font-weight:700;opacity:1}
+main{flex:1;min-width:0;padding:22px 32px 48px}
+h1{margin:0;font-size:24px}
+.sub2{margin:4px 0 18px;color:#333;font-size:14px}
+.tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin-bottom:22px}
+.tabs button{border:0;background:none;padding:10px 18px;font-size:15px;color:#333;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs button.on{color:var(--blue);font-weight:700;border-bottom-color:var(--blue)}
+.card{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;max-width:760px;margin-bottom:26px}
+.card h2{margin:0;font-size:17px;padding:14px 18px;color:var(--blue);border-bottom:1.5px solid var(--line)}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:12px 18px;color:var(--blue);border-bottom:1.5px solid var(--line)}
+td{padding:9px 18px;border-bottom:1px solid var(--line);font-size:15px}
+tr:last-child td{border-bottom:0}
+.amt{display:flex;align-items:center;gap:4px}
+.amt span{font-weight:700;color:var(--blue)}
+.amt input{width:92px;padding:9px 10px;border:1.5px solid var(--blue);border-radius:10px;font-size:16px;font-weight:700;color:var(--blue);background:#fff;font-family:inherit}
+.amt input:focus{outline:3px solid #BBD3EA}
+.na{color:#555}
+.bar{display:flex;gap:10px;justify-content:flex-end;padding:14px 18px;border-top:1.5px solid var(--line);align-items:center}
+.btn{border:0;border-radius:10px;padding:11px 20px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.pri{background:var(--navy);color:#fff}.out{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}.del{background:#fff;color:var(--red);border:1.5px solid var(--red);padding:7px 14px;font-size:14px}
+.btn:disabled{opacity:.4;cursor:default}
+.dirty{margin-right:auto;color:var(--blue);font-weight:600;font-size:14px}
+.empty{padding:22px 18px;color:#333}
+.ov{position:fixed;inset:0;background:rgba(17,17,17,.45);display:none;align-items:center;justify-content:center;padding:16px}
+.ov.open{display:flex}
+.dlg{background:#fff;border-radius:16px;width:100%;max-width:420px;padding:22px}
+.dlg h3{margin:0 0 14px;color:var(--blue);font-size:18px}
+.dlg label{display:block;font-size:13px;font-weight:700;color:var(--blue);margin:12px 0 5px}
+.dlg select,.dlg input{width:100%;padding:11px 12px;border:1.5px solid var(--blue);border-radius:10px;font-size:16px;font-family:inherit;background:#fff}
+.dlg .row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1}
+@media(max-width:820px){.side{display:none}main{padding:18px 16px 40px}th,td{padding:9px 10px}}
+</style></head><body>
+<nav class="side">
+  <div class="logo">SignFlow</div><div class="sub">ADMIN PORTAL</div>
+  <a href="#">Dashboard</a><a href="#">Pegboard</a><a href="#">Commercial Orders</a><a href="#">Flagged Orders</a><a href="#">Signs</a><a href="#">Offices</a><a href="#">Agents</a><a href="#" class="on">Installers</a><a href="#">Posts</a><a href="#">Accessories</a><a href="#">Post Menu</a><a href="#">Zone</a>
+</nav>
+<main>
+  <h1>Installers</h1>
+  <p class="sub2">Manage installers and what they are paid.</p>
+  <div class="tabs"><button onclick="tab('list')" id="t-list">Installers</button><button class="on" onclick="tab('rates')" id="t-rates">Pay Rates</button></div>
+
+  <section id="v-list" style="display:none">
+    <div class="card"><h2>Existing Installers Page</h2><div class="empty">This tab is the Installers page exactly as it is today, with Add and Edit for each installer.</div></div>
+  </section>
+
+  <section id="v-rates">
+    <div class="card"><h2 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">Pay Rates For <select id="who" onchange="setWho(this.value)" style="padding:9px 12px;border:1.5px solid var(--blue);border-radius:10px;font-size:16px;font-weight:700;color:var(--blue);background:#fff;font-family:inherit"></select></h2>
+      <table><thead><tr><th>Stop Type</th><th>Residential</th><th>Commercial</th></tr></thead><tbody id="rate-body"></tbody></table>
+      <div class="bar"><span class="dirty" id="dirty"></span><button class="btn out" id="reset" onclick="resetWho()" style="display:none">Reset To Everyone's Rates</button><button class="btn pri" id="save" onclick="saveRates()" disabled>Save Rates</button></div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TYPES=['Up','Down','Service','Pick Up/Delivery','Flag','Mailbox','Commercial','Vinyl (RTA)'];
+const INSTALLERS=['Chris Jensen','John Doe','Tony Moon','Willie Muller'];
+// sample amounts only
+let RATES={'Up':[6,6],'Down':[6,6],'Service':[6,6],'Pick Up/Delivery':[6,6],'Flag':[25,25],'Mailbox':[30,30],'Commercial':[50,50],'Vinyl (RTA)':[12,12]};
+let SAVED=JSON.stringify(RATES);
+let OVR={'John Doe':{'Up':[7,null]}};   // per-installer overrides; null = same as everyone
+let WHO='All Installers',OSAVED=JSON.stringify(OVR);
+const $=id=>document.getElementById(id);
+function money(v){return (+v).toFixed(2);}
+function cur(t,i){if(WHO==='All Installers')return RATES[t][i];const o=(OVR[WHO]||{})[t];return o&&o[i]!=null?o[i]:RATES[t][i];}
+function isCustom(t,i){if(WHO==='All Installers')return false;const o=(OVR[WHO]||{})[t];return !!(o&&o[i]!=null);}
+function hasCustom(){return WHO!=='All Installers'&&Object.values(OVR[WHO]||{}).some(a=>a.some(v=>v!=null));}
+function renderWho(){$('who').innerHTML=['All Installers'].concat(INSTALLERS).map(x=>`<option${x===WHO?' selected':''}>${x}</option>`).join('');}
+function setWho(v){WHO=v;renderRates();upd();}
+function renderRates(){
+  $('rate-body').innerHTML=TYPES.map(t=>`<tr><td>${t}</td>`+[0,1].map(i=>`<td><div class="amt"><span>$</span><input type="number" step="0.5" min="0" value="${money(cur(t,i))}" style="${isCustom(t,i)?'background:#E8F1FB;':''}" onchange="setRate('${t}',${i},this.value)" oninput="setRate('${t}',${i},this.value)">${isCustom(t,i)?'<small style="color:var(--blue);font-weight:700">Custom</small>':''}</div></td>`).join('')+'</tr>').join('');
+  $('reset').style.display=hasCustom()?'inline-block':'none';
+}
+function setRate(t,i,v){
+  const n=parseFloat(v)||0;
+  if(WHO==='All Installers'){RATES[t][i]=n;}
+  else{const o=OVR[WHO]=OVR[WHO]||{};const a=o[t]=o[t]||[null,null];a[i]=(n===RATES[t][i])?null:n;if(a.every(x=>x==null))delete o[t];}
+  upd();
+}
+function upd(){const d=JSON.stringify(RATES)!==SAVED||JSON.stringify(OVR)!==OSAVED;$('save').disabled=!d;$('dirty').textContent=d?'Unsaved Changes':'';$('reset').style.display=hasCustom()?'inline-block':'none';}
+function saveRates(){SAVED=JSON.stringify(RATES);OSAVED=JSON.stringify(OVR);renderRates();upd();toast(WHO==='All Installers'?'✓ Rates Saved For All Installers':'✓ Rates Saved For '+WHO);}
+function resetWho(){delete OVR[WHO];renderRates();upd();toast('Back To Everyone\'s Rates');}
+function tab(t){$('v-list').style.display=t==='list'?'block':'none';$('v-rates').style.display=t==='rates'?'block':'none';$('t-list').classList.toggle('on',t==='list');$('t-rates').classList.toggle('on',t==='rates');}
+let tt;function toast(m){const e=$('toast');e.textContent=m;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),2200);}
+renderWho();renderRates();
+</script></body></html>
