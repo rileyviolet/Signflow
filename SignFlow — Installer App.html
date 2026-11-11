@@ -817,13 +817,13 @@ const PAYSTOPS=[
   {id:1,date:'Apr 21',addr:'4821 E Sunrise Dr',agent:'Angela Tennison',type:'install',base:6.00,pay:6.00,adjusted:false,commercial:false},
   {id:2,date:'Apr 21',addr:'220 W Magee Rd',agent:'Sarah Johnson',type:'install',base:6.00,pay:6.00,adjusted:false,commercial:false},
   {id:3,date:'Apr 21',addr:'7703 N Oracle Rd',agent:'Rex Morgan',type:'remove',base:6.00,pay:6.00,adjusted:false,commercial:false},
-  {id:4,date:'Apr 22',addr:'3300 N Campbell Ave — Flag installation',agent:'Commercial',type:'flag',base:25.00,pay:25.00,adjusted:false,commercial:true},
+  {id:4,date:'Apr 22',addr:'3300 N Campbell Ave',agent:'Commercial',type:'flag',base:25.00,pay:25.00,adjusted:false,commercial:true},
   {id:5,date:'Apr 22',addr:'5500 E Speedway Blvd',agent:'Linda Park',type:'service',base:6.00,pay:10.00,adjusted:true,commercial:false},
-  {id:6,date:'Apr 22',addr:'1234 W Broadway Blvd — Mailbox repair',agent:'Commercial',type:'mbox',base:30.00,pay:30.00,adjusted:false,commercial:true},
+  {id:6,date:'Apr 22',addr:'1234 W Broadway Blvd',agent:'Commercial',type:'mbox',base:30.00,pay:30.00,adjusted:false,commercial:true},
   {id:7,date:'Apr 23',addr:'9200 E Tanque Verde Rd',agent:'Angela Tennison',type:'install',base:6.00,pay:6.00,adjusted:false,commercial:false},
   {id:8,date:'Apr 24',addr:'1800 N Stone Ave',agent:'Bev Stone',type:'remove',base:6.00,pay:6.00,adjusted:false,commercial:false},
   {id:9,date:'Apr 25',addr:'631 W Paseo del Canto, Green Valley',agent:'Tom Freeland',type:'install',base:7.00,pay:7.00,adjusted:false,commercial:false},
-  {id:10,date:'Apr 28',addr:'8800 E 22nd St — Commercial sign install',agent:'Commercial',type:'comm',base:50.00,pay:50.00,adjusted:false,commercial:true},
+  {id:10,date:'Apr 28',addr:'8800 E 22nd St',agent:'Commercial',type:'comm',base:50.00,pay:50.00,adjusted:false,commercial:true},
   {id:11,date:'Apr 28',addr:'4500 N Flowing Wells Rd',agent:'Mark Burns',type:'install',base:6.00,pay:6.00,adjusted:false,commercial:false},
   {id:12,date:'Apr 30',addr:'2200 E Fort Lowell Rd',agent:'Dana Hill',type:'delivery',base:6.00,pay:6.00,adjusted:false,commercial:false},
 ];
@@ -851,14 +851,22 @@ let adjId=null;
 
 function total(){return PAYSTOPS.reduce((s,x)=>s+x.pay,0);}
 
+const PAYCITY={'1234 W Broadway Blvd':'Tucson, AZ 85745','8800 E 22nd St':'Tucson, AZ 85710','4500 N Flowing Wells Rd':'Tucson, AZ 85705','2200 E Fort Lowell Rd':'Tucson, AZ 85719'};
+function payStreet(s){return s.addr.split(' — ')[0].split(',')[0].trim();}
+function payCity(s){const st=payStreet(s),m=STOPS.find(x=>x.addr===st);if(m&&m.city)return m.city.replace(/^(.*?)\s+AZ\s+(\d+)$/,'$1, AZ $2');return PAYCITY[st]||'';}
+function payFull(s){const c=payCity(s);return s.addr.replace(', Green Valley','')+(c?', '+c:'');}
 function payRow(s){return `
     <div class="pay-row${s.adjusted?' adjusted':''}${s.commercial?' commercial':''}" id="sr-${s.id}">
       <div class="pay-date">${s.date.split(' ')[1]}<br><span style="font-size:13px;color:#000">${s.date.split(' ')[0]}</span></div>
       <div class="pay-info">
-        <div class="pay-addr">${s.addr}</div>
+        <div style="font-size:13px;font-weight:700;color:#C0392B;line-height:1.25">${s.office||''}</div>
+        <div style="font-size:14px;color:#111">${s.commercial?(s.xagent||s.agent):s.agent}</div>
+        <div class="pay-addr">${s.addr.replace(', Green Valley','')}</div>
+        <div style="font-size:13px;color:#111">${payCity(s)}</div>
+        <div style="font-size:13px;color:#111;margin:2px 0 4px">Completed ${s.date}${s.time?' · '+s.time:''}</div>
         <div class="pay-meta" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
           <span class="type-tag ${({install:'tag-up',remove:'tag-dn',service:'tag-svc',delivery:'tag-del',pickup:'tag-del'})[s.type]||''}" style="${({install:1,remove:1,service:1,delivery:1,pickup:1})[s.type]?'':'border:1.5px solid #185FA5;color:#185FA5;background:#fff'};padding:3px 11px;font-size:15px">${PAY_TYPE_LABEL[s.type]||s.type}</span>
-          ${s.commercial?`<span style="padding:2px 7px;border-radius:8px;font-size:10px;font-weight:700;background:#E6F1FB;color:#185FA5">Commercial</span>`:`<span style="font-size:12px;color:#111">${s.agent.split(' ')[0]}</span>`}
+          
         </div>
       </div>
       <div class="pay-pay">
@@ -899,7 +907,7 @@ function doExport(){
   const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
   const rows=[['Location Address','Type','Installer Pay','Office Name','Agent Name','Comments','Completion Date','Agent Comments']];
   l.forEach(s=>{const adj=s.pay!==s.base?'Adjusted From $'+s.base.toFixed(2)+': '+(s.why||'Edited By Installer'):'';
-    rows.push([s.addr,PAY_TYPE_LABEL[s.type]||s.type,s.pay,s.office,s.xagent||s.agent,[s.xcomment,adj].filter(Boolean).join(' · '),s.date+', 2026 '+s.time,s.anotes]);});
+    rows.push([payFull(s),PAY_TYPE_LABEL[s.type]||s.type,s.pay,s.office,s.xagent||s.agent,[s.xcomment,adj].filter(Boolean).join(' · '),s.date+', 2026 '+s.time,s.anotes]);});
   rows.push([]);
   rows.push(['Total Stops: '+l.length,'',l.reduce((a,x)=>a+x.pay,0),'Total Pay']);
   try{
